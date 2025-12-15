@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+    <Import Project="environment.props"/>
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{E0E2F92E-557C-4A05-9D89-AA92A0BD75C4}</ProjectGuid>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>Norsemen</RootNamespace>
+        <AssemblyName>Norsemen</AssemblyName>
+        <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+        <FileAlignment>512</FileAlignment>
+        <LangVersion>10</LangVersion>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <Choose>
+        <When Condition="($(OS) == 'Unix' OR $(OS) == 'OSX') AND $(GamePath) == ''">
+            <PropertyGroup>
+                <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/.steam/steam/steamapps/common/Valheim</GamePath>
+                <GamePath Condition="!Exists('$(GamePath)')">$(HOME)/Library/Application Support/Steam/steamapps/common/Valheim/Contents/MacOS</GamePath>
+                <CorlibPath Condition="!Exists('$(CorlibPath)') AND Exists('$(GamePath)')">$(GamePath)\valheim_Data\Managed</CorlibPath>
+                <CorlibPath Condition="!Exists('$(CorlibPath)')">$(GamePath)/unstripped_corelib</CorlibPath>
+            </PropertyGroup>
+        </When>
+        <When Condition="($(OS) == 'Windows_NT') AND $(GamePath) == ''">
+            <PropertyGroup>
+                <GamePath Condition="!Exists('$(GamePath)')">$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 892970', 'InstallLocation', null, RegistryView.Registry64, RegistryView.Registry32))</GamePath>
+                <_SteamLibraryPath>$([MSBuild]::GetRegistryValueFromView('HKEY_CURRENT_USER\SOFTWARE\Valve\Steam', 'SteamPath', null, RegistryView.Registry32))</_SteamLibraryPath>
+                <GamePath Condition="!Exists('$(GamePath)') AND '$(_SteamLibraryPath)' != ''">$(_SteamLibraryPath)\steamapps\common\Valheim</GamePath>
+                <GamePath Condition="!Exists('$(GamePath)') AND Exists('$(ValheimGamePath)')">$(ValheimGamePath)</GamePath>
+                <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\Steam\steamapps\common\Valheim</GamePath>
+                <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\Steam\steamapps\common\Valheim</GamePath>
+                <GamePath Condition="!Exists('$(GamePath)')">D:\SteamLibrary\steamapps\common\Valheim</GamePath>
+                <BepInExPath Condition="!Exists('$(BepInExPath)')AND Exists('$(GamePath)')">$(GamePath)\BepInEx</BepInExPath>
+                <CorlibPath Condition="!Exists('$(CorlibPath)') AND Exists('$(GamePath)')">$(GamePath)\valheim_Data\Managed</CorlibPath>
+                <CorlibPath Condition="!Exists('$(CorlibPath)') AND Exists('$(GamePath)')">$(GamePath)\unstripped_corlib</CorlibPath>
+                <PublicizedAssembliesPath Condition="!Exists('$(PublicizedAssembliesPath)') AND Exists('$(GamePath)')">$(GamePath)\valheim_Data\Managed\publicized_assemblies</PublicizedAssembliesPath>
+                <AfterTargets Condition="'$(AfterTargets)' == ''">ILRepacker</AfterTargets>
+            </PropertyGroup>
+        </When>
+    </Choose>
+    <ItemGroup>
+        <Reference Include="0Harmony">
+            <HintPath>$(BepInExPath)\core\0Harmony.dll</HintPath>
+        </Reference>
+        <Reference Include="assembly_guiutils">
+            <HintPath>$(PublicizedAssembliesPath)\assembly_guiutils_publicized.dll</HintPath>
+        </Reference>
+        <Reference Include="assembly_utils">
+            <HintPath>$(PublicizedAssembliesPath)\assembly_utils_publicized.dll</HintPath>
+        </Reference>
+        <Reference Include="assembly_valheim">
+            <HintPath>$(PublicizedAssembliesPath)\assembly_valheim_publicized.dll</HintPath>
+        </Reference>
+        <Reference Include="BepInEx">
+            <HintPath>$(BepInExPath)\core\BepInEx.dll</HintPath>
+        </Reference>
+        <Reference Include="gui_framework">
+          <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\gui_framework_publicized.dll</HintPath>
+        </Reference>
+        <Reference Include="ServerSync">
+            <HintPath>Libs\ServerSync.dll</HintPath>
+        </Reference>
+        <Reference Include="SoftReferenceableAssets">
+            <HintPath>$(PublicizedAssembliesPath)\SoftReferenceableAssets_publicized.dll</HintPath>
+        </Reference>
+        <Reference Include="System"/>
+        <Reference Include="System.Core"/>
+        <Reference Include="System.Data"/>
+        <Reference Include="System.Xml"/>
+        <Reference Include="UnityEngine">
+            <HintPath>$(CorlibPath)\UnityEngine.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AnimationModule">
+          <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AssetBundleModule">
+            <HintPath>$(CorlibPath)\UnityEngine.AssetBundleModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>$(CorlibPath)\UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.ImageConversionModule">
+            <HintPath>$(CorlibPath)\UnityEngine.ImageConversionModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.IMGUIModule">
+            <HintPath>$(CorlibPath)\UnityEngine.IMGUIModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.InputLegacyModule">
+            <HintPath>$(CorlibPath)\UnityEngine.InputLegacyModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.ParticleSystemModule">
+            <HintPath>$(CorlibPath)\UnityEngine.ParticleSystemModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.PhysicsModule">
+            <HintPath>$(CorlibPath)\UnityEngine.PhysicsModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.TextRenderingModule">
+            <HintPath>$(CorlibPath)\UnityEngine.TextRenderingModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UI">
+            <HintPath>$(CorlibPath)\UnityEngine.UI.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.TextMeshPro">
+            <HintPath>$(GamePath)\valheim_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Behaviors\VikingAI\Attacking.cs" />
+        <Compile Include="Behaviors\VikingAI\AvoidFire.cs" />
+        <Compile Include="Behaviors\VikingAI\BaseAI.cs" />
+        <Compile Include="Behaviors\VikingAI\Charging.cs" />
+        <Compile Include="Behaviors\VikingAI\Chopping.cs" />
+        <Compile Include="Behaviors\VikingAI\Circling.cs" />
+        <Compile Include="Behaviors\VikingAI\Circulating.cs" />
+        <Compile Include="Behaviors\VikingAI\Consuming.cs" />
+        <Compile Include="Behaviors\VikingAI\CreatureTargetSearch.cs" />
+        <Compile Include="Behaviors\VikingAI\Despawning.cs" />
+        <Compile Include="Behaviors\VikingAI\Fishing.cs" />
+        <Compile Include="Behaviors\VikingAI\Fleeing.cs" />
+        <Compile Include="Behaviors\VikingAI\Following.cs" />
+        <Compile Include="Behaviors\VikingAI\Hurting.cs" />
+        <Compile Include="Behaviors\VikingAI\Mining.cs" />
+        <Compile Include="Behaviors\VikingAI\NoMonsterAreaFlee.cs" />
+        <Compile Include="Behaviors\VikingAI\Sleeping.cs" />
+        <Compile Include="Behaviors\VikingAI\WorkTargetSearch.cs" />
+        <Compile Include="Behaviors\VikingAI\VikingAI.cs" />
+        <Compile Include="Behaviors\VikingAI\Working.cs" />
+        <Compile Include="Behaviors\NameGenerator.cs" />
+        <Compile Include="Behaviors\VikingTomb.cs" />
+        <Compile Include="Behaviors\Viking\Armor.cs" />
+        <Compile Include="Behaviors\Viking\Attack.cs" />
+        <Compile Include="Behaviors\Viking\Configs.cs" />
+        <Compile Include="Behaviors\Viking\Customization.cs" />
+        <Compile Include="Behaviors\Viking\Dodge.cs" />
+        <Compile Include="Behaviors\Viking\Eitr.cs" />
+        <Compile Include="Behaviors\Viking\Equipment.cs" />
+        <Compile Include="Behaviors\Viking\Food.cs" />
+        <Compile Include="Behaviors\Viking\Puke.cs" />
+        <Compile Include="Behaviors\Viking\Ship.cs" />
+        <Compile Include="Behaviors\Viking\Sneak.cs" />
+        <Compile Include="Behaviors\Viking\Talk.cs" />
+        <Compile Include="Behaviors\Viking\Container.cs" />
+        <Compile Include="Behaviors\Viking\Teleport.cs" />
+        <Compile Include="Behaviors\Viking\Tomb.cs" />
+        <Compile Include="Behaviors\Viking\Tooltip.cs" />
+        <Compile Include="Behaviors\Viking\Viking.cs" />
+        <Compile Include="Behaviors\Viking\Tameable.cs" />
+        <Compile Include="Behaviors\Viking\VikingVars.cs" />
+        <Compile Include="Behaviors\Viking\Work.cs" />
+        <Compile Include="Managers\AssetBundleManager.cs" />
+        <Compile Include="Managers\CloneManager\Clone.cs" />
+        <Compile Include="Managers\CloneManager\CloneManager.cs" />
+        <Compile Include="Managers\CommandManager\CommandManager.cs" />
+        <Compile Include="Managers\CommandManager\NorseCommand.cs" />
+        <Compile Include="Managers\ConfigManager\ConfigManager.cs" />
+        <Compile Include="Managers\ConfigManager\ConfigurationManagerAttributes.cs" />
+        <Compile Include="Managers\ConfigManager\EnvList.cs" />
+        <Compile Include="Managers\ConfigManager\MinMax.cs" />
+        <Compile Include="Managers\ConfigManager\Level.cs" />
+        <Compile Include="Managers\ConfigManager\StringList.cs" />
+        <Compile Include="Managers\CustomizationManager.cs" />
+        <Compile Include="Managers\EffectListRef.cs" />
+        <Compile Include="Managers\FactionManager\Faction.cs" />
+        <Compile Include="Managers\FactionManager\FactionManager.cs" />
+        <Compile Include="Managers\Norseman\ConditionalRandomItem.cs" />
+        <Compile Include="Managers\Norseman\ConditionalRandomSet.cs" />
+        <Compile Include="Managers\Norseman\Configs.cs" />
+        <Compile Include="Managers\Norseman\Norseman.cs" />
+        <Compile Include="Managers\Norseman\NorsemanConfigs.cs" />
+        <Compile Include="Managers\Norseman\Ragdoll.cs" />
+        <Compile Include="Managers\SpawnManager.cs" />
+        <Compile Include="Managers\Helpers.cs" />
+        <Compile Include="Managers\LocalizationManager.cs" />
+        <Compile Include="Managers\PlayerAnims.cs" />
+        <Compile Include="Managers\PrefabManager.cs" />
+        <Compile Include="Managers\StatusEffectManager.cs" />
+        <Compile Include="Plugin.cs" />
+        <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="UI\Stats.cs" />
+        <Compile Include="UI\VikingGui.cs" />
+        <Compile Include="VersionHandshake.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="App.config" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include=".gitignore" />
+        <Content Include="environment.props" />
+        <Content Include="ILRepack.targets" />
+        <Content Include="Libs\ServerSync.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Thunderstore\CHANGELOG.md" />
+        <Content Include="Thunderstore\manifest.json" />
+        <EmbeddedResource Include="translations\English.yml" />
+        <Content Include="Thunderstore\README.md" />
+        <Content Include="UpdateManifest.ps1" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.18.2" />
+        <PackageReference Include="YamlDotNet" Version="16.3.0" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <Folder Include="assets\" />
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+
+    <UsingTask AssemblyFile="KeyManager.dll" TaskName="KeyManager.Seal" Condition="'$(AfterTargets)' == 'KeyManager'"/>
+    <Target Name="KeyManager" AfterTargets="ILRepack" Condition="'$(AfterTargets)' == 'KeyManager'">
+        <Seal DLL="$(TargetPath)"/>
+    </Target>
+    
+    <Target Name="GetAssemblyVersion" AfterTargets="$(AfterTargets)">
+        <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
+            <Output TaskParameter="Assemblies" ItemName="Targets"/>
+        </GetAssemblyIdentity>
+        <ItemGroup>
+            <AssemblyVersions Include="@(Targets->'%(Version)')"/>
+        </ItemGroup>
+        <PropertyGroup>
+            <AssemblyVersion>%(AssemblyVersions.Identity)</AssemblyVersion>
+            <Major>$(AssemblyVersion.Split('.')[0])</Major>
+            <Minor>$(AssemblyVersion.Split('.')[1])</Minor>
+            <Patch>$(AssemblyVersion.Split('.')[2])</Patch>
+            <PackageName>$(AssemblyName)_v$(Major).$(Minor).$(Patch)</PackageName>
+            <PackageVersion>$(Major).$(Minor).$(Patch)</PackageVersion>
+            <VersionString>$(Major).$(Minor).$(Patch)</VersionString>
+            <PackageDir>$(ProjectDir)\Thunderstore\$(PackageName)</PackageDir>
+        </PropertyGroup>
+    </Target>
+    
+    <Target Name="CopyOutputDLL" AfterTargets="GetAssemblyVersion">
+        <Error Text="DLL not found in target directory." Condition="!Exists('$(TargetDir)$(AssemblyName).dll')"/>
+        <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="$(CopyOutputDLLPath)" OverwriteReadOnlyFiles="true"/>
+        <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="$(CopyOutputDLLPath2)" OverwriteReadOnlyFiles="true" Condition="Exists('$(CopyOutputDLLPath2)')"/>
+        <Copy SourceFiles="$(TargetDir)$(AssemblyName).dll" DestinationFolder="$(CopyOutputDLLPath3)" OverwriteReadOnlyFiles="true" Condition="Exists('$(CopyOutputDLLPath3)')"/>
+    </Target>
+</Project>
