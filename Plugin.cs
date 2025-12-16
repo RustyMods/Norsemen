@@ -112,26 +112,35 @@ namespace Norsemen
             ConditionalRandomItem crystal = new("Crystal", "Crystal", 10, 15, 0.5f, "defeated_bonemass");
             ConditionalRandomItem silver = new("Silver", "Silver", 1, 5, 0.3f, "defeated_dragon");
             ConditionalRandomItem tissue = new("SoftTissue", "SoftTissue", 1, 5, 0.3f, "defeated_goblinking");
+
+            ConditionalRandomWeapon bow = new("Bow", "Bow", "defeated_eikthyr", 0.1f);
+            ConditionalRandomWeapon bowfine = new("BowFine", "BowFineWood", "defeated_gdking", 0.2f);
+            ConditionalRandomWeapon knifeChitin = new("KnifeChitin", "KnifeChitin", "defeated_bonemass", 0.3f);
+            ConditionalRandomWeapon frostner = new("Frostner", "MaceSilver", "defeated_dragon", 0.4f);
             
             Norseman meadows = new Norseman(Heightmap.Biome.Meadows, "Meadows_Norseman_RS", norsemen);
             meadows.conditionalRandomSets.Add(MeadowTorchSet, MeadowFlintKnifeSet, MeadowClubSet);
             meadows.conditionalRandomItems.Add(Raspberries, LeatherScraps, Flint, Wood);
+            meadows.conditionalRandomWeapons.Add(bow);
 
             Norseman blackforest = new Norseman(Heightmap.Biome.BlackForest, "BlackForest_Norseman_RS", norsemen);
             blackforest.conditionalRandomSets.Add(MeadowClubSet, MeadowFlintKnifeSet, BlackForestTroll, BlackForestBear, BlackForestBear, BlackForestBronze);
             blackforest.conditionalRandomItems.Add(Flint, Wood, deerStew, tin, copper, tinOre, copperOre, deerHide, surtlingCore, pickaxeAntler, Coins);
+            blackforest.conditionalRandomWeapons.Add(bowfine);
             blackforest.baseHealth = 100f;
             blackforest.baseArmor = 5f;
 
             Norseman swamp = new Norseman(Heightmap.Biome.Swamp, "Swamp_Norseman_RS", norsemen);
             swamp.conditionalRandomSets.Add(MeadowClubSet, BlackForestBronze, SwampRoot, SwampIron);
             swamp.conditionalRandomItems.Add(Flint, tin, copper, surtlingCore, iron, ironScrap, deerStew, chain, Coins);
+            swamp.conditionalRandomWeapons.Add(bowfine, knifeChitin);
             swamp.baseHealth = 150f;
             swamp.baseArmor = 10f;
             
             Norseman mountains = new (Heightmap.Biome.Mountain, "Mountains_Norseman_RS", norsemen);
             mountains.conditionalRandomSets.Add(MeadowClubSet, BlackForestTroll, SwampIron, MountainFenrir, MountainSilver);
             mountains.conditionalRandomItems.Add(Coins, tin, copper, iron, silverOre, silver, obsidian, crystal, fineWood);
+            mountains.conditionalRandomWeapons.Add(knifeChitin, frostner);
             mountains.baseHealth = 200f;
             mountains.baseArmor = 15f;
             
@@ -196,7 +205,7 @@ namespace Norsemen
                 int count = 0;
                 foreach (Viking? viking in vikings)
                 {
-                    if (viking.IsTamed()) continue;
+                    if (viking.IsTamed() || !viking.configs.Tameable) continue;
                     ++count;
                     viking.SetTamed(true);
                     viking.m_nview.GetZDO().Set(VikingVars.lastLevelUpTime, ZNet.instance.GetTime().Ticks);

@@ -8,56 +8,50 @@ using YamlDotNet.Serialization;
 namespace Norsemen;
 
 [Serializable]
-public class ConditionalRandomItem
+public class ConditionalRandomWeapon
 {
-    public static string FolderPath = Path.Combine(ConfigManager.DirectoryPath, "Random Items");
-    public static Dictionary<string, ConditionalRandomItem> items = new();
-    public static CustomSyncedValue<string> sync = new(ConfigManager.ConfigSync, "RustyMods.ConditionalRandomItems.Sync", "");
-    public static Dictionary<string, ConditionalRandomItem> configMap = new();
-    
+    public static string FolderPath = Path.Combine(ConfigManager.DirectoryPath, "Random Weapons");
+    public static Dictionary<string, ConditionalRandomWeapon> weapons = new();
+    public static CustomSyncedValue<string> sync = new(ConfigManager.ConfigSync, "RustyMods.ConditionalRandomWeapons.Sync", "");
+    public static Dictionary<string, ConditionalRandomWeapon> configMap = new();
+
     public string Name = "";
     public string PrefabName = "";
     public string RequiredDefeatKey = "";
-    public float Chance = 0.5f;
-    public int Min = 1;
-    public int Max = 1;
+    public float Weight = 1f;
+
+    [YamlIgnore] public Viking.ConditionalRandomWeapon? _weapon;
 
     [YamlIgnore]
-    public Viking.ConditionalRandomItem? _item;
-    [YamlIgnore]
-    public Viking.ConditionalRandomItem item
+    public Viking.ConditionalRandomWeapon weapon
     {
         get
         {
-            if (_item != null) return _item;
-            _item = new Viking.ConditionalRandomItem()
+            if (_weapon != null) return _weapon;
+            _weapon = new Viking.ConditionalRandomWeapon()
             {
                 m_name = Name,
-                m_prefab = Helpers.GetPrefab(PrefabName),
                 m_requiredDefeatKey = RequiredDefeatKey,
-                m_chance = Chance,
-                m_min = Min,
-                m_max = Max
+                m_weight = Weight,
+                m_prefab = Helpers.GetPrefab(PrefabName),
             };
-            return _item;
+            return _weapon;
         }
     }
 
-    public ConditionalRandomItem(string name, string prefab, int min = 1, int max = 1, float chance = 0.5f, string requiredDefeatKey = "")
-    {
-        Name = name;
-        PrefabName = prefab;
-        RequiredDefeatKey = requiredDefeatKey;
-        Chance = chance;
-        Min = min;
-        Max = max;
-        items[name] = this;
-    }
-
-    public ConditionalRandomItem()
+    public ConditionalRandomWeapon()
     {
         if (string.IsNullOrEmpty(Name)) return;
-        items[Name] = this;
+        weapons[Name] = this;
+    }
+
+    public ConditionalRandomWeapon(string name, string prefabName, string requiredDefeatKey, float weight)
+    {
+        Name = name;
+        PrefabName = prefabName;
+        RequiredDefeatKey = requiredDefeatKey;
+        Weight = weight;
+        weapons[Name] = this;
     }
 
     public void GetOrSerialize()
@@ -73,7 +67,7 @@ public class ConditionalRandomItem
             string data = ConfigManager.serializer.Serialize(this);
             File.WriteAllText(filePath, data);
         }
-        
+
         configMap[filePath] = this;
     }
 
@@ -82,9 +76,9 @@ public class ConditionalRandomItem
         try
         {
             string text = File.ReadAllText(filePath);
-            ConditionalRandomItem data = ConfigManager.deserializer.Deserialize<ConditionalRandomItem>(text);
+            ConditionalRandomWeapon data = ConfigManager.deserializer.Deserialize<ConditionalRandomWeapon>(text);
             this.Copy(data);
-            _item = null;
+            _weapon = null;
         }
         catch
         {
@@ -94,23 +88,22 @@ public class ConditionalRandomItem
 
     public static void Setup()
     {
-        foreach (ConditionalRandomItem? item in items.Values)
+        foreach (var weapon in weapons.Values)
         {
-            item.GetOrSerialize();
+            weapon.GetOrSerialize();
         }
         
         string[] files = Directory.GetFiles(FolderPath, "*.yml");
         foreach (string filePath in files)
         {
             if (configMap.ContainsKey(filePath)) continue;
-            ConditionalRandomItem item = new ConditionalRandomItem();
-            item.Read(filePath);
-            items[item.Name] = item;
-            configMap[filePath] = item;
+            ConditionalRandomWeapon weapon = new ConditionalRandomWeapon();
+            weapon.Read(filePath);
+            weapons[weapon.Name] = weapon;
+            configMap[filePath] = weapon;
         }
-
-        SetupWatcher();
         
+        SetupWatcher();
         sync.ValueChanged += OnConfigChange;
     }
 
@@ -124,26 +117,25 @@ public class ConditionalRandomItem
         watcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
         watcher.EnableRaisingEvents = true;
     }
-
+    
     public static void ReadConfigValues(object sender, FileSystemEventArgs e)
     {
         if (!ZNet.instance || !ZNet.instance.IsServer()) return;
         string? filePath = e.FullPath;
         string? fileName = Path.GetFileName(filePath);
-        if (!configMap.TryGetValue(filePath, out ConditionalRandomItem? item))
+        if (!configMap.TryGetValue(filePath, out ConditionalRandomWeapon? weapon))
         {
-            item = new ConditionalRandomItem();
-            item.Read(filePath);
-            items[item.Name] = item;
-            configMap[filePath] = item;
+            weapon = new ConditionalRandomWeapon();
+            weapon.Read(filePath);
+            weapons[weapon.Name] = weapon;
+            configMap[filePath] = weapon;
             NorsemenPlugin.LogInfo($"{fileName} registered");
         }
         else
         {
-            item.Read(filePath);
+            weapon.Read(filePath);
             NorsemenPlugin.LogInfo($"{fileName} changed");
         }
-
         UpdateSyncedFiles(ZNet.instance);
     }
     
@@ -151,10 +143,10 @@ public class ConditionalRandomItem
     {
         if (!net.IsServer()) return;
 
-        string data = ConfigManager.serializer.Serialize(items);
+        string data = ConfigManager.serializer.Serialize(weapons);
         sync.Value = data;
     }
-
+    
     public static void OnConfigChange()
     {
         if (!ZNet.instance || ZNet.instance.IsServer()) return;
@@ -162,14 +154,13 @@ public class ConditionalRandomItem
         if (string.IsNullOrEmpty(text)) return;
         try
         {
-            Dictionary<string, ConditionalRandomItem> data = ConfigManager.deserializer.Deserialize<Dictionary<string, ConditionalRandomItem>>(text);
-            items.Clear();
-            items.AddRange(data);
+            Dictionary<string, ConditionalRandomWeapon> data = ConfigManager.deserializer.Deserialize<Dictionary<string, ConditionalRandomWeapon>>(text);
+            weapons.Clear();
+            weapons.AddRange(data);
         }
         catch
         {
             NorsemenPlugin.LogError("Failed to deserialize server random sets");
         }
     }
-    
 }

@@ -19,7 +19,7 @@ public partial class Viking
         bool onShip,
         string attachAnimation,
         Vector3 detachOffset,
-        Transform cameraPos = null)
+        Transform? cameraPos = null)
     {
         if (m_attached)
         {

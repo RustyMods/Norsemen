@@ -19,6 +19,7 @@ public partial class Norseman
     public List<string> defaultItems = new();
     public readonly List<ConditionalRandomItem> conditionalRandomItems = new();
     public readonly List<ConditionalRandomSet> conditionalRandomSets = new();
+    public readonly List<ConditionalRandomWeapon> conditionalRandomWeapons = new();
     public readonly Heightmap.Biome biome;
     public readonly NorsemanConfigs configs;
     public readonly SpawnManager.SpawnInfo spawnInfo;

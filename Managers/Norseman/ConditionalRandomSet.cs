@@ -126,14 +126,18 @@ public class ConditionalRandomSet
         string? fileName = Path.GetFileName(filePath);
         if (!configMap.TryGetValue(filePath, out ConditionalRandomSet? set))
         {
-            NorsemenPlugin.LogError($"{fileName} changed, but missing from config map");
+            set = new ConditionalRandomSet();
+            set.Read(filePath);
+            sets[set.Name] = set;
+            configMap[filePath] = set;
+            NorsemenPlugin.LogInfo($"{fileName} registered");
         }
         else
         {
             set.Read(filePath);
+            NorsemenPlugin.LogInfo($"{fileName} changed");
         }
         UpdateSyncedFiles(ZNet.instance);
-        NorsemenPlugin.LogInfo($"{fileName} changed");
     }
 
     public static void UpdateSyncedFiles(ZNet net)

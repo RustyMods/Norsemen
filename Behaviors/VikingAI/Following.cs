@@ -22,6 +22,11 @@ public partial class VikingAI
 
         if (distanceFromFollow > 15f)
         {
+            if (m_followPlayer != null && m_followPlayer.IsTeleporting())
+            {
+                StopMoving();
+                return true;
+            }
             TeleportToFollow();
             return true;
         }

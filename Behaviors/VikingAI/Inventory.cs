@@ -2,9 +2,8 @@
 
 public partial class VikingAI
 {
-    public bool UpdateInventory()
+    public bool UpdateInventory(bool isTamed)
     {
-        bool isTamed = m_viking.IsTamed();
         bool inUse = m_viking.IsInUse();
 
         if (!inUse) return false;

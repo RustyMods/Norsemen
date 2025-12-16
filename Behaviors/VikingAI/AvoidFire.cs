@@ -4,6 +4,8 @@ public partial class VikingAI
 {
     public bool UpdateAvoidFire(float dt)
     {
+        if (m_viking.IsHoldingTorch()) return false;
+        
         bool shouldAvoidFire = m_afraidOfFire || m_avoidFire;
 
         if (shouldAvoidFire && AvoidFire(dt, m_targetCreature, m_afraidOfFire))

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using UnityEngine;
 
 namespace Norsemen;
@@ -13,8 +14,9 @@ public partial class Viking
     
     public ConditionalItemSet[]? m_conditionalItemSets;
     public ConditionalRandomItem[]? m_conditionalRandomItems;
+    public ConditionalRandomWeapon[]? m_conditionalRandomWeapons;
 
-    public void AddDefaultItems()
+    public void SetupConditionals()
     {
         List<string> sets = new StringList(configs.conditionalSets.Value).list;
         List<ConditionalItemSet> randomSets = new();
@@ -34,33 +36,93 @@ public partial class Viking
         }
         
         m_conditionalRandomItems = randomItems.ToArray();
-        
-        bool addedDefaultItems = m_nview.GetZDO().GetBool(ZDOVars.s_addedDefaultItems);
-        if (addedDefaultItems) return;
-        
-        m_inventory.m_onChanged -= OnInventoryChanged;
 
+        List<string> weapons = new StringList(configs.conditionalWeapons.Value).list;
+        List<ConditionalRandomWeapon> randomWeapons = new();
+        foreach (string weapon in weapons)
+        {
+            if (!Norsemen.ConditionalRandomWeapon.weapons.TryGetValue(weapon, out var data)) continue;
+            randomWeapons.Add(data.weapon);
+        }
+        
+        m_conditionalRandomWeapons = randomWeapons.ToArray();
+    }
+
+    public void AddRandomShield()
+    {
         if (m_randomShield is { Length: > 0 })
         {
             int index = UnityEngine.Random.Range(0, m_randomShield.Length);
             GameObject? shield = m_randomShield[index];
             if (shield != null) GiveDefaultItem(shield);
         }
+    }
 
+    public void AddRandomWeapon()
+    {
         if (m_randomWeapon is { Length: > 0 })
         {
             int index = UnityEngine.Random.Range(0, m_randomWeapon.Length);
             GameObject? weapon = m_randomWeapon[index];
             if (weapon != null) GiveDefaultItem(weapon);
         }
+    }
 
+    public void AddConditionalWeapon()
+    {
+        if (m_conditionalRandomWeapons is { Length: > 0 })
+        {
+            List<ConditionalRandomWeapon> availableWeapons = new();
+            foreach (ConditionalRandomWeapon weapon in m_conditionalRandomWeapons)
+            {
+                if (!configs.AddWeapon(weapon.m_name)) continue;
+                if (!weapon.HasKey()) continue;
+                availableWeapons.Add(weapon);
+            }
+
+            if (availableWeapons.Count > 0)
+            {
+                float totalWeight = availableWeapons.Sum(x => x.m_weight);
+                float chance = 0f;
+                float roll =  UnityEngine.Random.Range(0f, totalWeight);
+
+                List<ConditionalRandomWeapon> sorted = availableWeapons.OrderBy(x => x.m_weight).ToList();
+                ConditionalRandomWeapon? weapon = null;
+
+                for (int i = 0; i < sorted.Count; ++i)
+                {
+                    var possibleWeapon = sorted[i];
+                    chance += possibleWeapon.m_weight;
+                    if (roll < chance)
+                    {
+                        weapon = possibleWeapon;
+                        break;
+                    }
+                }
+
+                if (weapon == null)
+                {
+                    int index = sorted.Count - 1;
+                    weapon = sorted[index];
+                }
+
+                GiveDefaultItem(weapon.m_prefab);
+            }
+        }
+    }
+
+    public void AddRandomArmor()
+    {
         if (m_randomArmor is { Length: > 0 })
         {
             int index = UnityEngine.Random.Range(0, m_randomArmor.Length);
             GameObject? armorItem = m_randomArmor[index];
             if (armorItem != null) GiveDefaultItem(armorItem);
         }
+    }
 
+    public bool AddConditionalSet()
+    {
         bool addedSet = false;
         if (m_conditionalItemSets is { Length: > 0 })
         {
@@ -107,58 +169,79 @@ public partial class Viking
                 addedSet = true;
             }
         }
+        return addedSet;
+    }
 
-        if (!addedSet)
+    public void AddDefaults()
+    {
+        if (m_defaultItems is { Length: > 0 })
         {
-            if (m_defaultItems is { Length: > 0 })
+            foreach (GameObject? item in m_defaultItems)
             {
-                foreach (GameObject? item in m_defaultItems)
-                {
-                    if (item == null) continue;
-                    GiveDefaultItem(item);
-                }
+                if (item == null) continue;
+                GiveDefaultItem(item);
             }
         }
-        
-        if (m_randomItems != null || m_conditionalRandomItems != null)
+    }
+
+    public void AddRandomItems()
+    {
+        if (m_randomItems is { Length: > 0 })
         {
             int amount = (int)Enum.GetValues(typeof(ItemDrop.ItemData.ItemType)).Cast<ItemDrop.ItemData.ItemType>().Max();
             m_randomItemSlotFilled = new bool[amount];
-
-            if (m_randomItems is { Length: > 0 })
+            
+            foreach (RandomItem? randomItem in m_randomItems)
             {
-                foreach (RandomItem? randomItem in m_randomItems)
-                {
-                    if (randomItem.m_prefab == null) continue;
-                    float roll = UnityEngine.Random.value;
-                    if (roll <= randomItem.m_chance) continue;
+                if (randomItem.m_prefab == null) continue;
+                float roll = UnityEngine.Random.value;
+                if (roll <= randomItem.m_chance) continue;
                     
-                    int itemType = (int)randomItem.m_prefab.GetComponent<ItemDrop>().m_itemData.m_shared.m_itemType;
-                    if (m_randomItemSlotFilled[itemType]) continue;
-                    m_randomItemSlotFilled[itemType] = true;
-                    GiveDefaultItem(randomItem.m_prefab);
-                }
-            }
-
-            if (m_conditionalRandomItems is { Length: > 0 })
-            {
-                foreach (ConditionalRandomItem randomItem in m_conditionalRandomItems)
-                {
-                    if (randomItem.m_prefab == null) continue;
-                    if (!configs.AddItem(randomItem.m_name)) continue;
-                    if (!randomItem.HasKey()) continue;
-                    float roll = UnityEngine.Random.value;
-                    if (roll < randomItem.m_chance) continue;
-                    
-                    int stack = UnityEngine.Random.Range(randomItem.m_min, randomItem.m_max);
-                    GetInventory().AddItem(randomItem.m_prefab.name, stack, 1, 0, 0L, "");
-                }
+                int itemType = (int)randomItem.m_prefab.GetComponent<ItemDrop>().m_itemData.m_shared.m_itemType;
+                if (m_randomItemSlotFilled[itemType]) continue;
+                m_randomItemSlotFilled[itemType] = true;
+                GiveDefaultItem(randomItem.m_prefab);
             }
         }
+    }
 
+    public void AddDefaultItems()
+    {
+        SetupConditionals();
+        bool addedDefaultItems = m_nview.GetZDO().GetBool(ZDOVars.s_addedDefaultItems);
+        if (addedDefaultItems) return;
+        
+        m_inventory.m_onChanged -= OnInventoryChanged;
+
+        AddRandomShield();
+        AddRandomWeapon();
+        AddConditionalWeapon();
+        AddConditionalItems();
+        bool addedSet = AddConditionalSet();
+        if (!addedSet) AddDefaults();
+        AddRandomItems();
+        
         m_nview.GetZDO().Set(ZDOVars.s_addedDefaultItems, true);
         Save();
         m_inventory.m_onChanged += OnInventoryChanged;
+    }
+
+    public void AddConditionalItems()
+    {
+        if (m_conditionalRandomItems is { Length: > 0 })
+        {
+            foreach (ConditionalRandomItem randomItem in m_conditionalRandomItems)
+            {
+                if (randomItem.m_prefab == null) continue;
+                if (!configs.AddItem(randomItem.m_name)) continue;
+                if (!randomItem.HasKey()) continue;
+                float roll = UnityEngine.Random.value;
+                if (roll < randomItem.m_chance) continue;
+                    
+                int stack = UnityEngine.Random.Range(randomItem.m_min, randomItem.m_max);
+                GetInventory().AddItem(randomItem.m_prefab.name, stack, 1, 0, 0L, "");
+            }
+        }
     }
     
     public List<ItemDrop.ItemData?> GetEquipment()
@@ -311,6 +394,21 @@ public partial class Viking
         }
     }
 
+    public bool IsHoldingTorch()
+    {
+        if (m_rightItem != null)
+        {
+            if (m_rightItem.m_shared.m_itemType is ItemDrop.ItemData.ItemType.Torch) return true;
+        }
+
+        if (m_leftItem != null)
+        {
+            if (m_leftItem.m_shared.m_itemType is ItemDrop.ItemData.ItemType.Torch) return true;
+        }
+
+        return false;
+    }
+
     [Serializable]
     public class ConditionalItemSet
     {
@@ -333,5 +431,17 @@ public partial class Viking
         public int m_max = 1;
         
         public bool HasKey() => string.IsNullOrEmpty(m_requiredDefeatKey) || ZoneSystem.instance.GetGlobalKey(m_requiredDefeatKey);
+    }
+
+    [Serializable]
+    public class ConditionalRandomWeapon
+    {
+        public string m_name = "";
+        public GameObject? m_prefab;
+        public string m_requiredDefeatKey = "";
+        public float m_weight;
+        
+        public bool HasKey() => string.IsNullOrEmpty(m_requiredDefeatKey) ||
+                                ZoneSystem.instance.GetGlobalKey(m_requiredDefeatKey);
     }
 }

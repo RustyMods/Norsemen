@@ -7,6 +7,9 @@ norseman_reviving: 'Reviving'
 norseman_owner: 'Owner'
 norseman_level: 'Level'
 
+enemy_norseman_rs: 'Norseman'
+norseman_cannot_tp: "{0} cannot teleport with such items."
+
 norseman_random_talk_1: 'Hail, traveler! Did you bring ale or just stories?'
 norseman_random_talk_2: 'The mist of the fjords cloaks us like a shroud... or maybe it is just the smell of troll sweat.'
 norseman_random_talk_3: 'Another dawn in Midgard, land of mortals... and mediocre mead.'

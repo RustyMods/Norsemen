@@ -66,6 +66,7 @@ public partial class VikingAI
         m_consumeSearchTimer += dt;
         if (m_consumeSearchTimer > m_consumeSearchInterval)
         {
+            NorsemenPlugin.LogInfo("Update search food");
             m_consumeSearchTimer = 0.0f;
             if (!viking.IsHungry())
             {
@@ -87,6 +88,8 @@ public partial class VikingAI
         {
             return false;
         }
+        
+        NorsemenPlugin.LogDebug($"Found consumable item: {m_consumeTarget.name}");
 
         if (!MoveTo(dt, m_consumeTarget.transform.position, m_consumeRange, false))
         {

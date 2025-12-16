@@ -35,7 +35,7 @@ public partial class VikingAI : MonsterAI
             }
         }
 
-        if (UpdateInventory())
+        if (UpdateInventory(isTamed))
         {
             return true;
         }

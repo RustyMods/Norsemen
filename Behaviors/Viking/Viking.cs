@@ -46,7 +46,7 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
         m_vikingAI.m_onBecameAggravated += OnAggravated;
 
         m_tamingTime = configs.TamingTime;
-        if (m_startsTamed || m_tamingTime <= 0f)
+        if ((m_startsTamed || m_tamingTime <= 0f) && configs.Tameable)
         {
             SetTamed(true);
         }
@@ -126,14 +126,17 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
         }
         else
         {
-            int tameness = GetTameness();
-            if (tameness <= 0)
+            if (configs.Tameable)
             {
-                sb.Append($" ( $hud_wild, {GetStatusString()} )");
-            }
-            else
-            {
-                sb.Append($" $hud_tameness {tameness}%, {GetStatusString()} )");
+                int tameness = GetTameness();
+                if (tameness <= 0)
+                {
+                    sb.Append($" ( $hud_wild, {GetStatusString()} )");
+                }
+                else
+                {
+                    sb.Append($" $hud_tameness {tameness}%, {GetStatusString()} )");
+                }
             }
 
             if (!m_vikingAI.CanSeeTarget(Player.m_localPlayer))
@@ -233,9 +236,10 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
     public static List<Viking> GetVikings(Vector3 pos, float range)
     {
         List<Viking> result = new();
-
-        foreach (Viking? viking in instances)
+        List<Viking> allVikings = GetAllVikings();
+        for (int i = 0; i < allVikings.Count; ++i)
         {
+            Viking viking = allVikings[i];
             float distance = Vector3.Distance(pos, viking.transform.position);
             if (distance < range)
             {
@@ -247,15 +251,18 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
 
     public static Viking? GetNearestViking(Vector3 pos, float maxRange)
     {
-        float distance = float.MaxValue;
+        float nearest = float.MaxValue;
         Viking? result = null;
-        foreach (var viking in instances)
+        List<Viking> allVikings = GetAllVikings();
+        
+        for (int i = 0; i < allVikings.Count; ++i)
         {
-            var dist = Vector3.Distance(pos, viking.transform.position);
-            if (dist < distance && dist < maxRange)
+            Viking viking = allVikings[i];
+            float distance = Vector3.Distance(pos, viking.transform.position);
+            if (distance < nearest && distance < maxRange)
             {
                 result = viking;
-                distance = dist;
+                nearest = distance;
             }
         }
 

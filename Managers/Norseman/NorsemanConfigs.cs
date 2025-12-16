@@ -15,8 +15,10 @@ public class NorsemanConfigs
     public ConfigEntry<Toggle> workRequiresFood = null!;
     public ConfigEntry<string> conditionalSets = null!;
     public ConfigEntry<string> conditionalItems = null!;
+    public ConfigEntry<string> conditionalWeapons = null!;
     public ConfigEntry<float> tamingTime = null!;
     public ConfigEntry<float> baseArmor = null!;
+    public ConfigEntry<Toggle> tameable = null!;
 
     public NorsemanConfigs(string vikingName)
     {
@@ -30,6 +32,8 @@ public class NorsemanConfigs
     public bool RequireFood => workRequiresFood.Value is Toggle.On;
     public bool AddSet(string name) => new StringList(conditionalSets.Value).list.Contains(name);
     public bool AddItem(string name) => new StringList(conditionalItems.Value).list.Contains(name);
+    public bool AddWeapon(string name) => new StringList(conditionalWeapons.Value).list.Contains(name);
     public float TamingTime => tamingTime.Value;
     public float BaseArmor => baseArmor.Value;
+    public bool Tameable => tameable.Value is Toggle.On;
 }

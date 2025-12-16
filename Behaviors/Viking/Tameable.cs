@@ -31,6 +31,7 @@ public partial class Viking
     
     public void TamingUpdate()
     {
+        if (!configs.Tameable) return;
         if (!m_nview.IsValid() || !m_nview.IsOwner() || IsHungry() || m_baseAI.IsAlerted()) return;
         
         if (IsTamed())
@@ -81,6 +82,8 @@ public partial class Viking
 
     public void Tame()
     {
+        if (!configs.Tameable) return;
+        
         Game.instance.IncrementPlayerStat(PlayerStatType.CreatureTamed);
         if (!m_nview.IsValid() || !m_nview.IsOwner() || IsTamed()) return;
         m_vikingAI.MakeTame();
@@ -155,6 +158,7 @@ public partial class Viking
         {
             return "$hud_tamefrightened";
         }
+        
         if (IsHungry())
         {
             return "$hud_tamehungry";
@@ -184,6 +188,8 @@ public partial class Viking
     public bool IsHungry()
     {
         if (m_nview == null) return false;
+
+        if (!configs.Tameable) return false;
 
         ZDO zdo = m_nview.GetZDO();
         if (zdo == null) return false;

@@ -68,5 +68,8 @@ public static class CustomizationManager
                 hairs.Add(prefab.name);
             }
         }
+
+        beards.RemoveAll(x => x.Contains("_"));
+        hairs.RemoveAll(x => x.Contains("_"));
     }
 }

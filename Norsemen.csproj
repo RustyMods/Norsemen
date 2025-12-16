@@ -193,6 +193,7 @@
         <Compile Include="Managers\FactionManager\FactionManager.cs" />
         <Compile Include="Managers\Norseman\ConditionalRandomItem.cs" />
         <Compile Include="Managers\Norseman\ConditionalRandomSet.cs" />
+        <Compile Include="Managers\Norseman\ConditionalRandomWeapon.cs" />
         <Compile Include="Managers\Norseman\Configs.cs" />
         <Compile Include="Managers\Norseman\Norseman.cs" />
         <Compile Include="Managers\Norseman\NorsemanConfigs.cs" />
