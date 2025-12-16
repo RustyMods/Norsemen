@@ -109,7 +109,7 @@ public partial class Viking
 
     public void UpdateTalk(float dt)
     {
-        if (m_vikingAI.IsAlerted()) return;
+        if (m_vikingAI.IsAlerted() || IsFollowing()) return;
 
         m_randomTalkTimer += dt;
         if (m_randomTalkTimer < m_randomTalkInterval) return;

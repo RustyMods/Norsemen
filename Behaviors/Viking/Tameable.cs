@@ -20,6 +20,8 @@ public partial class Viking
     public Skills.SkillType m_levelUpOwnerSkill;
     public float m_levelUpFactor = 1f;
 
+    public int m_maxLevel = 3;
+    public float m_secondsToLevelUp = 1800f;
     public void OnTameTimeConfigChanged(object sender, EventArgs args)
     {
         if (!m_nview.IsValid()) return;
@@ -27,38 +29,53 @@ public partial class Viking
         m_nview.GetZDO().Set(ZDOVars.s_tameTimeLeft, m_tamingTime);
     }
     
-    public void SetRandomName()
-    {
-        bool isSet = m_nview.GetZDO().GetBool(VikingVars.isSet);
-        if (!isSet)
-        {
-            bool isFemale = m_nview.GetZDO().GetInt(ZDOVars.s_modelIndex) != 0;
-            string randomName;
-            if (isFemale)
-            {
-                randomName = NameGenerator.GenerateFemaleName();
-            }
-            else
-            {
-                randomName = NameGenerator.GenerateMaleName();
-            }
-            m_nview.GetZDO().Set(ZDOVars.s_tamedName, randomName);
-        }
-    }
-
     public void TamingUpdate()
     {
-        if (!m_nview.IsValid() || !m_nview.IsOwner() || IsTamed() || IsHungry() || m_baseAI.IsAlerted()) return;
-        m_vikingAI.SetDespawnInDay(false);
-        m_vikingAI.SetEventCreature(false);
-        DecreaseRemainingTime(3f);
-        if (GetRemainingTime() <= 0.0f)
+        if (!m_nview.IsValid() || !m_nview.IsOwner() || IsHungry() || m_baseAI.IsAlerted()) return;
+        
+        if (IsTamed())
         {
-            Tame();
+            int currentLevel = GetLevel();
+            if (currentLevel >= m_maxLevel)
+            {
+                CancelInvoke(nameof(TamingUpdate));
+                return;
+            }
+            
+            long time = ZNet.instance.GetTime().Ticks;
+            long tameTime = m_nview.GetZDO().GetLong(VikingVars.lastLevelUpTime);
+            if (tameTime == 0L) return;
+            long difference = time - tameTime;
+            TimeSpan span = new TimeSpan(difference);
+            double totalSeconds = span.TotalSeconds;
+            float timeToLevelUp = m_secondsToLevelUp * currentLevel;
+            if (totalSeconds < timeToLevelUp) return;
+            SetLevel(currentLevel + 1);
+            m_skillLevelupEffects.Create(transform.position, Quaternion.identity);
+            m_nview.GetZDO().Set(VikingVars.lastLevelUpTime, time);
+
+            Player? nearestPlayer = Player.GetClosestPlayer(transform.position, 20f);
+            if (nearestPlayer != null)
+            {
+                string message = $"{GetText()} $msg_leveledup";
+                nearestPlayer.Message(MessageHud.MessageType.Center, message);
+            }
         }
         else
         {
-            m_sootheEffect.Create(transform.position, transform.rotation);
+            m_vikingAI.SetDespawnInDay(false);
+            m_vikingAI.SetEventCreature(false);
+            DecreaseRemainingTime(3f);
+            
+            float remainingTime = GetRemainingTime();
+            if (remainingTime <= 0.0f)
+            {
+                Tame();
+            }
+            else
+            {
+                m_sootheEffect.Create(transform.position, transform.rotation);
+            }
         }
     }
 
@@ -73,6 +90,8 @@ public partial class Viking
         {
             closestPlayer.Message(MessageHud.MessageType.Center, m_name + " $hud_tamedone");
         }
+
+        m_nview.GetZDO().Set(VikingVars.lastLevelUpTime, ZNet.instance.GetTime().Ticks);
     }
 
     public void DecreaseRemainingTime(float time)
@@ -89,13 +108,13 @@ public partial class Viking
             }
         }
 
-        float num = remainingTime - time;
-        if (num < 0.0)
+        float timeLeft = remainingTime - time;
+        if (timeLeft < 0.0)
         {
-            num = 0.0f;
+            timeLeft = 0.0f;
         }
 
-        m_nview.GetZDO().Set(ZDOVars.s_tameTimeLeft, num);
+        m_nview.GetZDO().Set(ZDOVars.s_tameTimeLeft, timeLeft);
     }
     
     public int GetTameness()
@@ -107,80 +126,6 @@ public partial class Viking
     {
         if (!m_nview.IsValid()) return 0.0f;
         return m_nview.GetZDO().GetFloat(ZDOVars.s_tameTimeLeft, m_tamingTime);
-    }
-
-    public void Command(Humanoid user, bool message = true)
-    {
-        m_nview.InvokeRPC(nameof(RPC_Command), user.GetZDOID(), message);
-    }
-
-    public Player? GetPlayer(ZDOID characterID)
-    {
-        GameObject instance = ZNetScene.instance.FindInstance(characterID);
-        return instance ? instance.GetComponent<Player>() : null;
-    }
-
-    public GameObject? GetFollowTarget() => ((MonsterAI)m_baseAI).GetFollowTarget();
-    public bool IsFollowing() => GetFollowTarget() != null;
-
-    public void RPC_Command(long sender, ZDOID characterID, bool message)
-    {
-        Player? player = GetPlayer(characterID);
-        if (player == null) return;
-        GameObject? followTarget = m_vikingAI.GetFollowTarget();
-        if (followTarget == null)
-        {
-            Follow(player.gameObject, player.GetPlayerName());
-            if (message)
-            {
-                player.Message(MessageHud.MessageType.Center, GetHoverName() + " $hud_tamefollow");
-            }
-        }
-        else
-        {
-            UnFollow();
-            if (message)
-            {
-                player.Message(MessageHud.MessageType.Center, GetHoverName() + " $hud_tamestay");
-            }
-        }
-    }
-
-    public void Follow(GameObject target, string? playerName)
-    {
-        m_vikingAI.ResetPatrolPoint();
-        m_vikingAI.SetFollowTarget(target);
-        
-        if (string.IsNullOrEmpty(playerName)) return;
-        if (m_nview.IsOwner())
-        {
-            m_nview.GetZDO().Set(ZDOVars.s_follow, playerName);
-        }
-    }
-
-    public void UnFollow()
-    {
-        m_vikingAI.SetFollowTarget(null);
-        m_vikingAI.SetPatrolPoint();
-        if (m_nview.IsOwner())
-        {
-            m_nview.GetZDO().Set(ZDOVars.s_follow, "");
-        }
-    }
-
-    public void UpdateSavedFollowTarget()
-    {
-        if (!m_nview.IsOwner() || m_vikingAI.GetFollowTarget() != null) return;
-        string? followName = m_nview.GetZDO().GetString(ZDOVars.s_follow);
-        if (string.IsNullOrEmpty(followName)) return;
-        foreach (Player player in Player.GetAllPlayers())
-        {
-            if (player.GetPlayerName() == followName)
-            {
-                Command(player, false);
-                return;
-            }
-        }
     }
     
     public void RPC_SetText(long sender, string text)

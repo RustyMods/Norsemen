@@ -8,10 +8,6 @@ public partial class VikingAI
 
         if (shouldAvoidFire && AvoidFire(dt, m_targetCreature, m_afraidOfFire))
         {
-            if (m_afraidOfFire)
-            {
-                ResetWorkTargets();
-            }
             return true;
         }
 

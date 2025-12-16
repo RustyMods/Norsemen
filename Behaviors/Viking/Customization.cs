@@ -23,6 +23,25 @@ public partial class Viking
         SetRandomSkinColor();
         m_nview.GetZDO().Set(VikingVars.isSet, true);
     }
+    
+    public void SetRandomName()
+    {
+        bool isSet = m_nview.GetZDO().GetBool(VikingVars.isSet);
+        if (!isSet)
+        {
+            bool isFemale = m_nview.GetZDO().GetInt(ZDOVars.s_modelIndex) != 0;
+            string randomName;
+            if (isFemale)
+            {
+                randomName = NameGenerator.GenerateFemaleName();
+            }
+            else
+            {
+                randomName = NameGenerator.GenerateMaleName();
+            }
+            m_nview.GetZDO().Set(ZDOVars.s_tamedName, randomName);
+        }
+    }
 
     public void SetRandomSkinColor()
     {

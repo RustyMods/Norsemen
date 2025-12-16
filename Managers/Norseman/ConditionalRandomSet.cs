@@ -121,6 +121,7 @@ public class ConditionalRandomSet
 
     public static void ReadConfigValues(object sender, FileSystemEventArgs e)
     {
+        if (!ZNet.instance || !ZNet.instance.IsServer()) return;
         string? filePath = e.FullPath;
         string? fileName = Path.GetFileName(filePath);
         if (!configMap.TryGetValue(filePath, out ConditionalRandomSet? set))
@@ -131,9 +132,11 @@ public class ConditionalRandomSet
         {
             set.Read(filePath);
         }
+        UpdateSyncedFiles(ZNet.instance);
+        NorsemenPlugin.LogInfo($"{fileName} changed");
     }
 
-    public static void OnZNetAwake(ZNet net)
+    public static void UpdateSyncedFiles(ZNet net)
     {
         if (!net.IsServer()) return;
 

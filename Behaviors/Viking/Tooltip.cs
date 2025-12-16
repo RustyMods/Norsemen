@@ -10,12 +10,12 @@ public partial class Viking
         StringBuilder sb = new();
         sb.AppendFormat("$se_health: <color=orange>{0:0}/{1:0}</color>", GetHealth(), GetMaxHealth());
         sb.AppendFormat("\n$item_armor: <color=orange>{0:0}</color>", GetArmor());
+        sb.Append($"\n$norseman_level: <color=orange>{GetLevel()}</color>");
         string owner = m_nview.GetZDO().GetString(ZDOVars.s_ownerName);
         if (!string.IsNullOrEmpty(owner))
         {
             sb.Append($"\n$norseman_owner: {owner}");
         }
-
         
         List<StatusEffect> statusEffects = GetSEMan().GetStatusEffects();
         if (statusEffects.Count > 0)

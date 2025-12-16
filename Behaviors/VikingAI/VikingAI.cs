@@ -22,33 +22,52 @@ public partial class VikingAI : MonsterAI
         {
             return false;
         }
-        
-        if (UpdateSleeping(dt))
+
+        bool isTamed = m_viking.IsTamed();
+
+        if (isTamed)
         {
-            return true;
+            UpdateAttachShip(dt);
+            
+            if (UpdateAttach())
+            {
+                return true;
+            }
         }
 
-        if (m_viking.IsAttached())
+        if (UpdateInventory())
         {
             return true;
         }
         
-        if (HuntPlayer())
+        // if (UpdateSleeping(dt))
+        // {
+        //     return true;
+        // }
+
+        if (!isTamed)
         {
-            SetAlerted(true);
+            if (HuntPlayer())
+            {
+                SetAlerted(true);
+            }
         }
+        
         
         UpdateTargets(m_viking, dt, out bool canHearTarget, out bool canSeeTarget);
         
-        if (m_avoidLand && !m_character.IsSwimming())
-        {
-            MoveToWater(dt, 20f);
-            return true;
-        }
+        // if (m_avoidLand && !m_character.IsSwimming())
+        // {
+        //     MoveToWater(dt, 20f);
+        //     return true;
+        // }
 
-        if (UpdateDespawn(dt, canSeeTarget))
+        if (!isTamed)
         {
-            return true;
+            if (UpdateDespawn(dt, canSeeTarget))
+            {
+                return true;
+            }
         }
 
         if (UpdateFlee(dt))
@@ -61,11 +80,24 @@ public partial class VikingAI : MonsterAI
             return true;
         }
 
-        if (UpdateNoMonsterArea(dt))
+        if (!isTamed)
         {
-            return true;
+            if (UpdateNoMonsterArea(dt))
+            {
+                return true;
+            }
         }
+        
+        bool isFollowing = m_follow != null;
 
+        if (isFollowing)
+        {
+            if (UpdateFollow(dt))
+            {
+                return true;
+            }
+        }
+        
         if (UpdateHurt(dt))
         {
             return true;
@@ -81,7 +113,7 @@ public partial class VikingAI : MonsterAI
         if (!hasTarget)
         {
             FindWorkTargets(dt);
-            if (hasWorkTarget && UpdateWork(dt, m_viking.m_pickaxe, m_viking.m_axe, m_viking.m_fishingRod))
+            if (hasWorkTarget && UpdateWork(dt, m_viking.m_pickaxe, m_viking.m_axe, m_viking.m_fishingRod, isFollowing))
             {
                 return true;
             }
@@ -104,15 +136,17 @@ public partial class VikingAI : MonsterAI
         {
             return true;
         }
-
-        if (UpdateFollowOrIdle(dt, hasTarget, hasItem))
-        {
-            return true;
-        }
+        
+        UpdateCrouch(dt, m_targetCreature, canSeeTarget);
 
         if (UpdateAttack(dt, itemData, doAttack, canHearTarget, canSeeTarget))
         {
             return true;
+        }
+        IdleMovement(dt);
+        if (!hasItem || !hasTarget)
+        {
+            ChargeStop();
         }
         return true;
     }

@@ -121,6 +121,7 @@ public partial class Norseman
         m_ai.m_skipLavaTargets = true;
         m_ai.m_avoidLava = true;
         m_ai.m_avoidLavaFlee = true;
+        m_ai.m_avoidFire = true;
         m_ai.m_fleeRange = 25f;
         m_ai.m_fleeAngle = 45f;
         m_ai.m_fleeInterval = 2f;
@@ -136,7 +137,7 @@ public partial class Norseman
         m_ai.m_interceptTimeMax = 2f;
         m_ai.m_interceptTimeMin = 0f;
         m_ai.m_maxChaseDistance = 200f;
-        m_ai.m_minAttackInterval = 5f;
+        m_ai.m_minAttackInterval = 1.5f;
         m_ai.m_circleTargetInterval = 8f;
         m_ai.m_circleTargetDuration = 6f;
         m_ai.m_circleTargetDistance = 8f;

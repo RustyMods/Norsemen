@@ -8,7 +8,7 @@ public partial class VikingAI
     public Fish? m_fish;
     public ItemDrop.ItemData? m_bait;
     
-    public bool UpdateFishing(float dt, ItemDrop.ItemData fishingRod)
+    public bool UpdateFishing(float dt, ItemDrop.ItemData fishingRod, bool isFollowing)
     {
         if (m_fish == null) return false;
 
@@ -24,6 +24,18 @@ public partial class VikingAI
             m_viking.UnequipItem(fishingRod);
             return false;
         }
+
+        if (isFollowing)
+        {
+            float distance = Vector3.Distance(m_fish.transform.position, transform.position);
+
+            if (distance > 20f)
+            {
+                ResetWorkTargets();
+                return false;
+            }
+        }
+        
 
         if (!MoveTo(dt, m_fish.transform.position, 15f, false)) return true;
         StopMoving();

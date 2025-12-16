@@ -143,13 +143,13 @@ namespace Norsemen
             
             Norseman mistlands = new(Heightmap.Biome.Mistlands, "Mistlands_Norseman_RS", norsemen);
             mistlands.conditionalRandomSets.Add(BlackForestBear, SwampIron, PlainsPadded, MistlandsCarapace, MistlandsMage);
-            mistlands.conditionalRandomItems.Add(Coins, fineWood, silver, iron, surtlingCore);
+            mistlands.conditionalRandomItems.Add(Coins, fineWood, silver, iron, surtlingCore, tissue);
             mistlands.baseHealth = 300f;
             mistlands.baseArmor = 25f;
             
             Norseman ashlands = new(Heightmap.Biome.AshLands, "AshLands_Norseman_RS", norsemen);
             ashlands.conditionalRandomSets.Add(MistlandsCarapace, MistlandsMage, Flametal, Ask, MageAsh);
-            ashlands.conditionalRandomItems.Add(Coins);
+            ashlands.conditionalRandomItems.Add(Coins, tissue);
             ashlands.baseHealth = 350f;
             ashlands.baseArmor = 30f;
         }
@@ -199,6 +199,7 @@ namespace Norsemen
                     if (viking.IsTamed()) continue;
                     ++count;
                     viking.SetTamed(true);
+                    viking.m_nview.GetZDO().Set(VikingVars.lastLevelUpTime, ZNet.instance.GetTime().Ticks);
                 }
 
                 if (Player.m_localPlayer)

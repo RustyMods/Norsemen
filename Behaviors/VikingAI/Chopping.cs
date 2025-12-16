@@ -8,7 +8,7 @@ public partial class VikingAI
 {
     public TreeBase? m_tree;
     
-    public bool UpdateLogging(float dt, ItemDrop.ItemData axe)
+    public bool UpdateLogging(float dt, ItemDrop.ItemData axe, bool isFollowing)
     {
         if (m_tree == null) return false;
         
@@ -17,6 +17,18 @@ public partial class VikingAI
             ResetWorkTargets();
             return false;
         }
+
+        if (isFollowing)
+        {
+            float distance = Vector3.Distance(m_tree.transform.position, transform.position);
+
+            if (distance > 20f)
+            {
+                ResetWorkTargets();
+                return false;
+            }
+        }
+        
         if (!MoveTo(dt, m_tree.transform.position, axe.m_shared.m_attack.m_attackRange, false)) return true;
         StopMoving();
         LookAt(m_tree.transform.position);

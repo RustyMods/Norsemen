@@ -9,7 +9,7 @@ public partial class VikingAI
     public float m_lastWorkActionTime;
     public float m_workInterval = 10f;
 
-    public bool UpdateWork(float dt, ItemDrop.ItemData? pickaxe, ItemDrop.ItemData? axe, ItemDrop.ItemData? fishingRod)
+    public bool UpdateWork(float dt, ItemDrop.ItemData? pickaxe, ItemDrop.ItemData? axe, ItemDrop.ItemData? fishingRod, bool isFollowing)
     {
         if (m_viking.IsInUse())
         {
@@ -46,17 +46,17 @@ public partial class VikingAI
         
         if (pickaxe != null && canMine)
         {
-            if (UpdateMineRockMining(dt, pickaxe))
+            if (UpdateMineRockMining(dt, pickaxe, isFollowing))
             {
                 return true;
             }
 
-            if (UpdateMineRock5Mining(dt, pickaxe))
+            if (UpdateMineRock5Mining(dt, pickaxe, isFollowing))
             {
                 return true;
             }
 
-            if (UpdateDestructibleMining(dt, pickaxe))
+            if (UpdateDestructibleMining(dt, pickaxe, isFollowing))
             {
                 return true;
             }
@@ -65,7 +65,7 @@ public partial class VikingAI
         bool canLumber = m_viking.configs.canLumber.Value is Toggle.On;
         if (axe != null && canLumber)
         {
-            if (UpdateLogging(dt, axe))
+            if (UpdateLogging(dt, axe, isFollowing))
             {
                 return true;
             }
@@ -73,7 +73,7 @@ public partial class VikingAI
 
         if (fishingRod != null)
         {
-            if (UpdateFishing(dt, fishingRod))
+            if (UpdateFishing(dt, fishingRod, isFollowing))
             {
                 return true;
             }

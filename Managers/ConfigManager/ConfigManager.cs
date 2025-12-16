@@ -71,8 +71,8 @@ public static class ConfigManager
 
     public static void Patch_ZNet_Awake(ZNet __instance)
     {
-        ConditionalRandomItem.OnZNetAwake(__instance);
-        ConditionalRandomSet.OnZNetAwake(__instance);
+        ConditionalRandomItem.UpdateSyncedFiles(__instance);
+        ConditionalRandomSet.UpdateSyncedFiles(__instance);
     }
     
     public static void SetupWatcher()

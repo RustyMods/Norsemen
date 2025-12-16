@@ -88,11 +88,17 @@ public partial class VikingAI
             return false;
         }
 
-        if (!MoveTo(dt, m_consumeTarget.transform.position, m_consumeRange, false)) return true;
+        if (!MoveTo(dt, m_consumeTarget.transform.position, m_consumeRange, false))
+        {
+            return true;
+        }
         
         LookAt(m_consumeTarget.transform.position);
-        
-        if (!IsLookingAt(m_consumeTarget.transform.position, 20f) || !m_consumeTarget.RemoveOne()) return true;
+
+        if (!IsLookingAt(m_consumeTarget.transform.position, 20f) || !m_consumeTarget.RemoveOne())
+        {
+            return true;
+        }
         
         if (m_onConsumedItem != null)
         {

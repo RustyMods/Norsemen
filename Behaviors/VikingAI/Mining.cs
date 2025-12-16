@@ -12,7 +12,7 @@ public partial class VikingAI
     public Destructible? m_destructible;
     public Vector3 m_lastMineRock5Point;
     
-    public bool UpdateMineRockMining(float dt, ItemDrop.ItemData pickaxe)
+    public bool UpdateMineRockMining(float dt, ItemDrop.ItemData pickaxe, bool isFollowing)
     {
         if (m_mineRock == null) return false;
         
@@ -21,6 +21,19 @@ public partial class VikingAI
             ResetWorkTargets();
             return false;
         }
+
+        if (isFollowing)
+        {
+            float distance = Vector3.Distance(m_mineRock.transform.position, transform.position);
+
+            if (distance > 20f)
+            {
+                ResetWorkTargets();
+                return false;
+            }
+        }
+
+        
         if (!MoveTo(dt, m_mineRock.transform.position, pickaxe.m_shared.m_attack.m_attackRange, false)) return true;
         StopMoving();
         LookAt(m_mineRock.transform.position);
@@ -30,7 +43,7 @@ public partial class VikingAI
         return true;
     }
 
-    public bool UpdateMineRock5Mining(float dt, ItemDrop.ItemData pickaxe)
+    public bool UpdateMineRock5Mining(float dt, ItemDrop.ItemData pickaxe, bool isFollowing)
     {
         if (m_mineRock5 == null) return false;
         
@@ -60,6 +73,17 @@ public partial class VikingAI
         }
         
         m_lastMineRock5Point = closestPoint;
+
+        if (isFollowing)
+        {
+            float distance = Vector3.Distance(m_lastMineRock5Point, transform.position);
+
+            if (distance > 20f)
+            {
+                ResetWorkTargets();
+                return false;
+            }
+        }
         
         if (!MoveTo(dt, closestPoint, pickaxe.m_shared.m_attack.m_attackRange, false)) return true;
         StopMoving();
@@ -101,7 +125,7 @@ public partial class VikingAI
         }
     }
 
-    public bool UpdateDestructibleMining(float dt, ItemDrop.ItemData pickaxe)
+    public bool UpdateDestructibleMining(float dt, ItemDrop.ItemData pickaxe, bool isFollowing)
     {
         if (m_destructible == null) return false;
         
@@ -134,6 +158,18 @@ public partial class VikingAI
         {
             point = m_destructible.transform.position;
         }
+
+        if (isFollowing)
+        {
+            float distance = Vector3.Distance(point, transform.position);
+
+            if (distance > 20f)
+            {
+                ResetWorkTargets();
+                return false;
+            }
+        }
+        
         if (!MoveTo(dt, point, pickaxe.m_shared.m_attack.m_attackRange, false)) return true;
         StopMoving();
         LookAt(m_destructible.transform.position);

@@ -76,6 +76,7 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
     {
         Load();
         AddDefaultItems();
+        m_visEquipment.ClearEquipment();
         EquipItems();
         CheckLastWork();
     }
@@ -84,51 +85,8 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
     {
         if (!m_nview.IsValid() || !m_nview.IsOwner()) return;
         float dt = Time.deltaTime;
-
-        bool isTamed = IsTamed();
-        bool inUse = IsInUse();
-        
-        if (inUse)
-        {
-            if (isTamed)
-            {
-                if (m_currentPlayer)
-                {
-                    m_vikingAI.LookAt(m_currentPlayer.GetTopPoint());
-                }
-                m_vikingAI.StopMoving();
-            }
-            else
-            {
-                if (m_currentPlayer)
-                {
-                    bool canSeeThief = m_vikingAI.CanSeeTarget(m_currentPlayer);
-                    if (canSeeThief)
-                    {
-                        m_vikingAI.SetAggravated(true, BaseAI.AggravatedReason.Theif);
-                    }
-                }
-            }
-        }
-        
         UpdateSavedFollowTarget();
         UpdateTalk(dt);
-    }
-
-    public void FixedUpdate()
-    {
-        if (!m_nview.IsOwner()) return;
-        
-        float fixedDeltaTime = Time.fixedDeltaTime;
-        
-        UpdateCrouch(fixedDeltaTime);
-        UpdateDodge(fixedDeltaTime);
-        
-        bool isTamed = IsTamed();
-        if (!isTamed) return;
-        
-        UpdateAttachShip(fixedDeltaTime);
-        UpdateAttach();
     }
     
     public override string GetHoverName() => GetName();
@@ -165,16 +123,6 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
                 sb.Append("\n[<color=yellow><b>L.Alt + $KEY_Use</b></color>] $piece_container_open");
                 
             }
-            
-            // float health = GetHealth();
-            // float maxHealth = GetMaxHealth();
-            //
-            // sb.Append($"\n$se_health: {health} / {maxHealth}");
-            //
-            // if (armor > 0.0f)
-            // {
-            //     sb.Append($"\n$item_armor: {armor}");
-            // }
         }
         else
         {
@@ -240,22 +188,30 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
 
     public bool UseItem(Humanoid user, ItemDrop.ItemData item)
     {
+        bool isTamed = IsTamed();
+
         if (item.m_shared.m_consumeStatusEffect != null)
         {
             bool isPukeEffect = item.m_shared.m_consumeStatusEffect is SE_Puke;
-            bool shouldAdd = item.m_shared.m_consumeStatusEffect.CanAdd(this) && (isPukeEffect || IsTamed());
+            bool shouldAdd = item.m_shared.m_consumeStatusEffect.CanAdd(this) && (isPukeEffect || isTamed);
 
             if (shouldAdd)
             {
                 m_seman.AddStatusEffect(item.m_shared.m_consumeStatusEffect.NameHash());
                 user.GetInventory().RemoveItem(item, 1);
+
+                if (isPukeEffect && !isTamed)
+                {
+                    m_vikingAI.SetAggravated(true, BaseAI.AggravatedReason.Damage);
+                }
+                
                 return true;
             }
 
             return false;
         }
         
-        if (!IsTamed() || !CanConsumeItem(item)) return false;
+        if (!isTamed || !CanConsumeItem(item)) return false;
         EatFood(item);
         user.GetInventory().RemoveItem(item, 1);
         return true;
@@ -269,7 +225,6 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
     public void OnAggravated(BaseAI.AggravatedReason reason)
     {
         m_aggravatedReason = reason;
-        m_vikingAI.Alert();
         Say(m_aggravatedTalk, "emote_roar", m_alertedFX);
     }
 

@@ -99,9 +99,13 @@ public partial class VikingAI
         {
             SetAlerted(true);
         }
+
+        float range = itemData.m_shared.m_skillType is Skills.SkillType.Bows or Skills.SkillType.Crossbows
+            ? 10f
+            : itemData.m_shared.m_attack.m_attackRange;
         
-        bool inAttackRange = distanceToTarget < itemData.m_shared.m_aiAttackRange;
-        bool shouldMove = !inAttackRange || !canSeeTarget || itemData.m_shared.m_aiAttackRangeMin < 0.0 || !IsAlerted();
+        bool inAttackRange = distanceToTarget < range;
+        bool shouldMove = !inAttackRange || !canSeeTarget || !IsAlerted();
         
         if (shouldMove)
         {
@@ -117,8 +121,10 @@ public partial class VikingAI
         {
             StopMoving();
         }
+
+        bool isAlerted = IsAlerted();
         
-        if (inAttackRange && canSeeTarget && IsAlerted())
+        if (inAttackRange && canSeeTarget && isAlerted)
         {
             if (PheromoneFleeCheck(m_targetCreature))
             {
@@ -136,6 +142,10 @@ public partial class VikingAI
                     DoWeaponAttack(m_targetCreature, false);
                 }
             }
+        }
+        else if (isAlerted)
+        {
+            UpdateDodge(dt, m_targetCreature);
         }
         
         return false;
@@ -188,7 +198,11 @@ public partial class VikingAI
         }
         
         float distance = Vector3.Distance(target.transform.position, transform.position);
-        bool inRange = distance < itemData.m_shared.m_aiAttackRange;
+        float range = itemData.m_shared.m_skillType is Skills.SkillType.Bows or Skills.SkillType.Crossbows
+            ? 10f
+            : itemData.m_shared.m_attack.m_attackRange;
+        
+        bool inRange = distance < range;
         
         if (inRange)
         {

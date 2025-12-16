@@ -5,6 +5,7 @@ norseman_revive: 'Revive'
 norseman_cancel: 'Cancel'
 norseman_reviving: 'Reviving'
 norseman_owner: 'Owner'
+norseman_level: 'Level'
 
 norseman_random_talk_1: 'Hail, traveler! Did you bring ale or just stories?'
 norseman_random_talk_2: 'The mist of the fjords cloaks us like a shroud... or maybe it is just the smell of troll sweat.'
