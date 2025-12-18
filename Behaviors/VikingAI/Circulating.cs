@@ -2,8 +2,13 @@
 
 public partial class VikingAI
 {
-    public bool UpdateCirculate(float dt, bool hasItem, bool doAttack)
+    public bool UpdateCirculate(float dt, bool hasItem, bool doAttack, bool isTamed)
     {
+        if (isTamed && m_moveType is Movement.Guard)
+        {
+            return false;
+        }
+        
         bool shouldCirculate = m_character.IsFlying() ? m_circulateWhileChargingFlying : m_circulateWhileCharging;
 
         if (shouldCirculate && hasItem && !doAttack && !m_character.InAttack())

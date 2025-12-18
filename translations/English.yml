@@ -6,97 +6,14 @@ norseman_cancel: 'Cancel'
 norseman_reviving: 'Reviving'
 norseman_owner: 'Owner'
 norseman_level: 'Level'
-
+norseman_guard: 'Guard'
+norseman_patrol: 'Patrol'
+norseman_movement: 'Movement'
 enemy_norseman_rs: 'Norseman'
 norseman_cannot_tp: "{0} cannot teleport with such items."
-
-norseman_random_talk_1: 'Hail, traveler! Did you bring ale or just stories?'
-norseman_random_talk_2: 'The mist of the fjords cloaks us like a shroud... or maybe it is just the smell of troll sweat.'
-norseman_random_talk_3: 'Another dawn in Midgard, land of mortals... and mediocre mead.'
-norseman_random_talk_4: 'Beware the lurking fulings, creatures of the dark... and terrible table manners.'
-norseman_random_talk_5: 'Hast thou witnessed that marvel? The ale mug that never empties!'
-norseman_random_talk_6: 'A fleet-footed deer flees to the woods... probably to avoid hearing my bawdy jokes.'
-norseman_random_talk_7: 'Approach, wayfarer from distant lands! Let us swap tales and insults.'
-norseman_random_talk_8: "Your hands are nimble as a troll's, friend... but can you hold your drink like one?"
-
-norseman_in_base_talk_1: 'Who dares enter these hallowed halls? Hope you brought more than just an appetite.'
-norseman_in_base_talk_2: 'Did I forget to extinguish the hearth fire? Or was it the heat from our last feast?'
-norseman_in_base_talk_3: 'A scent of mischief lingers in the air... or maybe it is just the smell of unwashed socks.'
-norseman_in_base_talk_4: "Is that where you'll rest your head, under this roof of shields? Watch out for the loose thatch, it's a hazard."
-norseman_in_base_talk_5: 'Behold, a stronghold fit for a warrior! Just mind the cobwebs and the occasional rat.'
-norseman_in_base_talk_6: 'What business have you within these walls? Looking for trouble or just lost your way to the outhouse?'
-norseman_in_base_talk_7: 'Pay me no mind, I merely observe the surroundings... and occasionally partake in questionable activities.'
-norseman_in_base_talk_8: 'By the Norns, what curious artifact is this? Or is it just a misplaced undergarment?'
-
-norseman_random_greet_1: 'Skal, fellow warrior'
-norseman_random_greet_2: 'Hail and well met, comrade'
-norseman_random_greet_3: 'By the beard of Odin, greetings'
-norseman_random_greet_4: 'May the hammer of Thor protect you'
-norseman_random_greet_5: 'Valhalla awaits, traveler'
-norseman_random_greet_6: 'Fair winds to you, friend'
-norseman_random_greet_7: 'In the name of the Allfather, greetings'
-norseman_random_greet_8: 'Walk the path of the shieldmaiden, traveler'
-
-norseman_random_bye_1: 'May the Valkyries guide you'
-norseman_random_bye_2: 'Safe travels on the road to Valhalla'
-norseman_random_bye_3: 'Fair winds and following seas'
-norseman_random_bye_4: 'Until we meet in the halls of Asgard'
-norseman_random_bye_5: 'May your path be clear, warrior'
-norseman_random_bye_6: 'Skal, until we cross paths again'
-norseman_random_bye_7: 'May the gods watch over you'
-norseman_random_bye_8: 'Farewell, may your axe stay sharp'
-
-norseman_aggravated_1: 'By the beard of Odin, enough!'
-norseman_aggravated_2: 'Back off, you insolent whelp!'
-norseman_aggravated_3: 'Do not test my patience, mortal!'
-norseman_aggravated_4: "Thor's thunder, cease your folly!"
-norseman_aggravated_5: 'Out of my sight, before I unleash Fenrir!'
-norseman_aggravated_6: 'You tread on thin ice, beware!'
-norseman_aggravated_7: "By Yggdrasil's roots, you try my temper!"
-norseman_aggravated_8: 'Enough! The wrath of the gods is not to be trifled with!'
-
-norseman_puke_1: "By Thor's hammer, this feast has turned foul!"
-norseman_puke_2: "May Loki's trickery be the cause of this wretched meal!"
-norseman_puke_3: "Odin's ravens would not touch such a putrid offering!"
-norseman_puke_4: "Skál to the gods for this cursed sustenance!"
-norseman_puke_5: "The mead may be sweet, but this meal is a sour betrayal!"
-norseman_puke_6: "A feast fit for the depths of Niflheim!"
-norseman_puke_7: "Valhalla awaits, but this dish belongs in the depths of Hel!"
-norseman_puke_8: "The taste of Jormungandr's venom lingers in this fare!"
-norseman_puke_9: "Even Fenrir would turn his nose up at this spoiled repast!"
-norseman_puke_10: "May Freyja guide us to better provisions, for this is a dish of misfortune!"
-
-norseman_consume_1: "tastes better than a shieldmaiden's attention"
-norseman_consume_2: "smells as good as a roasting greydwarf"
-norseman_consume_3: "makes my entrails burn with joy"
-norseman_consume_4: "melts on my tongue like a surtling in water"
-norseman_consume_5: "is fit for a last meal"
-
-item_raspberries_say: "are tart as the winds of Valhalla"
-item_boar_meat_cooked_say: "a feast fit for a warrior"
-item_honey_say: "is sweet as the mead of Odin's hall"
-item_deer_meat_cooked_say: "is tough as a battle-worn shield"
-item_necktailgrilled_say: "tastes of the spoils of conquest"
-item_blueberries_say: "are a gift from the gods themselves"
-item_carrot_say: "is crunchy like the snow underfoot"
-item_deerstew_say: "is balanced like the scales of fate"
-item_boarjerky_say: "is dry as the desert of Niflheim"
-item_queensjam_say: "is fit for a shieldmaiden's table"
-item_fish_cooked_say: "is a bounty from the seas of Midgard"
-item_pukeberries_say: "is a taste that stirs the wrath of Thor"
-
-item_type_say_swords: "- a blade worthy of a jarl! sharp enough to shave a troll’s back, if you dare."
-item_type_say_knives: "- for when you need to end a fight before they even notice you started it."
-item_type_say_clubs: "- nothing says 'hello' like leaving a crater in someone's skull. thor would be proud!"
-item_type_say_polearms: "- to reach out and touch someone… from across the battlefield."
-item_type_say_spears: "- throws straight and true, like odin’s spear. just, you know, aim better."
-item_type_say_blocking: "- stronger than the gates of valhalla! but maybe don’t test it against a dragon."
-item_type_say_axes: "- perfect for chopping down trees—or greylings. just depends on how bad your day’s going."
-item_type_say_bows: "- silent death from afar, because who wants to fight up close anyway?"
-item_type_say_elementalmagic: "- harness the fury of thor’s storms! or just set something on fire—either works."
-item_type_say_bloodmagic: "- a cursed power... but hey, it’ll mess up your enemies way more than it messes you up."
-item_type_say_unarmed: "- for when you really want to bond with your opponent—face to fist."
-item_type_say_pickaxes: "- strong enough to make even the mountains tremble. or at least slightly annoyed."
-item_type_say_woodcutting: "- the only thing standing between you and an axe-made mansion."
-item_type_say_crossbows: "- if you’re feeling lazy but still want to send enemies to valhalla."
-item_type_say_fishing: "- for when fighting the sea serpent is just too much work and you’d rather have a quiet day."
+norseman_behaviour_msg: '{0} set as {1}'
+norseman_passive: 'Passive'
+norseman_aggressive: 'Aggressive'
+norseman_state: 'State'
+norseman_leveledup: 'Leveled up'
+norseman_revive_inuse: 'Blocked, currently reviving'

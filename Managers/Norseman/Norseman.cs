@@ -7,6 +7,7 @@ namespace Norsemen;
 
 public partial class Norseman
 {
+    private static GameObject? elfEars = AssetBundleManager.LoadAsset<GameObject>("norsemen_bundle", "ElvenEars");
     public static GameObject? tombstone;
     
     public GameObject Prefab = null!;
@@ -17,9 +18,6 @@ public partial class Norseman
     public VikingAI m_ai = null!;
     public readonly Faction faction;
     public List<string> defaultItems = new();
-    public readonly List<ConditionalRandomItem> conditionalRandomItems = new();
-    public readonly List<ConditionalRandomSet> conditionalRandomSets = new();
-    public readonly List<ConditionalRandomWeapon> conditionalRandomWeapons = new();
     public readonly Heightmap.Biome biome;
     public readonly NorsemanConfigs configs;
     public readonly SpawnManager.SpawnInfo spawnInfo;
@@ -32,6 +30,7 @@ public partial class Norseman
         this.name = name;
         this.faction = faction;
         configs = new NorsemanConfigs(name);
+        configs.biome = biome;
         spawnInfo = new SpawnManager.SpawnInfo(this)
         {
             m_spawnInterval = 1000f,
@@ -117,8 +116,8 @@ public partial class Norseman
         m_ai.m_moveMinAngle = 90f;
         m_ai.m_smoothMovement = true;
         m_ai.m_randomCircleInterval = 2f;
-        m_ai.m_randomMoveInterval = 30f;
-        m_ai.m_randomMoveRange = 3f;
+        m_ai.m_randomMoveInterval = 15f;
+        m_ai.m_randomMoveRange = 20f;
         m_ai.m_skipLavaTargets = true;
         m_ai.m_avoidLava = true;
         m_ai.m_avoidLavaFlee = true;
@@ -146,6 +145,35 @@ public partial class Norseman
         m_ai.m_consumeSearchRange = 10f;
         m_ai.m_consumeSearchInterval = 10f;
         m_ai.m_patrol = true;
+
+        if (elfEars != null)
+        {
+            GameObject attach_skin = elfEars.transform.Find("attach_skin").gameObject;
+            GameObject? instance = UnityEngine.Object.Instantiate(attach_skin);
+            instance.name = "elf_ears";
+            VisEquipment.CleanupInstance(instance);
+            VisEquipment? visEq = Prefab.GetComponent<VisEquipment>();
+            SkinnedMeshRenderer? body = visEq.m_bodyModel;
+            
+            instance.transform.SetParent(body.transform.parent);
+            instance.transform.localPosition = Vector3.zero;
+            instance.transform.localRotation = Quaternion.identity;
+
+            List<Material> earMats = new();
+            
+            foreach (SkinnedMeshRenderer? renderer in instance.GetComponentsInChildren<SkinnedMeshRenderer>())
+            {
+                renderer.rootBone = body.rootBone;
+                renderer.bones = body.bones;
+                if (renderer.name.CustomStartsWith("007"))
+                {
+                    earMats.Add(renderer.materials);
+                }
+            }
+
+            m_viking.m_elfEars = instance;
+            m_viking.m_elfEarMats = earMats.ToArray();
+        }
         
         SetupConfigs();
         OnCreated?.Invoke(this);

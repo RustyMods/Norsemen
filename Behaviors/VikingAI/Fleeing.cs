@@ -4,8 +4,13 @@ namespace Norsemen;
 
 public partial class VikingAI
 {
-    public bool UpdateFlee(float dt)
+    public bool UpdateFlee(float dt, bool isTamed)
     {
+        if (isTamed && m_moveType is Movement.Guard)
+        {
+            return false;
+        }
+        
         if (m_fleeIfNotAlerted && !HuntPlayer() && m_targetCreature && !IsAlerted() && Vector3.Distance(m_targetCreature.transform.position, transform.position) - m_targetCreature.GetRadius() > m_alertRange)
         {
             Flee(dt, m_targetCreature.transform.position);

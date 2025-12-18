@@ -127,11 +127,15 @@
         <Reference Include="Unity.TextMeshPro">
             <HintPath>$(GamePath)\valheim_Data\Managed\Unity.TextMeshPro.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.UnityWebRequestModule">
+          <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+        </Reference>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Behaviors\VikingAI\Attacking.cs" />
         <Compile Include="Behaviors\VikingAI\AvoidFire.cs" />
         <Compile Include="Behaviors\VikingAI\BaseAI.cs" />
+        <Compile Include="Behaviors\VikingAI\Behaviours.cs" />
         <Compile Include="Behaviors\VikingAI\Charging.cs" />
         <Compile Include="Behaviors\VikingAI\Chopping.cs" />
         <Compile Include="Behaviors\VikingAI\Circling.cs" />
@@ -155,18 +159,21 @@
         <Compile Include="Behaviors\VikingAI\Working.cs" />
         <Compile Include="Behaviors\NameGenerator.cs" />
         <Compile Include="Behaviors\VikingTomb.cs" />
+        <Compile Include="Behaviors\VikingVars.cs" />
         <Compile Include="Behaviors\Viking\Armor.cs" />
         <Compile Include="Behaviors\Viking\Attack.cs" />
         <Compile Include="Behaviors\Viking\Configs.cs" />
         <Compile Include="Behaviors\Viking\Customization.cs" />
         <Compile Include="Behaviors\Viking\Dodge.cs" />
         <Compile Include="Behaviors\Viking\Eitr.cs" />
+        <Compile Include="Behaviors\Viking\Elf.cs" />
         <Compile Include="Behaviors\Viking\Equipment.cs" />
         <Compile Include="Behaviors\Viking\Follow.cs" />
-        <Compile Include="Behaviors\Viking\Food.cs" />
+        <Compile Include="Behaviors\Viking\Consume.cs" />
         <Compile Include="Behaviors\Viking\Puke.cs" />
         <Compile Include="Behaviors\Viking\Attach.cs" />
         <Compile Include="Behaviors\Viking\Crouch.cs" />
+        <Compile Include="Behaviors\Viking\Ragdoll.cs" />
         <Compile Include="Behaviors\Viking\Talk.cs" />
         <Compile Include="Behaviors\Viking\Container.cs" />
         <Compile Include="Behaviors\Viking\Teleport.cs" />
@@ -174,7 +181,6 @@
         <Compile Include="Behaviors\Viking\Tooltip.cs" />
         <Compile Include="Behaviors\Viking\Viking.cs" />
         <Compile Include="Behaviors\Viking\Tameable.cs" />
-        <Compile Include="Behaviors\Viking\VikingVars.cs" />
         <Compile Include="Behaviors\Viking\Work.cs" />
         <Compile Include="Managers\AssetBundleManager.cs" />
         <Compile Include="Managers\CloneManager\Clone.cs" />
@@ -187,13 +193,14 @@
         <Compile Include="Managers\ConfigManager\MinMax.cs" />
         <Compile Include="Managers\ConfigManager\Level.cs" />
         <Compile Include="Managers\ConfigManager\StringList.cs" />
-        <Compile Include="Managers\CustomizationManager.cs" />
+        <Compile Include="Managers\CustomizationManager\ConditionalRandomItem.cs" />
+        <Compile Include="Managers\CustomizationManager\ConditionalRandomSet.cs" />
+        <Compile Include="Managers\CustomizationManager\ConditionalRandomWeapon.cs" />
+        <Compile Include="Managers\CustomizationManager\CustomizationManager.cs" />
+        <Compile Include="Managers\CustomizationManager\Equipment.cs" />
         <Compile Include="Managers\EffectListRef.cs" />
         <Compile Include="Managers\FactionManager\Faction.cs" />
         <Compile Include="Managers\FactionManager\FactionManager.cs" />
-        <Compile Include="Managers\Norseman\ConditionalRandomItem.cs" />
-        <Compile Include="Managers\Norseman\ConditionalRandomSet.cs" />
-        <Compile Include="Managers\Norseman\ConditionalRandomWeapon.cs" />
         <Compile Include="Managers\Norseman\Configs.cs" />
         <Compile Include="Managers\Norseman\Norseman.cs" />
         <Compile Include="Managers\Norseman\NorsemanConfigs.cs" />
@@ -204,8 +211,10 @@
         <Compile Include="Managers\PlayerAnims.cs" />
         <Compile Include="Managers\PrefabManager.cs" />
         <Compile Include="Managers\StatusEffectManager.cs" />
+        <Compile Include="Managers\TalkManager.cs" />
         <Compile Include="Plugin.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="UI\BehaviourButtons.cs" />
         <Compile Include="UI\Stats.cs" />
         <Compile Include="UI\VikingGui.cs" />
         <Compile Include="VersionHandshake.cs" />
@@ -215,6 +224,9 @@
     </ItemGroup>
     <ItemGroup>
         <Content Include=".gitignore" />
+        <EmbeddedResource Include="D:\VALHEIM\RIPS\BOG WITCH\AssetBundles\StandaloneWindows\norsemen_bundle">
+          <Link>assets\norsemen_bundle</Link>
+        </EmbeddedResource>
         <Content Include="environment.props" />
         <Content Include="ILRepack.targets" />
         <Content Include="Libs\ServerSync.dll">
@@ -230,10 +242,6 @@
     <ItemGroup>
         <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.18.2" />
         <PackageReference Include="YamlDotNet" Version="16.3.0" />
-    </ItemGroup>
-    
-    <ItemGroup>
-        <Folder Include="assets\" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
 

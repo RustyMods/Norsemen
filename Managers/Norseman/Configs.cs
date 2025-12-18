@@ -17,17 +17,6 @@ public partial class Norseman
         
         spawnInfo.SetupConfigs();
         
-        configs.conditionalSets = ConfigManager.config(name, "Conditional Sets",
-            new StringList(conditionalRandomSets.Select(x => x.Name).ToList()).ToString(),
-            new ConfigDescription("Set conditional random sets by unique name", null, StringList.attributes));
-        configs.conditionalItems = ConfigManager.config(name, "Conditional Items",
-            new StringList(conditionalRandomItems.Select(x => x.Name).ToList()).ToString(),
-            new ConfigDescription("Set conditional items by unique name", null, StringList.attributes));
-
-        configs.conditionalWeapons = ConfigManager.config(name, "Conditional Weapons",
-            new StringList(conditionalRandomWeapons.Select(x => x.Name).ToList()).ToString(),
-            new ConfigDescription("Set conditional weapons by unique name", null, StringList.attributes));
-
         configs.tamingTime = ConfigManager.config(name, "Taming Duration", 1800f, "Set time it take to tame, in seconds");
         configs.baseArmor = ConfigManager.config(name, "Base Armor", baseArmor, "Set base armor");
 

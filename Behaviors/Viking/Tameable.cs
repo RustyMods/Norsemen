@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using HarmonyLib;
 using UnityEngine;
 
 namespace Norsemen;
@@ -58,7 +59,7 @@ public partial class Viking
             Player? nearestPlayer = Player.GetClosestPlayer(transform.position, 20f);
             if (nearestPlayer != null)
             {
-                string message = $"{GetText()} $msg_leveledup";
+                string message = $"{GetText()} $norseman_leveledup";
                 nearestPlayer.Message(MessageHud.MessageType.Center, message);
             }
         }
@@ -199,24 +200,27 @@ public partial class Viking
         return (ZNet.instance.GetTime() - dateTime).TotalSeconds > m_fedDuration;
     }
 
-    public void OnConsumedItem(ItemDrop? item)
-    {
-        if (IsHungry())
-        {
-            m_sootheEffect.Create(GetCenterPoint(), Quaternion.identity);
-        }
-        ResetFeedingTimer();
 
-        if (item != null)
-        {
-            List<string> consumedTalk = GetConsumeTalk(item.m_itemData.m_shared.m_name);
-            m_queuedTexts.Clear();
-            QueueSay(consumedTalk);
-        }
-    }
 
     public void ResetFeedingTimer()
     {
         m_nview.GetZDO().Set(ZDOVars.s_tameLastFeeding, ZNet.instance.GetTime().Ticks);
+    }
+
+    [HarmonyPatch(typeof(Character), nameof(RPC_SetTamed))]
+    private static class Character_RPC_SetTamed
+    {
+        private static void Prefix(Character __instance, bool tamed)
+        {
+            if (!NorsemenPlugin.RemoveEquipment) return;
+            if (__instance is not Viking viking) return;
+            if (__instance.m_tamed == tamed) return;
+            if (__instance.m_nview.IsOwner() && tamed)
+            {
+                Inventory? inventory = viking.GetInventory();
+                viking.UnequipAllItems();
+                inventory.m_inventory.RemoveAll(x => x.IsEquipable());
+            }
+        }
     }
 }

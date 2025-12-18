@@ -27,6 +27,11 @@ public partial class VikingAI : MonsterAI
 
         if (isTamed)
         {
+            UpdateBehaviour(dt);
+        }
+
+        if (isTamed)
+        {
             UpdateAttachShip(dt);
             
             if (UpdateAttach())
@@ -53,7 +58,6 @@ public partial class VikingAI : MonsterAI
             }
         }
         
-        
         UpdateTargets(m_viking, dt, out bool canHearTarget, out bool canSeeTarget);
         
         // if (m_avoidLand && !m_character.IsSwimming())
@@ -70,22 +74,19 @@ public partial class VikingAI : MonsterAI
             }
         }
 
-        if (UpdateFlee(dt))
+        if (UpdateFlee(dt, isTamed))
         {
             return true;
         }
 
-        if (UpdateAvoidFire(dt))
+        if (UpdateAvoidFire(dt, isTamed))
         {
             return true;
         }
 
-        if (!isTamed)
+        if (UpdateNoMonsterArea(dt, isTamed))
         {
-            if (UpdateNoMonsterArea(dt))
-            {
-                return true;
-            }
+            return true;
         }
         
         bool isFollowing = m_follow != null;
@@ -98,19 +99,21 @@ public partial class VikingAI : MonsterAI
             }
         }
         
-        if (UpdateHurt(dt))
+        if (UpdateHurt(dt, isTamed))
         {
             return true;
         }
         
         bool hasTarget = m_targetStatic != null || m_targetCreature != null;
         
-        if (UpdateConsume(dt, m_viking, hasTarget))
+        if (UpdateConsume(dt, m_viking, hasTarget, isTamed))
         {
             return true;
         }
+
+        bool shouldWork = !isTamed || m_moveType != Movement.Guard;
         
-        if (!hasTarget)
+        if (!hasTarget && shouldWork)
         {
             FindWorkTargets(dt);
             if (hasWorkTarget && UpdateWork(dt, m_viking.m_pickaxe, m_viking.m_axe, m_viking.m_fishingRod, isFollowing))
@@ -119,7 +122,7 @@ public partial class VikingAI : MonsterAI
             }
         }
         
-        if (UpdateCircleTarget(dt))
+        if (UpdateCircleTarget(dt, isTamed))
         {
             return true;
         }
@@ -132,18 +135,23 @@ public partial class VikingAI : MonsterAI
         
         UpdateChargeAttack(dt, hasItem, hasTarget, doAttack, itemData);
         
-        if (UpdateCirculate(dt, hasItem, doAttack))
+        if (UpdateCirculate(dt, hasItem, doAttack, isTamed))
         {
             return true;
         }
         
         UpdateCrouch(dt, m_targetCreature, canSeeTarget);
 
-        if (UpdateAttack(dt, itemData, doAttack, canHearTarget, canSeeTarget))
+        if (UpdateAttack(dt, itemData, doAttack, canHearTarget, canSeeTarget, isTamed))
         {
             return true;
         }
-        IdleMovement(dt);
+
+        if (!isTamed || m_moveType is Movement.Patrol)
+        {
+            IdleMovement(dt);
+        }
+        
         if (!hasItem || !hasTarget)
         {
             ChargeStop();

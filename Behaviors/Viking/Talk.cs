@@ -17,68 +17,11 @@ public partial class Viking
     public float m_randomTalkInterval = 10f;
     public float m_randomTalkChance = 1f;
     public float m_randomTalkTimer;
-    
-    public List<string> m_randomTalk = new List<string>()
-    {
-        "$norseman_random_talk_1",
-        "$norseman_random_talk_2",
-        "$norseman_random_talk_3",
-        "$norseman_random_talk_4",
-        "$norseman_random_talk_5",
-        "$norseman_random_talk_6",
-        "$norseman_random_talk_7",
-        "$norseman_random_talk_8",
-    };
-    public List<string> m_randomTalkInPlayerBase = new List<string>()
-    {
-        "$norseman_in_base_talk_1",
-        "$norseman_in_base_talk_2",
-        "$norseman_in_base_talk_3",
-        "$norseman_in_base_talk_4",
-        "$norseman_in_base_talk_5",
-        "$norseman_in_base_talk_6",
-        "$norseman_in_base_talk_7",
-        "$norseman_in_base_talk_8",
-    };
-    public List<string> m_randomGreets = new List<string>()
-    {
-        "$norseman_random_greet_1",
-        "$norseman_random_greet_2",
-        "$norseman_random_greet_3",
-        "$norseman_random_greet_4",
-        "$norseman_random_greet_5",
-        "$norseman_random_greet_6",
-        "$norseman_random_greet_7",
-        "$norseman_random_greet_8",
-    };
-    public List<string> m_randomGoodbye = new List<string>()
-    {
-        "$norseman_random_bye_1",
-        "$norseman_random_bye_2",
-        "$norseman_random_bye_3",
-        "$norseman_random_bye_4",
-        "$norseman_random_bye_5",
-        "$norseman_random_bye_6",
-        "$norseman_random_bye_7",
-        "$norseman_random_bye_8",
-    };
-    public List<string> m_aggravatedTalk = new List<string>()
-    {
-        "$norseman_aggravated_1",
-        "$norseman_aggravated_2",
-        "$norseman_aggravated_3",
-        "$norseman_aggravated_4",
-        "$norseman_aggravated_5",
-        "$norseman_aggravated_6",
-        "$norseman_aggravated_7",
-        "$norseman_aggravated_8",
-    };
-    public List<string> m_thievedTalk = new ();
 
-    public static EffectListRef m_randomTalkFX = new("sfx_dverger_vo_idle");
-    public static readonly EffectListRef m_randomGreetFX = new("sfx_haldor_greet");
-    public static readonly EffectListRef m_randomGoodbyeFX = new("sfx_haldor_laugh");
-    public static readonly EffectListRef m_alertedFX = new("sfx_dverger_vo_attack");
+    public static readonly EffectListRef talkFX = new("sfx_dverger_vo_idle");
+    public static readonly EffectListRef greetFX = new("sfx_haldor_greet");
+    public static readonly EffectListRef goodbyeFX = new("sfx_haldor_laugh");
+    public static readonly EffectListRef alertedFX = new("sfx_dverger_vo_attack");
     
     public bool m_didGreet;
     public bool m_didGoodbye;
@@ -128,15 +71,24 @@ public partial class Viking
                 {
                     m_didGreet = true;
                     string? emote = m_greetEmotes[UnityEngine.Random.Range(0, m_greetEmotes.Count)];
-                    QueueSay(m_randomGreets, emote, m_randomGreetFX);
+                    QueueSay(TalkManager.GetTalk(TalkManager.TalkType.Greets), trigger: emote, effect: greetFX);
                 }
 
                 if (m_didGreet && !m_didGoodbye && distance > m_byeRange)
                 {
                     m_didGoodbye = true;
                     string? emote = m_greetEmotes[UnityEngine.Random.Range(0, m_greetEmotes.Count)];
-                    QueueSay(m_randomGoodbye, emote, m_randomGoodbyeFX);
+                    QueueSay(TalkManager.GetTalk(TalkManager.TalkType.Farewells), trigger: emote, effect: goodbyeFX);
                 }
+
+                if (m_didGreet && m_didGoodbye)
+                {
+                    QueueSay(TalkManager.GetTalk(TalkManager.TalkType.Generic), effect: talkFX);
+                }
+            }
+            else if (InPlayerBase())
+            {
+                QueueSay(TalkManager.GetTalk(TalkManager.TalkType.PlayerBase), effect: talkFX);
             }
         }
         
@@ -156,12 +108,17 @@ public partial class Viking
         m_targetPlayer = closestPlayer;
     }
 
-    public bool QueueSay(List<string> texts, string trigger = "", EffectListRef? effect = null)
+    public bool QueueSay(List<string> texts, string context = "", string trigger = "", EffectListRef? effect = null)
     {
         if (texts.Count == 0 || m_queuedTexts.Count >= 3) return false;
+        string msg = texts[UnityEngine.Random.Range(0, texts.Count)];
+        if (!string.IsNullOrEmpty(context))
+        {
+            msg = string.Format(msg, context);
+        }
         QueuedSay text = new QueuedSay()
         {
-            text = texts[UnityEngine.Random.Range(0, texts.Count)],
+            text = msg,
             trigger = trigger,
             m_effect = effect
         };
@@ -210,8 +167,8 @@ public partial class Viking
     
     public class QueuedSay
     {
-        public string text;
-        public string trigger;
+        public string text = "";
+        public string trigger = "";
         public EffectListRef? m_effect;
     }
 }

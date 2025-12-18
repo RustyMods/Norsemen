@@ -4,6 +4,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
 using ServerSync;
+using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 
 namespace Norsemen;
@@ -12,9 +13,10 @@ public static class ConfigManager
 {
     public static readonly ISerializer serializer = new SerializerBuilder()
         .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults | DefaultValuesHandling.OmitNull | DefaultValuesHandling.OmitEmptyCollections)
+        .DisableAliases()
         .Build();
     public static readonly IDeserializer deserializer = new DeserializerBuilder().IgnoreUnmatchedProperties().Build();
-
+    
     private static readonly ConfigFile Config;
     public static readonly ConfigSync ConfigSync;
     private static readonly string ConfigFileName;
@@ -71,8 +73,8 @@ public static class ConfigManager
 
     public static void Patch_ZNet_Awake(ZNet __instance)
     {
-        ConditionalRandomItem.UpdateSyncedFiles(__instance);
-        ConditionalRandomSet.UpdateSyncedFiles(__instance);
+        CustomizationManager.UpdateSync(__instance);
+        TalkManager.UpdateSync(__instance);
     }
     
     public static void SetupWatcher()

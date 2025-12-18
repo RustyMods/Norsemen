@@ -4,8 +4,13 @@ namespace Norsemen;
 
 public partial class VikingAI
 {
-    public bool UpdateCircleTarget(float dt)
+    public bool UpdateCircleTarget(float dt, bool isTamed)
     {
+        if (isTamed && m_moveType is Movement.Guard)
+        {
+            return false;
+        }
+        
         if (m_circleTargetInterval > 0.0 && m_targetCreature)
         {
             m_pauseTimer += dt;

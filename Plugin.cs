@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
@@ -24,10 +25,15 @@ namespace Norsemen
         public readonly Harmony _harmony = new(ModGUID);
         public static readonly ManualLogSource NorsemenLogger = BepInEx.Logging.Logger.CreateLogSource(ModName);
         public static NorsemenPlugin instance = null!;
+
+        private static ConfigEntry<Toggle> canSteal = null!;
+        private static ConfigEntry<Toggle> removeEquipment = null!;
+        
+        public static bool CanSteal => canSteal.Value is Toggle.On;
+        public static bool RemoveEquipment => removeEquipment.Value is Toggle.On;
         
         public void Awake()
         {
-            
             instance = this;
 
             Localizer.Load();
@@ -35,130 +41,142 @@ namespace Norsemen
             SetupTombstone();
             SetupNorsemen();
             SetupCommands();
+            SetupEquipment();
             
-            ConditionalRandomItem.Setup();
-            ConditionalRandomSet.Setup();
+            TalkManager.SetupTalks();
+            CustomizationManager.Setup();
+
+            canSteal = ConfigManager.config("Settings", "Steal", Toggle.On, "If on, players can steal from norsemen");
+            removeEquipment = ConfigManager.config("Settings", "Naked on Tamed", Toggle.Off, "If on, tamed norsemen will lose equipment on tamed");
             
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
         }
 
+        public static void SetupEquipment()
+        {
+            ConditionalRandomSet MeadowTorchSet = new ("", 0.1f, "ArmorRagsChest", "ArmorRagsLegs", "Torch");
+            ConditionalRandomSet MeadowFlintKnifeSet = new("defeated_eikthyr", 0.2f, "ArmorLeatherChest", "ArmorLeatherLegs", "CapeDeerHide", "KnifeFlint");
+            ConditionalRandomSet MeadowClubSet = new("", 0.1f, "ArmorRagsChest", "ArmorRagsLegs", "Club");
+            ConditionalRandomSet BlackForestTroll = new("defeated_gdking", 0.3f, "HelmetTrollLeather",
+                "ArmorTrollLeatherChest", "ArmorTrollLeatherLegs", "CapeTrollLeather", "SwordBronze",
+                "ShieldBronzeBuckler");
+            ConditionalRandomSet BlackForestBronze = new("defeated_gdking", 0.3f, "HelmetBronze",
+                "ArmorBronzeChest", "ArmorBronzeLegs", "CapeTrollLeather", "AtgeirBronze");
+            ConditionalRandomSet BlackForestBear = new("defeated_gdking", 0.3f, "HelmetBerserkerHood",
+                "ArmorBerserkerChest", "ArmorBerserkerLegs", "FistBjornClaw");
+            
+            ConditionalRandomSet SwampIron = new("defeated_bonemass", 0.4f, "HelmetIron", "ArmorIronChest", "ArmorIronLegs",
+                "CapeDeerHide", "BowHuntsman");
+            ConditionalRandomSet SwampRoot = new("defeated_bonemass", 0.4f, "HelmetRoot", "ArmorRootChest", "ArmorRootLegs",
+                "CapeTrollHide", "BowHuntsman");
+
+            ConditionalRandomSet MountainSilver = new("defeated_dragon", 0.5f, "HelmetDrake", "ArmorWolfChest",
+                "ArmorWolfLegs", "CapeWolf", "BattleAxeCrystal");
+            ConditionalRandomSet MountainFenrir = new("defeated_dragon", 0.5f, "HelmetFenring", "ArmorFenringChest",
+                "ArmorFenringLegs", "CapeWolf", "KnifeSilver", "ShieldSilver");
+
+            ConditionalRandomSet PlainsPadded = new("defeated_goblingking", 0.6f, "HelmetPadded",
+                "ArmorPaddedGreaves", "ArmorPaddedCuirass", "CapeLinen", "MaceNeedle");
+            ConditionalRandomSet PlainsVile = new("defeated_goblinking", 0.6f, "HelmetBerserkerUndead",
+                "ArmorBerserkerUndeadChest", "ArmorBerserkerUndeadLegs", "FistBjornUndeadClaw");
+
+            ConditionalRandomSet MistlandsCarapace = new("defeated_queen", 0.7f, "HelmetCarapace",
+                "ArmorCarapaceChest", "ArmorCarapaceLegs", "ShieldCarapace", "SpearCarapace", "Demister");
+
+            ConditionalRandomSet MistlandsMage = new("defeated_queen", 0.7f, "HelmetMageHood", "ArmorMageChest",
+                "ArmorMageLegs", "StaffFireball", "CapeFeather", "Demister");
+
+            ConditionalRandomSet Harvester = new("defeated_dragon", 1f, "ArmorHarvester1", "ArmorLeatherLegs", "Cultivator", "AxeBronze");
+
+            ConditionalRandomSet Ask = new("defeated_queen", 0.8f, "HelmetAshlandsMediumHood",
+                "ArmorAshlandsMediumChest", "ArmorAshlandsMediumlegs", "CapeAsksvin", "BowAshlands");
+
+            ConditionalRandomSet Flametal = new("defeated_queen", 0.8f, "HelmetFlametal",
+                "ArmorFlametalChest", "ArmorFlametalLegs", "CapeAsh", "SwordNiedhogg", "ShieldFlametalTower");
+
+            ConditionalRandomSet MageAsh = new("defeated_queen", 0.8f, "HelmetMage_Ashlands",
+                "ArmorMageChest_Ashlands", "ArmorMageLegs_Ashlands", "StaffRoot", "StaffGreenRoots");
+
+            CustomizationManager.Add(Heightmap.Biome.Meadows, MeadowTorchSet, MeadowFlintKnifeSet, MeadowClubSet);
+            CustomizationManager.Add(Heightmap.Biome.BlackForest, MeadowClubSet, BlackForestBear, BlackForestBronze, BlackForestTroll);
+            CustomizationManager.Add(Heightmap.Biome.Swamp, BlackForestTroll, SwampIron, SwampRoot);
+            CustomizationManager.Add(Heightmap.Biome.Mountain, SwampIron, MountainFenrir, MountainSilver);
+            CustomizationManager.Add(Heightmap.Biome.Plains, MountainSilver, PlainsPadded, PlainsVile);
+            CustomizationManager.Add(Heightmap.Biome.Mistlands, PlainsPadded, MistlandsCarapace, MistlandsMage);
+            CustomizationManager.Add(Heightmap.Biome.AshLands, MistlandsCarapace, Ask, Flametal, MageAsh);
+            
+            ConditionalRandomItem Coins = new("Coins", 1, 100);
+            ConditionalRandomItem Raspberries = new("Raspberry", 1, 50, 0.5f);
+            ConditionalRandomItem Wood = new("Wood", 25, 50);
+            ConditionalRandomItem LeatherScraps = new("LeatherScrap", 1, 20, 0.5f);
+            ConditionalRandomItem Flint = new("Flint", 1, 20, 0.5f, "defeated_eikthry");
+            ConditionalRandomItem deerHide = new("DeerHide", 1, 10, 0.5f, "defeated_eikthyr");
+            ConditionalRandomItem surtlingCore = new("SurtlingCore", 1, 3, 0.4f, "defeated_eikthyr");
+            ConditionalRandomItem pickaxeAntler = new("PickaxeAntler", 1, 1, 0.6f, "defeated_eikthyr");
+            ConditionalRandomItem tinOre = new("TinOre", 1, 5, 0.5f, "defeated_eikthyr");
+            ConditionalRandomItem copperOre = new("CopperOre", 1, 5, 0.5f, "defeated_eikthyr");
+            ConditionalRandomItem deerStew = new("DeerStew", 1, 5, 0.5f, "defeated_eikthyr");
+            ConditionalRandomItem tin = new( "Tin", 1, 5, 0.3f, "defeated_gdking");
+            ConditionalRandomItem copper = new("Copper", 1, 5, 0.3f, "defeated_gdking");
+            ConditionalRandomItem ironScrap = new("IronScrap", 1, 5, 0.3f, "defeated_gdking");
+            ConditionalRandomItem chain = new("Chain", 1, 2, 0.5f, "defeated_gdking");
+            ConditionalRandomItem iron = new("Iron", 1, 5, 0.3f, "defeated_bonemass");
+            ConditionalRandomItem fineWood = new("FineWood", 25, 50, 0.5f, "defeated_bonemass");
+            ConditionalRandomItem silverOre = new ("SilverOre", 1, 10, 0.33f, "defeated_bonemass");
+            ConditionalRandomItem obsidian = new("Obsidian", 1, 20, 0.4f, "defeated_bonemass");
+            ConditionalRandomItem crystal = new("Crystal", 10, 15, 0.5f, "defeated_bonemass");
+            ConditionalRandomItem silver = new("Silver", 1, 5, 0.3f, "defeated_dragon");
+            ConditionalRandomItem tissue = new("SoftTissue", 1, 5, 0.3f, "defeated_goblinking");
+            
+            CustomizationManager.Add(Heightmap.Biome.Meadows, Raspberries, Wood, LeatherScraps, Flint, deerHide);
+            CustomizationManager.Add(Heightmap.Biome.BlackForest, Raspberries, Wood, deerHide, surtlingCore, pickaxeAntler, tinOre, copperOre);
+            CustomizationManager.Add(Heightmap.Biome.Swamp, Coins, deerStew, copperOre, ironScrap, iron, surtlingCore, chain);
+            CustomizationManager.Add(Heightmap.Biome.Mountain, Coins, deerStew, tin, copper, silverOre, obsidian, crystal, silver, ironScrap, chain, iron);
+            CustomizationManager.Add(Heightmap.Biome.Plains, Coins, deerStew, fineWood, silver);
+            CustomizationManager.Add(Heightmap.Biome.Plains, Coins, deerStew, fineWood);
+            CustomizationManager.Add(Heightmap.Biome.Mistlands, Coins, deerStew, tissue, fineWood);
+            CustomizationManager.Add(Heightmap.Biome.AshLands, Coins, deerStew, tissue);
+
+            ConditionalRandomWeapon bow = new("Bow", "defeated_eikthyr", 0.1f);
+            ConditionalRandomWeapon bowfine = new("BowFineWood", "defeated_gdking", 0.2f);
+            ConditionalRandomWeapon knifeChitin = new("KnifeChitin", "defeated_bonemass", 0.3f);
+            ConditionalRandomWeapon frostner = new("MaceSilver", "defeated_dragon", 0.4f);
+            
+            CustomizationManager.Add(Heightmap.Biome.Meadows, bow);
+            CustomizationManager.Add(Heightmap.Biome.BlackForest, bowfine);
+            CustomizationManager.Add(Heightmap.Biome.Mountain, bowfine);
+            CustomizationManager.Add(Heightmap.Biome.Swamp, knifeChitin);
+            CustomizationManager.Add(Heightmap.Biome.Mountain, frostner);
+        }
+
         private static void SetupNorsemen()
         {
             Faction norsemen = new Faction("Norsemen", true);
-
-            ConditionalRandomSet MeadowTorchSet = new ("Torch", "", 0.1f, "ArmorRagsChest", "ArmorRagsLegs", "Torch");
-            ConditionalRandomSet MeadowFlintKnifeSet = new("Flint", "defeated_eikthyr", 0.2f, "ArmorLeatherChest", "ArmorLeatherLegs", "CapeDeerHide", "KnifeFlint");
-            ConditionalRandomSet MeadowClubSet = new("Club", "", 0.1f, "ArmorRagsChest", "ArmorRagsLegs", "Club");
-            ConditionalRandomSet BlackForestTroll = new("Troll", "defeated_gdking", 0.3f, "HelmetTrollLeather",
-                "ArmorTrollLeatherChest", "ArmorTrollLeatherLegs", "CapeTrollLeather", "SwordBronze",
-                "ShieldBronzeBuckler");
-            ConditionalRandomSet BlackForestBronze = new("Bronze", "defeated_gdking", 0.3f, "HelmetBronze",
-                "ArmorBronzeChest", "ArmorBronzeLegs", "CapeTrollLeather", "AtgeirBronze");
-            ConditionalRandomSet BlackForestBear = new("Bjorn", "defeated_gdking", 0.3f, "HelmetBerserkerHood",
-                "ArmorBerserkerChest", "ArmorBerserkerLegs", "FistBjornClaw");
-            
-            ConditionalRandomSet SwampIron = new("Iron", "defeated_bonemass", 0.4f, "HelmetIron", "ArmorIronChest", "ArmorIronLegs",
-                "CapeDeerHide", "BowHuntsman");
-            ConditionalRandomSet SwampRoot = new("Root", "defeated_bonemass", 0.4f, "HelmetRoot", "ArmorRootChest", "ArmorRootLegs",
-                "CapeTrollHide", "BowHuntsman");
-
-            ConditionalRandomSet MountainSilver = new("Silver", "defeated_dragon", 0.5f, "HelmetDrake", "ArmorWolfChest",
-                "ArmorWolfLegs", "CapeWolf", "BattleAxeCrystal");
-            ConditionalRandomSet MountainFenrir = new("Fenrir", "defeated_dragon", 0.5f, "HelmetFenring", "ArmorFenringChest",
-                "ArmorFenringLegs", "CapeWolf", "KnifeSilver", "ShieldSilver");
-
-            ConditionalRandomSet PlainsPadded = new("Padded", "defeated_goblingking", 0.6f, "HelmetPadded",
-                "ArmorPaddedGreaves", "ArmorPaddedCuirass", "CapeLinen", "MaceNeedle");
-            ConditionalRandomSet PlainsVile = new("Vile", "defeated_goblinking", 0.6f, "HelmetBerserkerUndead",
-                "ArmorBerserkerUndeadChest", "ArmorBerserkerUndeadLegs", "FistBjornUndeadClaw");
-
-            ConditionalRandomSet MistlandsCarapace = new("Carapace", "defeated_queen", 0.7f, "HelmetCarapace",
-                "ArmorCarapaceChest", "ArmorCarapaceLegs", "ShieldCarapace", "SpearCarapace", "Demister");
-
-            ConditionalRandomSet MistlandsMage = new("Mage", "defeated_queen", 0.7f, "HelmetMageHood", "ArmorMageChest",
-                "ArmorMageLegs", "StaffFireball", "CapeFeather", "Demister");
-
-            ConditionalRandomSet Harvester = new("Harvester", "defeated_dragon", 1f, "ArmorHarvester1", "ArmorLeatherLegs", "Cultivator", "AxeBronze");
-
-            ConditionalRandomSet Ask = new("Askvin", "defeated_queen", 0.8f, "HelmetAshlandsMediumHood",
-                "ArmorAshlandsMediumChest", "ArmorAshlandsMediumlegs", "CapeAsksvin", "BowAshlands");
-
-            ConditionalRandomSet Flametal = new("Flametal", "defeated_queen", 0.8f, "HelmetFlametal",
-                "ArmorFlametalChest", "ArmorFlametalLegs", "CapeAsh", "SwordNiedhogg", "ShieldFlametalTower");
-
-            ConditionalRandomSet MageAsh = new("MageAshlands", "defeated_queen", 0.8f, "HelmetMage_Ashlands",
-                "ArmorMageChest_Ashlands", "ArmorMageLegs_Ashlands", "StaffRoot", "StaffGreenRoots");
-            
-            ConditionalRandomItem Coins = new("Coins", "Coins", 1, 100);
-            ConditionalRandomItem Raspberries = new("Raspberry_50", "Raspberry", 1, 50, 0.5f);
-            ConditionalRandomItem Wood = new("Wood_50", "Wood", 25, 50);
-            ConditionalRandomItem LeatherScraps = new("LeatherScrap_20", "LeatherScrap", 1, 20, 0.5f);
-            ConditionalRandomItem Flint = new("Flint_20", "Flint", 1, 20, 0.5f, "defeated_eikthry");
-            ConditionalRandomItem deerHide = new("DeerHide", "DeerHide", 1, 10, 0.5f, "defeated_eikthyr");
-            ConditionalRandomItem surtlingCore = new("SurtlingCore", "SurtlingCore", 1, 3, 0.4f, "defeated_eikthyr");
-            ConditionalRandomItem pickaxeAntler = new("PickaxeAntler", "PickaxeAntler", 1, 1, 0.6f, "defeated_eikthyr");
-            ConditionalRandomItem tinOre = new("TinOre", "TinOre", 1, 5, 0.5f, "defeated_eikthyr");
-            ConditionalRandomItem copperOre = new("CopperOre", "CopperOre", 1, 5, 0.5f, "defeated_eikthyr");
-            ConditionalRandomItem deerStew = new("DeerStew", "DeerStew", 1, 5, 0.5f, "defeated_eikthyr");
-            ConditionalRandomItem tin = new("Tin", "Tin", 1, 5, 0.3f, "defeated_gdking");
-            ConditionalRandomItem copper = new("Copper", "Copper", 1, 5, 0.3f, "defeated_gdking");
-            ConditionalRandomItem ironScrap = new("IronScrap", "IronScrap", 1, 5, 0.3f, "defeated_gdking");
-            ConditionalRandomItem chain = new("Chain", "Chain", 1, 2, 0.5f, "defeated_gdking");
-            ConditionalRandomItem iron = new("Iron", "Iron", 1, 5, 0.3f, "defeated_bonemass");
-            ConditionalRandomItem fineWood = new("FineWood_50", "FineWood", 25, 50, 0.5f, "defeated_bonemass");
-            ConditionalRandomItem silverOre = new ("SilverOre", "SilverOre", 1, 10, 0.33f, "defeated_bonemass");
-            ConditionalRandomItem obsidian = new("Obsidian", "Obsidian", 1, 20, 0.4f, "defeated_bonemass");
-            ConditionalRandomItem crystal = new("Crystal", "Crystal", 10, 15, 0.5f, "defeated_bonemass");
-            ConditionalRandomItem silver = new("Silver", "Silver", 1, 5, 0.3f, "defeated_dragon");
-            ConditionalRandomItem tissue = new("SoftTissue", "SoftTissue", 1, 5, 0.3f, "defeated_goblinking");
-
-            ConditionalRandomWeapon bow = new("Bow", "Bow", "defeated_eikthyr", 0.1f);
-            ConditionalRandomWeapon bowfine = new("BowFine", "BowFineWood", "defeated_gdking", 0.2f);
-            ConditionalRandomWeapon knifeChitin = new("KnifeChitin", "KnifeChitin", "defeated_bonemass", 0.3f);
-            ConditionalRandomWeapon frostner = new("Frostner", "MaceSilver", "defeated_dragon", 0.4f);
             
             Norseman meadows = new Norseman(Heightmap.Biome.Meadows, "Meadows_Norseman_RS", norsemen);
-            meadows.conditionalRandomSets.Add(MeadowTorchSet, MeadowFlintKnifeSet, MeadowClubSet);
-            meadows.conditionalRandomItems.Add(Raspberries, LeatherScraps, Flint, Wood);
-            meadows.conditionalRandomWeapons.Add(bow);
 
             Norseman blackforest = new Norseman(Heightmap.Biome.BlackForest, "BlackForest_Norseman_RS", norsemen);
-            blackforest.conditionalRandomSets.Add(MeadowClubSet, MeadowFlintKnifeSet, BlackForestTroll, BlackForestBear, BlackForestBear, BlackForestBronze);
-            blackforest.conditionalRandomItems.Add(Flint, Wood, deerStew, tin, copper, tinOre, copperOre, deerHide, surtlingCore, pickaxeAntler, Coins);
-            blackforest.conditionalRandomWeapons.Add(bowfine);
             blackforest.baseHealth = 100f;
             blackforest.baseArmor = 5f;
 
             Norseman swamp = new Norseman(Heightmap.Biome.Swamp, "Swamp_Norseman_RS", norsemen);
-            swamp.conditionalRandomSets.Add(MeadowClubSet, BlackForestBronze, SwampRoot, SwampIron);
-            swamp.conditionalRandomItems.Add(Flint, tin, copper, surtlingCore, iron, ironScrap, deerStew, chain, Coins);
-            swamp.conditionalRandomWeapons.Add(bowfine, knifeChitin);
             swamp.baseHealth = 150f;
             swamp.baseArmor = 10f;
             
             Norseman mountains = new (Heightmap.Biome.Mountain, "Mountains_Norseman_RS", norsemen);
-            mountains.conditionalRandomSets.Add(MeadowClubSet, BlackForestTroll, SwampIron, MountainFenrir, MountainSilver);
-            mountains.conditionalRandomItems.Add(Coins, tin, copper, iron, silverOre, silver, obsidian, crystal, fineWood);
-            mountains.conditionalRandomWeapons.Add(knifeChitin, frostner);
             mountains.baseHealth = 200f;
             mountains.baseArmor = 15f;
             
             Norseman plains = new(Heightmap.Biome.Plains, "Plains_Norseman_RS", norsemen);
-            plains.conditionalRandomSets.Add(MeadowClubSet, BlackForestBear, SwampRoot, MountainFenrir, PlainsPadded, PlainsVile);
-            plains.conditionalRandomItems.Add(Coins, fineWood, ironScrap, iron, silver, obsidian, chain);
             plains.baseHealth = 250f;
             plains.baseArmor = 20f;
             
             Norseman mistlands = new(Heightmap.Biome.Mistlands, "Mistlands_Norseman_RS", norsemen);
-            mistlands.conditionalRandomSets.Add(BlackForestBear, SwampIron, PlainsPadded, MistlandsCarapace, MistlandsMage);
-            mistlands.conditionalRandomItems.Add(Coins, fineWood, silver, iron, surtlingCore, tissue);
             mistlands.baseHealth = 300f;
             mistlands.baseArmor = 25f;
             
             Norseman ashlands = new(Heightmap.Biome.AshLands, "AshLands_Norseman_RS", norsemen);
-            ashlands.conditionalRandomSets.Add(MistlandsCarapace, MistlandsMage, Flametal, Ask, MageAsh);
-            ashlands.conditionalRandomItems.Add(Coins, tissue);
             ashlands.baseHealth = 350f;
             ashlands.baseArmor = 30f;
         }
@@ -196,6 +214,8 @@ namespace Norsemen
                 Norseman.tombstone = prefab;
             };
         }
+
+        
 
         private static void SetupCommands()
         {

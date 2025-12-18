@@ -87,7 +87,7 @@ public static class FactionManager
     {
         if (!customFactions.TryGetValue(viking.GetFaction(), out Faction faction)) return true;
         if (viking.IsTamed()) return false;
-        if (!faction.friendly) return true;
+        if (!faction.IsFriendly()) return true;
         
         return viking.m_vikingAI.m_aggravated && viking.m_aggravatedReason != BaseAI.AggravatedReason.Building;
     }

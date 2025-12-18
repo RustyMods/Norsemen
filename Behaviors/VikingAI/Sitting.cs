@@ -5,7 +5,6 @@ namespace Norsemen;
 public partial class VikingAI
 {
     public float m_shipAttachTimer;
-    
     public bool UpdateAttach()
     {
         if (!m_viking.m_attached)

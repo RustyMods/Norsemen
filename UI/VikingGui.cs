@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Text;
-using HarmonyLib;
+﻿using HarmonyLib;
 using UnityEngine;
 
 namespace Norsemen;
 
-public static class VikingGui
+public static partial class VikingGui
 {
     private static readonly int visible = Animator.StringToHash("visible");
-    private static Viking? m_currentViking;
+    public static Viking? m_currentViking;
 
     public static void Show(this InventoryGui gui, Viking viking)
     {
@@ -18,10 +16,12 @@ public static class VikingGui
         string name = viking.GetName();
         string tooltip = viking.GetTooltip();
         
-        Stats.armor.Show(viking.GetArmor().ToString("0"));
-        Stats.armor.tooltip.Set(name, tooltip);
-        Stats.health.Show($"{viking.GetHealth():0}/{viking.GetMaxHealth():0}");
-        Stats.health.tooltip.Set(name, tooltip);
+        armor.Show(viking.GetArmor().ToString("0"));
+        armor.tooltip.Set(name, tooltip);
+        health.Show($"{viking.GetHealth():0}/{viking.GetMaxHealth():0}");
+        health.tooltip.Set(name, tooltip);
+
+        BehaviourButtons.instance?.Show();
     }
     
     public static void CloseVikingInventory()
@@ -74,8 +74,11 @@ public static class VikingGui
     {
         private static bool Prefix(InventoryGui __instance, Player player)
         {
-            if (!__instance.m_animator.GetBool(visible) || __instance.m_currentContainer != null ||
-                m_currentViking == null) return true;
+            if (!__instance.m_animator.GetBool(visible) || __instance.m_currentContainer != null || m_currentViking == null)
+            {
+                BehaviourButtons.instance?.Hide();
+                return true;
+            }
 
             m_currentViking.SetInUse(player);
             __instance.m_container.gameObject.SetActive(true);
@@ -137,8 +140,9 @@ public static class VikingGui
         private static void Postfix()
         {
             CloseVikingInventory();
-            Stats.armor.Hide();
-            Stats.health.Hide();
+            armor.Hide();
+            health.Hide();
+            BehaviourButtons.instance?.Hide();
         }
     }
 
@@ -157,8 +161,8 @@ public static class VikingGui
         private static void Postfix(InventoryGui __instance)
         {
             if (__instance.m_currentContainer != null || m_currentViking == null) return;
-            __instance.m_containerWeight.text =
-                Mathf.CeilToInt(m_currentViking.GetInventory().GetTotalWeight()).ToString();
+            int totalWeight = Mathf.CeilToInt(m_currentViking.GetInventory().GetTotalWeight());
+            __instance.m_containerWeight.text = totalWeight.ToString();
         }
     }
 }

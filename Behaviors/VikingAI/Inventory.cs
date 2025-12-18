@@ -20,6 +20,14 @@ public partial class VikingAI
 
         if (m_viking.m_currentPlayer)
         {
+            float roll = UnityEngine.Random.value;
+            float chance = 0.5f;
+
+            if (roll < chance)
+            {
+                LookAt(m_viking.m_currentPlayer.GetEyePoint());
+            }
+            
             bool canSeeThief = CanSeeTarget(m_viking.m_currentPlayer);
             if (canSeeThief)
             {

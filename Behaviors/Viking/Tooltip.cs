@@ -14,8 +14,12 @@ public partial class Viking
         string owner = m_nview.GetZDO().GetString(ZDOVars.s_ownerName);
         if (!string.IsNullOrEmpty(owner))
         {
-            sb.Append($"\n$norseman_owner: {owner}");
+            sb.Append($"\n$norseman_owner: <color=orange>{owner}</color>");
         }
+
+        sb.Append($"\n$norseman_state: <color=orange>$norseman_{m_vikingAI.m_behaviour.ToString().ToLower()}</color>");
+        sb.Append(
+            $"\n$norseman_movement: <color=orange>$norseman_{m_vikingAI.m_moveType.ToString().ToLower()}</color>)");
         
         List<StatusEffect> statusEffects = GetSEMan().GetStatusEffects();
         if (statusEffects.Count > 0)

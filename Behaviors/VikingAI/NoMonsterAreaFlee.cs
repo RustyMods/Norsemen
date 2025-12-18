@@ -2,8 +2,13 @@
 
 public partial class VikingAI
 {
-    public bool UpdateNoMonsterArea(float dt)
+    public bool UpdateNoMonsterArea(float dt, bool isTamed)
     {
+        if (isTamed)
+        {
+            return false;
+        }
+        
         if (m_targetCreature != null)
         {
             if (EffectArea.IsPointInsideNoMonsterArea(m_targetCreature.transform.position))
@@ -14,7 +19,7 @@ public partial class VikingAI
         }
         else
         {
-            var noMonsterArea = EffectArea.IsPointCloseToNoMonsterArea(transform.position);
+            EffectArea? noMonsterArea = EffectArea.IsPointCloseToNoMonsterArea(transform.position);
             if (noMonsterArea != null)
             {
                 Flee(dt, noMonsterArea.transform.position);

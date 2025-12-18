@@ -24,8 +24,8 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
         
         m_vikingAI = GetComponent<VikingAI>();
         SetupConfigs();
-        base.Awake();
         SetupFood();
+        base.Awake();
         
         if (m_nview.IsValid())
         {
@@ -36,20 +36,23 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
             m_nview.Register<ZDOID, bool>(nameof(RPC_Command), RPC_Command);
             m_nview.Register<string>(nameof(RPC_SetText), RPC_SetText);
         
-            InvokeRepeating(nameof(TamingUpdate), 3f, 3f);
-            
             SetupCustomization();
+            
+            InvokeRepeating(nameof(TamingUpdate), 3f, 3f);
+            // InvokeRepeating(nameof(Load), 1f, 1f);
         }
 
         m_inventory.m_onChanged += OnInventoryChanged;
         m_vikingAI.m_onConsumedItem += OnConsumedItem;
         m_vikingAI.m_onBecameAggravated += OnAggravated;
-
+ 
         m_tamingTime = configs.TamingTime;
         if ((m_startsTamed || m_tamingTime <= 0f) && configs.Tameable)
         {
             SetTamed(true);
         }
+
+        m_visEquipment.m_isPlayer = true;
     }
 
     public override void OnDeath()
@@ -88,8 +91,12 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
         UpdateSavedFollowTarget();
         UpdateTalk(dt);
     }
-    
-    public override string GetHoverName() => GetName();
+
+    public override string GetHoverName()
+    {
+        if (!FactionManager.customFactions.TryGetValue(m_faction, out var data)) return GetName();
+        return $"<color={data.hoverColor}>{GetName()}</color>";
+    }
 
     public override string GetHoverText()
     {
@@ -139,7 +146,7 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
                 }
             }
 
-            if (!m_vikingAI.CanSeeTarget(Player.m_localPlayer))
+            if (!m_vikingAI.CanSeeTarget(Player.m_localPlayer) && NorsemenPlugin.CanSteal)
             {
                 if (usingGamepad)
                 {
@@ -179,7 +186,7 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
                 Command(user);
             }
         }
-        else if (!m_vikingAI.CanSeeTarget(user))
+        else if (!m_vikingAI.CanSeeTarget(user) && NorsemenPlugin.CanSteal)
         {
             if (ZInput.GetKey(KeyCode.LeftAlt) || ZInput.GetButton("JoyLTrigger"))
             {
@@ -191,31 +198,8 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
 
     public bool UseItem(Humanoid user, ItemDrop.ItemData item)
     {
-        bool isTamed = IsTamed();
-
-        if (item.m_shared.m_consumeStatusEffect != null)
-        {
-            bool isPukeEffect = item.m_shared.m_consumeStatusEffect is SE_Puke;
-            bool shouldAdd = item.m_shared.m_consumeStatusEffect.CanAdd(this) && (isPukeEffect || isTamed);
-
-            if (shouldAdd)
-            {
-                m_seman.AddStatusEffect(item.m_shared.m_consumeStatusEffect.NameHash());
-                user.GetInventory().RemoveItem(item, 1);
-
-                if (isPukeEffect && !isTamed)
-                {
-                    m_vikingAI.SetAggravated(true, BaseAI.AggravatedReason.Damage);
-                }
-                
-                return true;
-            }
-
-            return false;
-        }
-        
-        if (!isTamed || !CanConsumeItem(item)) return false;
-        EatFood(item);
+        if (!CanConsumeItem(item)) return false;
+        OnConsumedItem(item);
         user.GetInventory().RemoveItem(item, 1);
         return true;
     }
@@ -228,7 +212,15 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
     public void OnAggravated(BaseAI.AggravatedReason reason)
     {
         m_aggravatedReason = reason;
-        Say(m_aggravatedTalk, "emote_roar", m_alertedFX);
+        switch (reason)
+        {
+            case BaseAI.AggravatedReason.Damage:
+                Say(TalkManager.GetTalk(TalkManager.TalkType.Damaged), "emote_roar", alertedFX);
+                break;
+            case BaseAI.AggravatedReason.Theif:
+                Say(TalkManager.GetTalk(TalkManager.TalkType.Thieved), "emote_roar", alertedFX);
+                break;
+        }
     }
 
     public static List<Viking> GetAllVikings() => instances;

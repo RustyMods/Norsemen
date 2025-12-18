@@ -49,6 +49,8 @@ public class VikingTomb : MonoBehaviour
         if (distance > m_cancelDistance)
         {
             m_action = null;
+            m_currentTomb = null;
+            m_reviver = null;
         }
         else if (distance > m_revertDistance)
         {
@@ -60,22 +62,7 @@ public class VikingTomb : MonoBehaviour
         }
     }
     
-    public void Setup(Viking viking)
-    {
-        ZDO? zdo = m_nview.GetZDO();
-        if (zdo == null) return;
-        
-        zdo.Set(VikingVars.vikingPrefab, viking.name.Replace("(Clone)", ""));
-        zdo.Set(ZDOVars.s_tamed, viking.IsTamed());
-        zdo.Set(ZDOVars.s_tamedName, viking.GetText());
-        zdo.Set(ZDOVars.s_maxHealth, viking.GetMaxHealth());
-        zdo.Set(ZDOVars.s_level, viking.GetLevel());
-        zdo.Set(ZDOVars.s_hairColor, viking.m_hairColor);
-        zdo.Set(ZDOVars.s_modelIndex, viking.m_visEquipment.GetModelIndex());
-        zdo.Set(ZDOVars.s_hairItem, viking.m_visEquipment.m_hairItem);
-        zdo.Set(ZDOVars.s_hairColor, viking.m_visEquipment.m_beardItem);
-        zdo.Set(ZDOVars.s_skinColor, viking.m_visEquipment.m_skinColor);
-    }
+
 
     public string GetHoverText()
     {
@@ -87,16 +74,30 @@ public class VikingTomb : MonoBehaviour
         bool isReviving = m_nview.GetZDO().GetBool(VikingVars.reviving);
         if (!isReviving) sb.Append("\n[<color=yellow><b>$KEY_Use</b></color>] $piece_container_open");
 
-        bool isTamed = m_nview.GetZDO().GetBool(ZDOVars.s_tamed);
-        if (isTamed)
-        {
-            string actionText = isReviving ? "$norseman_cancel" : "$norseman_revive";
-            sb.Append($"\n[<color=yellow><b>$KEY_AltPlace + $KEY_Use</b></color>] {actionText}");
-        }
+        string actionText = isReviving ? "$norseman_cancel" : "$norseman_revive";
+        sb.Append($"\n[<color=yellow><b>$KEY_AltPlace + $KEY_Use</b></color>] {actionText}");
 
         return Localization.instance.Localize(sb.ToString());
     }
 
+    public void Setup(Viking viking)
+    {
+        ZDO? zdo = m_nview.GetZDO();
+        if (zdo == null) return;
+        
+        zdo.Set(VikingVars.vikingPrefab, viking.name.Replace("(Clone)", ""));
+        zdo.Set(ZDOVars.s_tamedName, viking.GetText());
+        zdo.Set(ZDOVars.s_level, viking.GetLevel());
+        zdo.Set(ZDOVars.s_hairColor, viking.m_hairColor);
+        zdo.Set(ZDOVars.s_modelIndex, viking.m_visEquipment.GetModelIndex());
+        zdo.Set(ZDOVars.s_hairItem, viking.m_hairItem);
+        zdo.Set(ZDOVars.s_hairColor, viking.m_hairColor);
+        zdo.Set(ZDOVars.s_beardItem, viking.m_beardItem);
+        zdo.Set(ZDOVars.s_skinColor, viking.m_skinColor);
+        zdo.Set(VikingVars.behaviour, (int)viking.m_vikingAI.m_behaviour);
+        zdo.Set(VikingVars.patrol, (int)viking.m_vikingAI.m_moveType);
+        zdo.Set(VikingVars.isElf, viking.m_isElf);
+    }
     public bool Revive()
     {
         string? prefabName = m_nview.GetZDO().GetString(VikingVars.vikingPrefab);
@@ -104,7 +105,6 @@ public class VikingTomb : MonoBehaviour
         if (prefab == null) return false;
 
         string? tamedName = m_nview.GetZDO().GetString(ZDOVars.s_tamedName);
-        float health = m_nview.GetZDO().GetFloat(ZDOVars.s_maxHealth);
         int level = m_nview.GetZDO().GetInt(ZDOVars.s_level);
         Vector3 hairColor = m_nview.GetZDO().GetVec3(ZDOVars.s_hairColor, Vector3.zero);
         int model = m_nview.GetZDO().GetInt(ZDOVars.s_modelIndex);
@@ -112,32 +112,33 @@ public class VikingTomb : MonoBehaviour
         string? beard = m_nview.GetZDO().GetString(ZDOVars.s_beardItem);
         Vector3 skinColor = m_nview.GetZDO().GetVec3(ZDOVars.s_skinColor, Vector3.one);
         string? items = m_nview.GetZDO().GetString(ZDOVars.s_items);
+        int behaviour = m_nview.GetZDO().GetInt(VikingVars.behaviour);
+        int patrol = m_nview.GetZDO().GetInt(VikingVars.patrol);
+        bool isElf = m_nview.GetZDO().GetBool(VikingVars.isElf);
 
-        GameObject? instance = Instantiate(prefab, transform.position, transform.rotation);
-        if (instance == null) return false;
-
-        Viking? viking = instance.GetComponent<Viking>();
-        ZDO? zdo = viking.m_nview.GetZDO();
+        int hash = prefabName.GetStableHashCode();
+        ZDO zdo = ZDOMan.instance.CreateNewZDO(transform.position, hash);
+        zdo.SetPrefab(hash);
         zdo.Set(VikingVars.isSet, true);
         zdo.Set(ZDOVars.s_tamedName, tamedName);
-        zdo.Set(ZDOVars.s_maxHealth, health);
         zdo.Set(ZDOVars.s_level, level);
-        viking.m_level = level;
-        zdo.Set(ZDOVars.s_hairColor, hairColor);
-        zdo.Set(ZDOVars.s_modelIndex, model);
-        viking.m_visEquipment.m_modelIndex = model;
         zdo.Set(ZDOVars.s_hairItem, hair);
-        viking.m_visEquipment.m_hairItem = hair;
         zdo.Set(ZDOVars.s_beardItem, beard);
-        viking.m_visEquipment.m_beardItem = beard;
         zdo.Set(ZDOVars.s_skinColor, skinColor);
-        viking.m_visEquipment.m_skinColor = skinColor;
+        zdo.Set(ZDOVars.s_hairColor, hairColor);
+        zdo.Set(VikingVars.behaviour, behaviour);
+        zdo.Set(VikingVars.patrol, patrol);
+        zdo.Set(ZDOVars.s_tamed, true);
+        zdo.Set(ZDOVars.s_modelIndex, model);
         zdo.Set(VikingVars.createTombStone, true);
         zdo.Set(ZDOVars.s_items, items);
-        zdo.Set(ZDOVars.s_tamed, true);
         zdo.Set(ZDOVars.s_addedDefaultItems, true);
-        viking.m_tamed = true;
+        zdo.Set(VikingVars.lastLevelUpTime, ZNet.instance.GetTime().Ticks);
+        zdo.Set(VikingVars.createTombStone, true);
+        zdo.Set(VikingVars.isElf, isElf);
 
+        ZNetScene.instance.CreateObject(zdo);
+        
         m_tombstone.m_container.GetInventory().RemoveAll();
         m_revived = true;
         return true;
@@ -190,8 +191,14 @@ public class VikingTomb : MonoBehaviour
             return false;
         }
 
-        if (alt && m_nview.GetZDO().GetBool(ZDOVars.s_tamed))
+        if (alt)
         {
+            if (m_currentTomb != null)
+            {
+                character.Message(MessageHud.MessageType.Center, $"$norseman_revive_inuse {m_currentTomb.m_tombstone.GetOwnerName()}");
+                return false;
+            }
+            
             if (m_revived) return false;
             if (!IsInvoking(nameof(CheckReviveProgress)))
             {

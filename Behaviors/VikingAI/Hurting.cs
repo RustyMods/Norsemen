@@ -2,8 +2,13 @@
 
 public  partial class VikingAI
 {
-    public bool UpdateHurt(float dt)
+    public bool UpdateHurt(float dt, bool isTamed)
     {
+        if (isTamed && m_moveType is Movement.Guard)
+        {
+            return false;
+        }
+        
         bool shouldFlee = m_timeSinceAttacking > 30.0 && m_timeSinceHurt < 20.0;
         if (m_fleeIfHurtWhenTargetCantBeReached && m_targetCreature != null && shouldFlee)
         {

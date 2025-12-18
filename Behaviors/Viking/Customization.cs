@@ -11,36 +11,43 @@ public partial class Viking
     {
         m_hairColor = m_nview.GetZDO().GetVec3(ZDOVars.s_hairColor, Vector3.zero);
         m_skinColor = m_nview.GetZDO().GetVec3(ZDOVars.s_skinColor, Vector3.one);
+        m_hairItem = m_nview.GetZDO().GetString(ZDOVars.s_hairItem);
+        m_beardItem = m_nview.GetZDO().GetString(ZDOVars.s_beardItem);
+        m_isElf = m_nview.GetZDO().GetBool(VikingVars.isElf);
         
         bool isSet = m_nview.GetZDO().GetBool(VikingVars.isSet);
-        if (isSet) return;
+        if (!isSet)
+        {
+            SetRandomModel(out bool isFemale);
+            SetRandomName();
+            SetRandomHair();
+            SetRandomBeard(isFemale);
+            SetRandomHairColor();
+            SetRandomSkinColor();
+            
+            m_isElf = UnityEngine.Random.value > 0.5f;
+            m_nview.GetZDO().Set(VikingVars.isElf, m_isElf);
+            m_nview.GetZDO().Set(VikingVars.isSet, true);
+        }
         
-        SetRandomModel(out bool isFemale);
-        SetRandomName();
-        SetRandomHair();
-        SetRandomBeard(isFemale);
-        SetRandomHairColor();
-        SetRandomSkinColor();
-        m_nview.GetZDO().Set(VikingVars.isSet, true);
+        SetElfEars();
+        m_visEquipment.SetHairEquipped(string.IsNullOrEmpty(m_hairItem) ? 0 : m_hairItem.GetStableHashCode());
+        m_visEquipment.SetBeardEquipped(string.IsNullOrEmpty(m_beardItem) ? 0 : m_beardItem.GetStableHashCode());
     }
     
     public void SetRandomName()
     {
-        bool isSet = m_nview.GetZDO().GetBool(VikingVars.isSet);
-        if (!isSet)
+        bool isFemale = m_nview.GetZDO().GetInt(ZDOVars.s_modelIndex) != 0;
+        string randomName;
+        if (isFemale)
         {
-            bool isFemale = m_nview.GetZDO().GetInt(ZDOVars.s_modelIndex) != 0;
-            string randomName;
-            if (isFemale)
-            {
-                randomName = NameGenerator.GenerateFemaleName();
-            }
-            else
-            {
-                randomName = NameGenerator.GenerateMaleName();
-            }
-            m_nview.GetZDO().Set(ZDOVars.s_tamedName, randomName);
+            randomName = NameGenerator.GenerateFemaleName();
         }
+        else
+        {
+            randomName = NameGenerator.GenerateMaleName();
+        }
+        m_nview.GetZDO().Set(ZDOVars.s_tamedName, randomName);
     }
 
     public void SetRandomSkinColor()
@@ -66,10 +73,16 @@ public partial class Viking
 
     public void SetRandomBeard(bool isFemale)
     {
-        if (isFemale) return;
-        if (CustomizationManager.beards.Count <= 0) return;
-        string? beard = CustomizationManager.beards[UnityEngine.Random.Range(0, CustomizationManager.beards.Count)];
-        SetBeard(beard);
+        if (isFemale)
+        {
+            SetBeard("");
+        }
+        else
+        {
+            if (CustomizationManager.beards.Count <= 0) return;
+            string? beard = CustomizationManager.beards[UnityEngine.Random.Range(0, CustomizationManager.beards.Count)];
+            SetBeard(beard);
+        }
     }
 
     public void SetRandomHair()

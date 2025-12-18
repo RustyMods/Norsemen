@@ -6,7 +6,7 @@ namespace Norsemen;
 
 public partial class VikingAI
 {
-    public bool UpdateConsume(float dt, Viking character, bool hasTarget)
+    public bool UpdateConsume(float dt, Viking character, bool hasTarget, bool isTamed)
     {
         if (m_consumeItems == null || m_consumeItems.Count == 0)
         {
@@ -15,34 +15,30 @@ public partial class VikingAI
         
         bool shouldSearchForFood = !IsAlerted() && !hasTarget;
         
-        if (shouldSearchForFood && UpdateFoodItem(character, dt))
+        if (shouldSearchForFood && UpdateConsumeSearch(character, isTamed, dt))
         {
             return true;
         }
 
         return false;
     }
-
-    public void OnConsumedItem(ItemDrop.ItemData item)
+    
+    public bool IsFoodItem(ItemDrop.ItemData item)
     {
-        Viking.m_sootheEffect.Create(m_viking.GetCenterPoint(), Quaternion.identity);
-        m_viking.ResetFeedingTimer();
-        List<string> consumedTalk = Viking.GetConsumeTalk(item.m_shared.m_name);
-        m_viking.m_queuedTexts.Clear();
-        m_viking.QueueSay(consumedTalk);
+        return m_consumeItems.Exists(i => i.m_itemData.m_shared.m_name == item.m_shared.m_name);
     }
 
     public bool EatInventoryFood(Viking viking)
     {
         Inventory? inventory = viking.GetInventory();
         List<ItemDrop.ItemData>? consumables = inventory.GetAllItemsOfType(ItemDrop.ItemData.ItemType.Consumable);
-
+        
         ItemDrop.ItemData? targetItem = null;
         if (consumables.Count > 0)
         {
             foreach (ItemDrop.ItemData? consumable in consumables)
             {
-                if (m_consumeItems.Exists(x => x.m_itemData.m_shared.m_name == consumable.m_shared.m_name))
+                if (IsFoodItem(consumable))
                 {
                     targetItem = consumable;
                     break;
@@ -51,32 +47,32 @@ public partial class VikingAI
         }
 
         if (targetItem == null) return false;
-
-        viking.m_consumeItemEffects.Create(transform.position, Quaternion.identity);
-        OnConsumedItem(targetItem);
-        string trigger = targetItem.m_shared.m_isDrink ? "drink" : "eat";
-        m_animator.SetTrigger(trigger);
-        inventory.RemoveOneItem(targetItem);
-        
+        viking.OnConsumedItem(targetItem);
+        inventory.RemoveItem(targetItem, 1);
         return true;
     }
 
-    public bool UpdateFoodItem(Viking viking, float dt)
+    public bool UpdateConsumeSearch(Viking viking, bool isTamed, float dt)
     {
         m_consumeSearchTimer += dt;
         if (m_consumeSearchTimer > m_consumeSearchInterval)
         {
-            NorsemenPlugin.LogInfo("Update search food");
             m_consumeSearchTimer = 0.0f;
             if (!viking.IsHungry())
             {
                 return false;
             }
 
-            if (viking.IsTamed() && EatInventoryFood(viking))
+            if (isTamed && EatInventoryFood(viking))
             {
                 return false;
             }
+
+            if (isTamed && m_moveType is Movement.Guard)
+            {
+                return false;
+            }
+            
             m_consumeTarget = FindClosestConsumableItem(m_consumeSearchRange);
         }
         else
@@ -88,9 +84,6 @@ public partial class VikingAI
         {
             return false;
         }
-        
-        NorsemenPlugin.LogDebug($"Found consumable item: {m_consumeTarget.name}");
-
         if (!MoveTo(dt, m_consumeTarget.transform.position, m_consumeRange, false))
         {
             return true;
@@ -102,15 +95,8 @@ public partial class VikingAI
         {
             return true;
         }
-        
-        if (m_onConsumedItem != null)
-        {
-            m_onConsumedItem(m_consumeTarget);
-        }
-        viking.m_consumeItemEffects.Create(transform.position, Quaternion.identity);
-        string trigger = m_consumeTarget.m_itemData.m_shared.m_isDrink ? "drink" : "eat";
-        m_animator.SetTrigger(trigger);
-                
+
+        viking.OnConsumedItem(m_consumeTarget);
         m_consumeTarget = null;
 
         return false;

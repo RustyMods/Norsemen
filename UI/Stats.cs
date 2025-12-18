@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Norsemen;
 
-public static class Stats
+public static partial class VikingGui
 {
     public static Display armor = null!;
     public static Display health = null!;
@@ -12,6 +12,17 @@ public static class Stats
     [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.Awake))]
     private static class InventoryGui_Awake_Patch
     {
+        private static void Prefix(InventoryGui __instance)
+        {
+            GameObject ButtonContainer = new GameObject("norsemen_buttons");
+            RectTransform rect = ButtonContainer.AddComponent<RectTransform>();
+            rect.SetParent(__instance.m_container, false);
+            rect.anchorMin = new Vector2(0f, 0f);
+            rect.anchorMax = new Vector2(0f, 0f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = Vector2.zero;
+            ButtonContainer.AddComponent<BehaviourButtons>();
+        }
         private static void Postfix(InventoryGui __instance)
         {
             GameObject source = __instance.transform.Find("root/Player/Armor").gameObject;
@@ -24,6 +35,11 @@ public static class Stats
             health.icon.sprite = __instance.m_minStationLevelIcon.sprite;
             armor.Hide();
             health.Hide();
+            
+            if (BehaviourButtons.instance == null) return;
+            
+            BehaviourButtons.instance.behaviour.SetupGlow(__instance.m_repairButtonGlow);
+            BehaviourButtons.instance.patrol.SetupGlow(__instance.m_repairButtonGlow);
         }
     }
 

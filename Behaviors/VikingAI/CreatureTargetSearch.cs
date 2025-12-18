@@ -4,19 +4,20 @@ namespace Norsemen;
 
 public partial class VikingAI
 {
-    public void UpdateTargets(Humanoid humanoid, float dt, out bool canHearTarget, out bool canSeeTarget)
+    public void UpdateTargets(Viking viking, float dt, out bool canHearTarget, out bool canSeeTarget)
     {
         m_unableToAttackTargetTimer -= dt;
         m_updateTargetTimer -= dt;
 
+        bool isTamed = viking.IsTamed();
         // Find new targets periodically
         if (m_updateTargetTimer <= 0.0 && !m_character.InAttack())
         {
-            UpdateTargetSearch();
+            UpdateTargetSearch(isTamed);
         }
 
         // Tamed creatures lose target if too far from patrol/follow point
-        if (m_targetCreature != null && m_character.IsTamed())
+        if (m_targetCreature != null && isTamed)
         {
             CheckTamedTargetDistance();
         }
@@ -31,16 +32,23 @@ public partial class VikingAI
         CheckGiveUpChase(dt);
     }
 
-    private void UpdateTargetSearch()
+    private void UpdateTargetSearch(bool isTamed)
     {
         m_updateTargetTimer = Player.IsPlayerInRange(transform.position, 50f) ? 2f : 6f;
 
-        // Try to find an enemy creature
-        Character? enemy = FindEnemy();
-        if (enemy)
+        if (isTamed && m_behaviour is Emotion.Passive)
         {
-            m_targetCreature = enemy;
-            m_targetStatic = null;
+            m_targetCreature = null;
+        }
+        else
+        {
+            // Try to find an enemy creature
+            Character? enemy = FindEnemy();
+            if (enemy)
+            {
+                m_targetCreature = enemy;
+                m_targetStatic = null;
+            }
         }
 
         // Check if we should look for static targets instead
@@ -53,7 +61,7 @@ public partial class VikingAI
                                    (!m_aggravatable || IsAggravated()) &&
                                    !ZoneSystem.instance.GetGlobalKey(GlobalKeys.PassiveMobs);
 
-        bool needsStaticTarget = (m_targetCreature == null || cannotReachTarget) && !m_character.IsTamed();
+        bool needsStaticTarget = (m_targetCreature == null || cannotReachTarget) && !isTamed;
 
         if (shouldAttackObjects && needsStaticTarget)
         {

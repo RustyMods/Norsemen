@@ -4,18 +4,18 @@ namespace Norsemen;
 
 public partial class VikingAI
 {
-    public bool UpdateAttack(float dt, ItemDrop.ItemData? itemData, bool doAttack, bool canHearTarget, bool canSeeTarget)
+    public bool UpdateAttack(float dt, ItemDrop.ItemData? itemData, bool doAttack, bool canHearTarget, bool canSeeTarget, bool isTamed)
     {
         if (itemData == null) return false;
         
         switch (itemData.m_shared.m_aiTargetType)
         {
             case ItemDrop.ItemData.AiTarget.Enemy:
-                return UpdateEnemyAttack(dt, itemData, doAttack, canHearTarget, canSeeTarget);
+                return UpdateEnemyAttack(dt, itemData, doAttack, canHearTarget, canSeeTarget, isTamed);
             
             case ItemDrop.ItemData.AiTarget.FriendHurt:
             case ItemDrop.ItemData.AiTarget.Friend:
-                return UpdateFriendAttack(dt, itemData, doAttack);
+                return UpdateFriendAttack(dt, itemData, doAttack, isTamed);
             
             default:
                 return false;
@@ -23,26 +23,40 @@ public partial class VikingAI
     }
     
     
-    private bool UpdateEnemyAttack(float dt, ItemDrop.ItemData itemData, bool doAttack, bool canHearTarget, bool canSeeTarget)
+    private bool UpdateEnemyAttack(float dt, ItemDrop.ItemData itemData, bool doAttack, bool canHearTarget, bool canSeeTarget, bool isTamed)
     {
         if (m_targetStatic != null)
         {
-            return HandleStaticTarget(dt, itemData, doAttack);
+            return HandleStaticTarget(dt, itemData, doAttack, isTamed);
         }
         
         if (m_targetCreature != null)
         {
-            return HandleCreatureTarget(dt, itemData, doAttack, canHearTarget, canSeeTarget);
+            return HandleCreatureTarget(dt, itemData, doAttack, canHearTarget, canSeeTarget, isTamed);
         }
         
         return false;
     }
+
+    public static float GetWeaponRange(ItemDrop.ItemData itemData)
+    {
+        switch (itemData.m_shared.m_skillType)
+        {
+            case Skills.SkillType.Bows:
+            case Skills.SkillType.Crossbows:
+            case Skills.SkillType.ElementalMagic:
+            case Skills.SkillType.BloodMagic:
+                return UnityEngine.Random.Range(15f, 30f);
+            default:
+                return itemData.m_shared.m_attack.m_attackRange;
+        }
+    }
     
-    private bool HandleStaticTarget(float dt, ItemDrop.ItemData itemData, bool doAttack)
+    private bool HandleStaticTarget(float dt, ItemDrop.ItemData itemData, bool doAttack, bool isTamed)
     {
         Vector3 closestPoint = m_targetStatic.FindClosestPoint(transform.position);
         float distance = Vector3.Distance(closestPoint, transform.position);
-        bool inRange = distance < itemData.m_shared.m_aiAttackRange;
+        bool inRange = distance < GetWeaponRange(itemData);
         bool canSee = CanSeeTarget(m_targetStatic);
         
         if (inRange && canSee)
@@ -60,34 +74,36 @@ public partial class VikingAI
             if (lookingAtTarget && doAttack)
             {
                 DoWeaponAttack(null, false);
+                return true;
             }
-            else
-            {
-                StopMoving();
-            }
-        }
-        else
-        {
-            MoveTo(dt, closestPoint, 0.0f, IsAlerted());
-            ChargeStop();
+            StopMoving();
+            return true;
         }
         
-        return false;
+        if (isTamed && m_moveType is Movement.Guard)
+        {
+            return false;
+        }
+        
+        MoveTo(dt, closestPoint, 0.0f, IsAlerted());
+        ChargeStop();
+        
+        return true;
     }
     
-    private bool HandleCreatureTarget(float dt, ItemDrop.ItemData itemData, bool doAttack, bool canHearTarget, bool canSeeTarget)
+    private bool HandleCreatureTarget(float dt, ItemDrop.ItemData itemData, bool doAttack, bool canHearTarget, bool canSeeTarget, bool isTamed)
     {
         bool canDetectTarget = canHearTarget || canSeeTarget || (HuntPlayer() && m_targetCreature.IsPlayer());
         
         if (canDetectTarget)
         {
-            return HandleDetectedCreature(dt, itemData, doAttack, canSeeTarget);
+            return HandleDetectedCreature(dt, itemData, doAttack, canSeeTarget, isTamed);
         }
         
-        return HandleLostCreature(dt);
+        return HandleLostCreature(dt, isTamed);
     }
     
-    private bool HandleDetectedCreature(float dt, ItemDrop.ItemData itemData, bool doAttack, bool canSeeTarget)
+    private bool HandleDetectedCreature(float dt, ItemDrop.ItemData itemData, bool doAttack, bool canSeeTarget, bool isTamed)
     {
         m_beenAtLastPos = false;
         m_lastKnownTargetPos = m_targetCreature.transform.position;
@@ -100,12 +116,15 @@ public partial class VikingAI
             SetAlerted(true);
         }
 
-        float range = itemData.m_shared.m_skillType is Skills.SkillType.Bows or Skills.SkillType.Crossbows
-            ? 10f
-            : itemData.m_shared.m_attack.m_attackRange;
+        float range = GetWeaponRange(itemData);
         
         bool inAttackRange = distanceToTarget < range;
         bool shouldMove = !inAttackRange || !canSeeTarget || !IsAlerted();
+
+        if (shouldMove && isTamed && m_moveType is Movement.Guard)
+        {
+            return true;
+        }
         
         if (shouldMove)
         {
@@ -116,11 +135,11 @@ public partial class VikingAI
             {
                 m_unableToAttackTargetTimer = 15f;
             }
+
+            return true;
         }
-        else
-        {
-            StopMoving();
-        }
+        
+        StopMoving();
 
         bool isAlerted = IsAlerted();
         
@@ -140,6 +159,7 @@ public partial class VikingAI
                 if (doAttack && lookingAtTarget)
                 {
                     DoWeaponAttack(m_targetCreature, false);
+                    return true;
                 }
             }
         }
@@ -147,7 +167,7 @@ public partial class VikingAI
         {
             UpdateDodge(dt, m_targetCreature);
         }
-        
+
         return false;
     }
     
@@ -165,42 +185,48 @@ public partial class VikingAI
         return position;
     }
     
-    private bool HandleLostCreature(float dt)
+    private bool HandleLostCreature(float dt, bool isTamed)
     {
         ChargeStop();
-        
+        bool shouldMove = !isTamed || m_moveType is Movement.Patrol;
+
         if (m_beenAtLastPos)
         {
-            RandomMovement(dt, m_lastKnownTargetPos);
+            if (shouldMove)
+            {
+                RandomMovement(dt, m_lastKnownTargetPos);
+            }
             
             if (m_timeSinceAttacking > 15.0)
             {
                 m_unableToAttackTargetTimer = 15f;
             }
-        }
-        else if (MoveTo(dt, m_lastKnownTargetPos, 0.0f, IsAlerted()))
-        {
-            m_beenAtLastPos = true;
+
+            return true;
         }
         
+        if (shouldMove && MoveTo(dt, m_lastKnownTargetPos, 0.0f, IsAlerted()))
+        {
+            m_beenAtLastPos = true;
+            return true;
+        }
+
         return false;
     }
 
-    private bool UpdateFriendAttack(float dt, ItemDrop.ItemData itemData, bool doAttack)
+    private bool UpdateFriendAttack(float dt, ItemDrop.ItemData itemData, bool doAttack, bool isTamed)
     {
         bool lookingForHurt = itemData.m_shared.m_aiTargetType == ItemDrop.ItemData.AiTarget.FriendHurt;
         Character? target = lookingForHurt ? HaveHurtFriendInRange(m_viewRange) : HaveFriendInRange(m_viewRange);
-        
+        bool shouldMove = !isTamed || m_moveType is Movement.Patrol;
         if (target == null)
         {
-            RandomMovement(dt, transform.position, true);
+            if (shouldMove) RandomMovement(dt, transform.position, true);
             return false;
         }
         
         float distance = Vector3.Distance(target.transform.position, transform.position);
-        float range = itemData.m_shared.m_skillType is Skills.SkillType.Bows or Skills.SkillType.Crossbows
-            ? 10f
-            : itemData.m_shared.m_attack.m_attackRange;
+        float range = GetWeaponRange(itemData);
         
         bool inRange = distance < range;
         
@@ -211,15 +237,22 @@ public partial class VikingAI
                 StopMoving();
                 LookAt(target.transform.position);
                 DoWeaponAttack(target, true);
+                return true;
             }
-            else
+
+            if (shouldMove)
             {
                 RandomMovement(dt, target.transform.position);
+                return true;
             }
         }
         else
         {
-            MoveTo(dt, target.transform.position, 0.0f, IsAlerted());
+            if (shouldMove)
+            {
+                MoveTo(dt, target.transform.position, 0.0f, IsAlerted());
+                return true;
+            }
         }
         
         return false;

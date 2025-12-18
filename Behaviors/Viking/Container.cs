@@ -17,7 +17,6 @@ public partial class Viking
     {
         if (m_loading || !m_nview.IsOwner()) return;
         Save();
-        // m_nview.GetZDO().Set(VikingVars.createTombStone, true);
         if (!IsTamed())
         {
             int currentCount = GetInventory().NrOfItems();
@@ -36,15 +35,13 @@ public partial class Viking
         string base64 = pkg.GetBase64();
         m_nview.GetZDO().Set(ZDOVars.s_items, base64);
         m_lastDataString = base64;
+        m_nview.GetZDO().Set(VikingVars.inventoryChanged, true);
     }
 
-    public bool Load()
+    public void Load()
     {
         string base64 = m_nview.GetZDO().GetString(ZDOVars.s_items);
-        if (base64 == m_lastDataString)
-        {
-            return true;
-        }
+        if (base64 == m_lastDataString) return;
 
         if (!string.IsNullOrEmpty(base64))
         {
@@ -54,7 +51,6 @@ public partial class Viking
             m_loading = false;
         }
         m_lastDataString = base64;
-        return true;
     }
     
      public void RPC_RequestOpen(long uid, long playerID)
@@ -77,6 +73,7 @@ public partial class Viking
         if (!Player.m_localPlayer) return;
         if (granted)
         {
+            Load();
             m_lastInventoryCount = GetInventory().NrOfItems();
             InventoryGui.instance.Show(this);
         }

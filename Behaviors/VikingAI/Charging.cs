@@ -8,11 +8,11 @@ public partial class VikingAI
         bool notAttacking = !m_character.InAttack();
         bool hasValidAttack = itemData?.m_shared.m_attack != null && 
                               !itemData.m_shared.m_attack.IsDone() &&
-                              !string.IsNullOrEmpty(itemData.m_shared.m_attack.m_chargeAnimationBool);
+                              !string.IsNullOrEmpty(itemData.m_shared.m_attack.m_drawAnimationState);
         
         if ((IsCharging() || canCharge) && notAttacking && hasValidAttack)
         {
-            ChargeStart(itemData?.m_shared.m_attack.m_chargeAnimationBool);
+            ChargeStart(itemData?.m_shared.m_attack.m_drawAnimationState);
         }
     }
 }

@@ -18,34 +18,15 @@ public partial class Viking
 
     public void SetupConditionals()
     {
-        List<string> sets = new StringList(configs.conditionalSets.Value).list;
-        List<ConditionalItemSet> randomSets = new();
-        foreach (string? set in sets)
-        {
-            if (!ConditionalRandomSet.sets.TryGetValue(set, out var data)) continue;
-            randomSets.Add(data.set);
-        }
-        m_conditionalItemSets = randomSets.ToArray();
+        Heightmap.Biome biome = configs.biome;
 
-        List<string> items = new StringList(configs.conditionalItems.Value).list;
-        List<ConditionalRandomItem> randomItems = new();
-        foreach (string? item in items)
-        {
-            if (!Norsemen.ConditionalRandomItem.items.TryGetValue(item, out var data)) continue;
-            randomItems.Add(data.item);
-        }
-        
-        m_conditionalRandomItems = randomItems.ToArray();
+        List<ConditionalRandomSet> sets = CustomizationManager.GetSets(biome);
+        List<Norsemen.ConditionalRandomItem> items = CustomizationManager.GetItems(biome);
+        List<Norsemen.ConditionalRandomWeapon> weapons = CustomizationManager.GetWeapons(biome);
 
-        List<string> weapons = new StringList(configs.conditionalWeapons.Value).list;
-        List<ConditionalRandomWeapon> randomWeapons = new();
-        foreach (string weapon in weapons)
-        {
-            if (!Norsemen.ConditionalRandomWeapon.weapons.TryGetValue(weapon, out var data)) continue;
-            randomWeapons.Add(data.weapon);
-        }
-        
-        m_conditionalRandomWeapons = randomWeapons.ToArray();
+        m_conditionalItemSets = sets.Select(x => x.set).ToArray();
+        m_conditionalRandomItems = items.Select(x => x.item).ToArray();
+        m_conditionalRandomWeapons = weapons.Select(x => x.weapon).ToArray();
     }
 
     public void AddRandomShield()
@@ -75,7 +56,6 @@ public partial class Viking
             List<ConditionalRandomWeapon> availableWeapons = new();
             foreach (ConditionalRandomWeapon weapon in m_conditionalRandomWeapons)
             {
-                if (!configs.AddWeapon(weapon.m_name)) continue;
                 if (!weapon.HasKey()) continue;
                 availableWeapons.Add(weapon);
             }
@@ -129,7 +109,6 @@ public partial class Viking
             List<ConditionalItemSet> availableSets = new List<ConditionalItemSet>();
             foreach (ConditionalItemSet set in m_conditionalItemSets)
             {
-                if (!configs.AddSet(set.m_name)) continue;
                 if (!set.HasKey()) continue;
                 availableSets.Add(set);
             }
@@ -233,7 +212,6 @@ public partial class Viking
             foreach (ConditionalRandomItem randomItem in m_conditionalRandomItems)
             {
                 if (randomItem.m_prefab == null) continue;
-                if (!configs.AddItem(randomItem.m_name)) continue;
                 if (!randomItem.HasKey()) continue;
                 float roll = UnityEngine.Random.value;
                 if (roll < randomItem.m_chance) continue;
@@ -261,7 +239,6 @@ public partial class Viking
         {
             ItemDrop.ItemData? item = items[i];
             if (!item.IsEquipable()) continue;
-            
             EquipIfBetter(item);
             
             switch (item.m_shared.m_skillType)
@@ -348,6 +325,7 @@ public partial class Viking
                 }
                 break;
             case ItemDrop.ItemData.ItemType.Shield:
+            case ItemDrop.ItemData.ItemType.Torch:
                 if (m_leftItem == null || m_leftItem.IsItemBetter(item))
                 {
                     EquipItem(item);
@@ -412,7 +390,6 @@ public partial class Viking
     [Serializable]
     public class ConditionalItemSet
     {
-        public string m_name = "";
         public GameObject?[] m_items = Array.Empty<GameObject>();
         public string m_requiredDefeatKey = "";
         public float m_weight = 1f;
@@ -423,7 +400,6 @@ public partial class Viking
     [Serializable]
     public class ConditionalRandomItem
     {
-        public string m_name = "";
         public GameObject? m_prefab;
         public string m_requiredDefeatKey = "";
         public float m_chance = 0.5f;
@@ -436,7 +412,6 @@ public partial class Viking
     [Serializable]
     public class ConditionalRandomWeapon
     {
-        public string m_name = "";
         public GameObject? m_prefab;
         public string m_requiredDefeatKey = "";
         public float m_weight;

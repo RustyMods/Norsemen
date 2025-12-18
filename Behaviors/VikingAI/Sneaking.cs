@@ -23,6 +23,15 @@ public partial class VikingAI
 
     private void UpdateCrouchDecision(Character? target, bool canSeeTarget)
     {
+        if (m_followPlayer != null)
+        {
+            if (m_followPlayer.IsCrouching())
+            {
+                m_viking.SetCrouch(true);
+                return;
+            }
+        }
+        
         if (target == null)
         {
             m_viking.SetCrouch(false);

@@ -5,21 +5,7 @@ namespace Norsemen;
 
 public partial class Viking
 {
-    public List<string> m_pukeTalk = new List<string>()
-    {
-        "$norseman_puke_1", 
-        "$norseman_puke_2", 
-        "$norseman_puke_3", 
-        "$norseman_puke_4",
-        "$norseman_puke_5",
-        "$norseman_puke_6", 
-        "$norseman_puke_7", 
-        "$norseman_puke_8", 
-        "$norseman_puke_9",
-        "$norseman_puke_10",
-    };
-
-    public static readonly EffectListRef m_pukeEffects = new()
+    private static readonly EffectListRef pukeFX = new()
     {
         dataRefs = new()
         {
@@ -49,7 +35,7 @@ public partial class Viking
         {
             if (__instance.m_character is not Viking viking) return;
             viking.m_queuedTexts.Clear();
-            viking.QueueSay(viking.m_pukeTalk, "emote_despair", m_pukeEffects);
+            viking.QueueSay(TalkManager.GetTalk(TalkManager.TalkType.Puke), "", "emote_despair", pukeFX);
         }
     }
     
