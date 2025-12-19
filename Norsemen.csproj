@@ -157,8 +157,7 @@
         <Compile Include="Behaviors\VikingAI\WorkTargetSearch.cs" />
         <Compile Include="Behaviors\VikingAI\VikingAI.cs" />
         <Compile Include="Behaviors\VikingAI\Working.cs" />
-        <Compile Include="Behaviors\NameGenerator.cs" />
-        <Compile Include="Behaviors\VikingTomb.cs" />
+        <Compile Include="Behaviors\VikingTomb\VikingTomb.cs" />
         <Compile Include="Behaviors\VikingVars.cs" />
         <Compile Include="Behaviors\Viking\Armor.cs" />
         <Compile Include="Behaviors\Viking\Attack.cs" />
@@ -201,6 +200,7 @@
         <Compile Include="Managers\EffectListRef.cs" />
         <Compile Include="Managers\FactionManager\Faction.cs" />
         <Compile Include="Managers\FactionManager\FactionManager.cs" />
+        <Compile Include="Managers\NameGenerator.cs" />
         <Compile Include="Managers\Norseman\Configs.cs" />
         <Compile Include="Managers\Norseman\Norseman.cs" />
         <Compile Include="Managers\Norseman\NorsemanConfigs.cs" />

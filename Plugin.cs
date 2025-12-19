@@ -42,7 +42,7 @@ namespace Norsemen
             SetupNorsemen();
             SetupCommands();
             SetupEquipment();
-            
+            NameGenerator.Setup();
             TalkManager.SetupTalks();
             CustomizationManager.Setup();
 
@@ -212,6 +212,65 @@ namespace Norsemen
                 }
                 
                 Norseman.tombstone = prefab;
+            };
+
+            Clone fx_revive = new Clone("fx_summon_twitcher_spawn", "fx_revive_norseman");
+            fx_revive.OnCreated += prefab =>
+            {
+                var swirls = prefab.transform.Find("Swirls");
+                var dust = prefab.transform.Find("Swirls/Dust");
+                var spores = prefab.transform.Find("Swirls/Swirly Spores");
+                var light = prefab.transform.Find("Point light");
+                var light1 = prefab.transform.Find("Point light (1)");
+                
+                if (swirls != null)
+                {
+                    var ps = swirls.GetComponent<ParticleSystem>();
+                    var main = ps.main;
+                    main.startColor = new Color(0f, 0.8f, 1f, 1f);
+                }
+
+                if (dust != null)
+                {
+                    var ps = dust.GetComponent<ParticleSystem>();
+                    var main = ps.main;
+                    main.startColor = new Color(0.4f, 0.8f, 1f, 1f);
+                }
+
+                if (spores != null)
+                {
+                    var ps = spores.GetComponent<ParticleSystem>();
+                    Gradient gradient1 = new();
+                    gradient1.SetKeys(new []
+                    {
+                        new GradientColorKey(new Color(0.4f, 0.8f, 0.8f, 1f), 0.0f), 
+                        new GradientColorKey(new Color(0f, 0.8f, 1f, 1f), 1.0f)
+                    }, new GradientAlphaKey[]
+                    {
+                        new (1f, 0f), new (0f, 1f)
+                    });
+                    ps.customData.SetColor(ParticleSystemCustomData.Custom1, gradient1);
+                }
+
+                if (light != null)
+                {
+                    var l = light.GetComponent<Light>();
+                    l.color = new Color(0.1f, 0.8f, 0.8f, 1f);
+                }
+
+                if (light1 != null)
+                {
+                    var l = light1.GetComponent<Light>();
+                    l.color = new Color(0.1f, 0.8f, 0.8f, 1f);
+                }
+
+                VikingTomb.reviveEffects.m_effectPrefabs = new[]
+                {
+                    new EffectList.EffectData()
+                    {
+                        m_prefab = prefab,
+                    }
+                };
             };
         }
 

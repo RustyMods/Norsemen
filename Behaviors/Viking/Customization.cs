@@ -41,11 +41,11 @@ public partial class Viking
         string randomName;
         if (isFemale)
         {
-            randomName = NameGenerator.GenerateFemaleName();
+            randomName = NameGenerator.names.GenerateFemaleName();
         }
         else
         {
-            randomName = NameGenerator.GenerateMaleName();
+            randomName = NameGenerator.names.GenerateMaleName();
         }
         m_nview.GetZDO().Set(ZDOVars.s_tamedName, randomName);
     }

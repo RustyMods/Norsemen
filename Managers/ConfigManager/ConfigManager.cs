@@ -6,6 +6,7 @@ using HarmonyLib;
 using ServerSync;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace Norsemen;
 
@@ -14,8 +15,12 @@ public static class ConfigManager
     public static readonly ISerializer serializer = new SerializerBuilder()
         .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults | DefaultValuesHandling.OmitNull | DefaultValuesHandling.OmitEmptyCollections)
         .DisableAliases()
+        .WithNamingConvention(CamelCaseNamingConvention.Instance)
         .Build();
-    public static readonly IDeserializer deserializer = new DeserializerBuilder().IgnoreUnmatchedProperties().Build();
+    public static readonly IDeserializer deserializer = new DeserializerBuilder()
+        .IgnoreUnmatchedProperties()
+        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+        .Build();
     
     private static readonly ConfigFile Config;
     public static readonly ConfigSync ConfigSync;
@@ -75,6 +80,7 @@ public static class ConfigManager
     {
         CustomizationManager.UpdateSync(__instance);
         TalkManager.UpdateSync(__instance);
+        NameGenerator.UpdateSync(__instance);
     }
     
     public static void SetupWatcher()

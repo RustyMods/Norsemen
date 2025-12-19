@@ -6,11 +6,11 @@ namespace Norsemen;
 [Serializable]
 public class ConditionalRandomItem
 {
-    public string PrefabName;
-    public string RequiredDefeatKey;
-    public float Chance;
-    public int Min;
-    public int Max;
+    public string PrefabName = "";
+    public string RequiredDefeatKey = "";
+    public float Chance = 0.5f;
+    public int Min = 1;
+    public int Max = 1;
 
     [YamlIgnore] private Viking.ConditionalRandomItem? _item;
     [YamlIgnore] public Viking.ConditionalRandomItem item
@@ -38,4 +38,6 @@ public class ConditionalRandomItem
         Min = min;
         Max = max;
     }
+    
+    public ConditionalRandomItem(){}
 }

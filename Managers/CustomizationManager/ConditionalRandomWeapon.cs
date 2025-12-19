@@ -6,9 +6,9 @@ namespace Norsemen;
 [Serializable]
 public class ConditionalRandomWeapon
 {
-    public string PrefabName;
-    public string RequiredDefeatKey;
-    public float Weight;
+    public string PrefabName = "";
+    public string RequiredDefeatKey = "";
+    public float Weight = 1f;
 
     [YamlIgnore] private Viking.ConditionalRandomWeapon? _weapon;
 
@@ -32,4 +32,6 @@ public class ConditionalRandomWeapon
         RequiredDefeatKey = requiredDefeatKey;
         Weight = weight;
     }
+    
+    public ConditionalRandomWeapon(){}
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
 using UnityEngine;
@@ -18,6 +17,8 @@ public class VikingTomb : MonoBehaviour
     public float m_cancelDistance = 10f;
     public float m_revertDistance = 5f;
     public float m_checkInterval = 0.5f;
+    
+    public static EffectList reviveEffects = new();
     
     public Player? m_reviver;
     public Player.MinorActionData? m_action;
@@ -61,8 +62,6 @@ public class VikingTomb : MonoBehaviour
             m_action.m_time += Time.fixedDeltaTime;
         }
     }
-    
-
 
     public string GetHoverText()
     {
@@ -100,10 +99,12 @@ public class VikingTomb : MonoBehaviour
     }
     public bool Revive()
     {
+        if (m_reviver == null) return false;
+        
         string? prefabName = m_nview.GetZDO().GetString(VikingVars.vikingPrefab);
         GameObject? prefab = ZNetScene.instance.GetPrefab(prefabName);
         if (prefab == null) return false;
-
+        
         string? tamedName = m_nview.GetZDO().GetString(ZDOVars.s_tamedName);
         int level = m_nview.GetZDO().GetInt(ZDOVars.s_level);
         Vector3 hairColor = m_nview.GetZDO().GetVec3(ZDOVars.s_hairColor, Vector3.zero);
@@ -136,11 +137,12 @@ public class VikingTomb : MonoBehaviour
         zdo.Set(VikingVars.lastLevelUpTime, ZNet.instance.GetTime().Ticks);
         zdo.Set(VikingVars.createTombStone, true);
         zdo.Set(VikingVars.isElf, isElf);
-
+        zdo.Set(ZDOVars.s_follow, m_reviver.GetPlayerName());
         ZNetScene.instance.CreateObject(zdo);
         
         m_tombstone.m_container.GetInventory().RemoveAll();
         m_revived = true;
+        m_reviver = null;
         return true;
     }
 
@@ -158,14 +160,11 @@ public class VikingTomb : MonoBehaviour
         {
             if (m_action.m_time >= m_action.m_duration)
             {
-                if (!Revive())
-                {
-                    NorsemenPlugin.LogWarning($"Failed to revive {m_tombstone.GetOwnerName()}");
-                }
                 CancelInvoke(nameof(CheckReviveProgress));
+                Invoke(nameof(Revive), 1f);
+                reviveEffects.Create(transform.position, Quaternion.identity);
                 m_nview.GetZDO().Set(VikingVars.reviving, false);
                 m_action = null;
-                m_reviver = null;
                 m_currentTomb = null;
             }
             else if (m_action.m_time <= 0.0f)

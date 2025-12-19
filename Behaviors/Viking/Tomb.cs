@@ -23,17 +23,13 @@ public partial class Viking
             if (item.IsEquipable()) continue;
             Quaternion rotation = Quaternion.Euler(0.0f, Random.Range(0, 360), 0.0f);
             Vector3 area = UnityEngine.Random.insideUnitSphere * range;
-            GameObject? prefab = item.m_dropPrefab;
-            GameObject? obj = Instantiate(prefab, center + area, rotation);
-            ItemDrop? component = obj.GetComponent<ItemDrop>();
-            component.m_itemData = item;
-
-            Rigidbody body = obj.GetComponent<Rigidbody>();
+            Vector3 pos = center + Vector3.up * 0.5f + area;
+            ItemDrop drop = ItemDrop.DropItem(item, item.m_stack, pos, rotation);
+            
+            Rigidbody body = drop.GetComponent<Rigidbody>();
             if (body == null) continue;
-
             Vector3 force = Random.insideUnitSphere;
             if (force.y < 0.0) force.y = -force.y;
-            
             body.AddForce(force * 5f,  ForceMode.VelocityChange);
         }
     }

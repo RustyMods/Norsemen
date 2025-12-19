@@ -44,8 +44,7 @@ public static class TalkManager
         try
         {
             Dictionary<TalkType, List<string>> data = ConfigManager.deserializer.Deserialize<Dictionary<TalkType, List<string>>>(text);
-            talks.Clear();
-            talks.AddRange(data);
+            talks = data;
             foreach (TalkType type in Enum.GetValues(typeof(TalkType)))
             {
                 if (!talks.ContainsKey(type))
@@ -162,8 +161,7 @@ public static class TalkManager
         {
             string text = File.ReadAllText(filePath);
             Dictionary<TalkType, List<string>> data = ConfigManager.deserializer.Deserialize<Dictionary<TalkType, List<string>>>(text);
-            talks.Clear();
-            talks.AddRange(data);
+            talks = data;
             foreach (TalkType type in Enum.GetValues(typeof(TalkType)))
             {
                 if (!talks.ContainsKey(type))

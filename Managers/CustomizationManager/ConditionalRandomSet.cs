@@ -9,8 +9,8 @@ namespace Norsemen;
 public class ConditionalRandomSet
 {
     public List<string> PrefabNames = new();
-    public string RequiredDefeatKey;
-    public float Weight;
+    public string RequiredDefeatKey = "";
+    public float Weight = 1f;
 
     [YamlIgnore] private Viking.ConditionalItemSet? _set;
     [YamlIgnore] public Viking.ConditionalItemSet set
@@ -33,4 +33,6 @@ public class ConditionalRandomSet
         PrefabNames.Add(prefabNames);
         Weight = weight;
     }
+    
+    public ConditionalRandomSet(){}
 }

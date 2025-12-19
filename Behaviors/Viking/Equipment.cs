@@ -19,7 +19,7 @@ public partial class Viking
     public void SetupConditionals()
     {
         Heightmap.Biome biome = configs.biome;
-
+        
         List<ConditionalRandomSet> sets = CustomizationManager.GetSets(biome);
         List<Norsemen.ConditionalRandomItem> items = CustomizationManager.GetItems(biome);
         List<Norsemen.ConditionalRandomWeapon> weapons = CustomizationManager.GetWeapons(biome);
@@ -112,7 +112,6 @@ public partial class Viking
                 if (!set.HasKey()) continue;
                 availableSets.Add(set);
             }
-
             if (availableSets.Count > 0)
             {
                 float totalWeight = availableSets.Sum(x => x.m_weight);

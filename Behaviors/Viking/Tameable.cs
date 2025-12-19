@@ -200,8 +200,6 @@ public partial class Viking
         return (ZNet.instance.GetTime() - dateTime).TotalSeconds > m_fedDuration;
     }
 
-
-
     public void ResetFeedingTimer()
     {
         m_nview.GetZDO().Set(ZDOVars.s_tameLastFeeding, ZNet.instance.GetTime().Ticks);

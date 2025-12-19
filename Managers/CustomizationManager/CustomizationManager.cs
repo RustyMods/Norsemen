@@ -82,7 +82,7 @@ public static class CustomizationManager
     public static readonly string FileName = "Equipment.yml";
     public static readonly string FilePath = Path.Combine(ConfigManager.DirectoryPath, FileName);
 
-    public static readonly Dictionary<Heightmap.Biome, Equipment> equipment = new()
+    public static Dictionary<Heightmap.Biome, Equipment> equipment = new()
     {
         [Heightmap.Biome.Meadows] = new Equipment(),
         [Heightmap.Biome.BlackForest] = new Equipment(),
@@ -111,8 +111,7 @@ public static class CustomizationManager
         if (string.IsNullOrEmpty(text)) return;
         try
         {
-            Dictionary<Heightmap.Biome, Equipment> data =
-                ConfigManager.deserializer.Deserialize<Dictionary<Heightmap.Biome, Equipment>>(text);
+            Dictionary<Heightmap.Biome, Equipment> data = ConfigManager.deserializer.Deserialize<Dictionary<Heightmap.Biome, Equipment>>(text);
             equipment.Clear();
             equipment.AddRange(data);
         }
@@ -141,14 +140,14 @@ public static class CustomizationManager
         {
             string text = File.ReadAllText(FilePath);
             Dictionary<Heightmap.Biome, Equipment> data = ConfigManager.deserializer.Deserialize<Dictionary<Heightmap.Biome, Equipment>>(text);
-            equipment.Clear();
-            equipment.AddRange(data);
+            equipment = data;
             UpdateSync(ZNet.instance);
             NorsemenPlugin.LogDebug($"{FileName} changed");
         }
-        catch
+        catch (Exception ex)
         {
             NorsemenPlugin.LogError($"Failed to deserialize {FileName}");
+            Debug.LogError(ex.Message);
         }
     }
 
@@ -178,11 +177,12 @@ public static class CustomizationManager
         {
             string text = File.ReadAllText(FilePath);
             Dictionary<Heightmap.Biome, Equipment> data = ConfigManager.deserializer.Deserialize<Dictionary<Heightmap.Biome, Equipment>>(text);
-            equipment.Copy(data);
+            equipment = data;
         }
-        catch
+        catch (Exception ex)
         {
             NorsemenPlugin.LogError($"Failed to deserialize: {FileName}");
+            Debug.LogError(ex.Message);
         }
     }
 
@@ -206,19 +206,19 @@ public static class CustomizationManager
 
     public static List<ConditionalRandomSet> GetSets(Heightmap.Biome biome)
     {
-        if (!equipment.TryGetValue(biome, out var data)) return new();
+        if (!equipment.TryGetValue(biome, out Equipment? data)) return new();
         return data.RandomSets;
     }
 
     public static List<ConditionalRandomItem> GetItems(Heightmap.Biome biome)
     {
-        if (!equipment.TryGetValue(biome, out var data)) return new();
+        if (!equipment.TryGetValue(biome, out Equipment? data)) return new();
         return data.RandomItems;
     }
 
     public static List<ConditionalRandomWeapon> GetWeapons(Heightmap.Biome biome)
     {
-        if (!equipment.TryGetValue(biome, out var data)) return new();
+        if (!equipment.TryGetValue(biome, out Equipment? data)) return new();
         return data.RandomWeapons;
     }
 }
