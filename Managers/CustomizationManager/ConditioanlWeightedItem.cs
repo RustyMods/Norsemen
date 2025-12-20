@@ -4,7 +4,7 @@ using YamlDotNet.Serialization;
 namespace Norsemen;
 
 [Serializable]
-public class ConditionalRandomWeapon
+public class ConditioanlWeightedItem
 {
     public string PrefabName = "";
     public string RequiredDefeatKey = "";
@@ -26,12 +26,12 @@ public class ConditionalRandomWeapon
             return _weapon;
         }
     }
-    public ConditionalRandomWeapon(string prefabName, string requiredDefeatKey, float weight)
+    public ConditioanlWeightedItem(string prefabName, string requiredDefeatKey, float weight)
     {
         PrefabName = prefabName;
         RequiredDefeatKey = requiredDefeatKey;
         Weight = weight;
     }
     
-    public ConditionalRandomWeapon(){}
+    public ConditioanlWeightedItem(){}
 }

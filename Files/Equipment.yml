@@ -1,0 +1,429 @@
+Meadows:
+  randomItems:
+  - prefabName: Raspberry
+    chance: 0.5
+    min: 1
+    max: 50
+  - prefabName: Wood
+    chance: 0.5
+    min: 25
+    max: 50
+  - prefabName: LeatherScrap
+    chance: 0.5
+    min: 1
+    max: 20
+  - prefabName: Flint
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.5
+    min: 1
+    max: 20
+  - prefabName: DeerHide
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.5
+    min: 1
+    max: 10
+  randomSets:
+  - prefabNames:
+    - HelmetIron
+    - ArmorRagsChest
+    - ArmorRagsLegs
+    - Torch
+    weight: 0.1
+  - prefabNames:
+    - ArmorLeatherChest
+    - ArmorLeatherLegs
+    - CapeDeerHide
+    - KnifeFlint
+    requiredDefeatKey: defeated_eikthyr
+    weight: 0.2
+  - prefabNames:
+    - ArmorRagsChest
+    - ArmorRagsLegs
+    - Club
+    weight: 0.1
+  randomWeapons:
+  - prefabName: Bow
+    requiredDefeatKey: defeated_eikthyr
+    weight: 0.1
+BlackForest:
+  randomItems:
+  - prefabName: Raspberry
+    chance: 0.5
+    min: 1
+    max: 50
+  - prefabName: Wood
+    chance: 0.5
+    min: 25
+    max: 50
+  - prefabName: DeerHide
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.5
+    min: 1
+    max: 10
+  - prefabName: SurtlingCore
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.4
+    min: 1
+    max: 3
+  - prefabName: PickaxeAntler
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.6
+    min: 1
+    max: 1
+  - prefabName: TinOre
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.5
+    min: 1
+    max: 5
+  - prefabName: CopperOre
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.5
+    min: 1
+    max: 5
+  randomSets:
+  - prefabNames:
+    - ArmorRagsChest
+    - ArmorRagsLegs
+    - Club
+    weight: 0.1
+  - prefabNames:
+    - HelmetBerserkerHood
+    - ArmorBerserkerChest
+    - ArmorBerserkerLegs
+    - FistBjornClaw
+    requiredDefeatKey: defeated_gdking
+    weight: 0.3
+  - prefabNames:
+    - HelmetBronze
+    - ArmorBronzeChest
+    - ArmorBronzeLegs
+    - CapeTrollLeather
+    - AtgeirBronze
+    requiredDefeatKey: defeated_gdking
+    weight: 0.3
+  - prefabNames:
+    - HelmetTrollLeather
+    - ArmorTrollLeatherChest
+    - ArmorTrollLeatherLegs
+    - CapeTrollLeather
+    - SwordBronze
+    - ShieldBronzeBuckler
+    requiredDefeatKey: defeated_gdking
+    weight: 0.3
+  randomWeapons:
+  - prefabName: BowFineWood
+    requiredDefeatKey: defeated_gdking
+    weight: 0.2
+Swamp:
+  randomItems:
+  - prefabName: Coins
+    chance: 0.5
+    min: 1
+    max: 100
+  - prefabName: DeerStew
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.5
+    min: 1
+    max: 5
+  - prefabName: CopperOre
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.5
+    min: 1
+    max: 5
+  - prefabName: IronScrap
+    requiredDefeatKey: defeated_gdking
+    chance: 0.3
+    min: 1
+    max: 5
+  - prefabName: Iron
+    requiredDefeatKey: defeated_bonemass
+    chance: 0.3
+    min: 1
+    max: 5
+  - prefabName: SurtlingCore
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.4
+    min: 1
+    max: 3
+  - prefabName: Chain
+    requiredDefeatKey: defeated_gdking
+    chance: 0.5
+    min: 1
+    max: 2
+  randomSets:
+  - prefabNames:
+    - HelmetTrollLeather
+    - ArmorTrollLeatherChest
+    - ArmorTrollLeatherLegs
+    - CapeTrollLeather
+    - SwordBronze
+    - ShieldBronzeBuckler
+    requiredDefeatKey: defeated_gdking
+    weight: 0.3
+  - prefabNames:
+    - HelmetIron
+    - ArmorIronChest
+    - ArmorIronLegs
+    - CapeDeerHide
+    - BowHuntsman
+    requiredDefeatKey: defeated_bonemass
+    weight: 0.4
+  - prefabNames:
+    - HelmetRoot
+    - ArmorRootChest
+    - ArmorRootLegs
+    - CapeTrollHide
+    - BowHuntsman
+    requiredDefeatKey: defeated_bonemass
+    weight: 0.4
+  randomWeapons:
+  - prefabName: KnifeChitin
+    requiredDefeatKey: defeated_bonemass
+    weight: 0.3
+Mountain:
+  randomItems:
+  - prefabName: Coins
+    chance: 0.5
+    min: 1
+    max: 100
+  - prefabName: DeerStew
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.5
+    min: 1
+    max: 5
+  - prefabName: Tin
+    requiredDefeatKey: defeated_gdking
+    chance: 0.3
+    min: 1
+    max: 5
+  - prefabName: Copper
+    requiredDefeatKey: defeated_gdking
+    chance: 0.3
+    min: 1
+    max: 5
+  - prefabName: SilverOre
+    requiredDefeatKey: defeated_bonemass
+    chance: 0.33
+    min: 1
+    max: 10
+  - prefabName: Obsidian
+    requiredDefeatKey: defeated_bonemass
+    chance: 0.4
+    min: 1
+    max: 20
+  - prefabName: Crystal
+    requiredDefeatKey: defeated_bonemass
+    chance: 0.5
+    min: 10
+    max: 15
+  - prefabName: Silver
+    requiredDefeatKey: defeated_dragon
+    chance: 0.3
+    min: 1
+    max: 5
+  - prefabName: IronScrap
+    requiredDefeatKey: defeated_gdking
+    chance: 0.3
+    min: 1
+    max: 5
+  - prefabName: Chain
+    requiredDefeatKey: defeated_gdking
+    chance: 0.5
+    min: 1
+    max: 2
+  - prefabName: Iron
+    requiredDefeatKey: defeated_bonemass
+    chance: 0.3
+    min: 1
+    max: 5
+  randomSets:
+  - prefabNames:
+    - HelmetIron
+    - ArmorIronChest
+    - ArmorIronLegs
+    - CapeDeerHide
+    - BowHuntsman
+    requiredDefeatKey: defeated_bonemass
+    weight: 0.4
+  - prefabNames:
+    - HelmetFenring
+    - ArmorFenringChest
+    - ArmorFenringLegs
+    - CapeWolf
+    - KnifeSilver
+    - ShieldSilver
+    requiredDefeatKey: defeated_dragon
+    weight: 0.5
+  - prefabNames:
+    - HelmetDrake
+    - ArmorWolfChest
+    - ArmorWolfLegs
+    - CapeWolf
+    - BattleAxeCrystal
+    requiredDefeatKey: defeated_dragon
+    weight: 0.5
+  randomWeapons:
+  - prefabName: BowFineWood
+    requiredDefeatKey: defeated_gdking
+    weight: 0.2
+  - prefabName: MaceSilver
+    requiredDefeatKey: defeated_dragon
+    weight: 0.4
+Plains:
+  randomItems:
+  - prefabName: Coins
+    chance: 0.5
+    min: 1
+    max: 100
+  - prefabName: DeerStew
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.5
+    min: 1
+    max: 5
+  - prefabName: FineWood
+    requiredDefeatKey: defeated_bonemass
+    chance: 0.5
+    min: 25
+    max: 50
+  - prefabName: Silver
+    requiredDefeatKey: defeated_dragon
+    chance: 0.3
+    min: 1
+    max: 5
+  - prefabName: Coins
+    chance: 0.5
+    min: 1
+    max: 100
+  - prefabName: DeerStew
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.5
+    min: 1
+    max: 5
+  - prefabName: FineWood
+    requiredDefeatKey: defeated_bonemass
+    chance: 0.5
+    min: 25
+    max: 50
+  randomSets:
+  - prefabNames:
+    - HelmetDrake
+    - ArmorWolfChest
+    - ArmorWolfLegs
+    - CapeWolf
+    - BattleAxeCrystal
+    requiredDefeatKey: defeated_dragon
+    weight: 0.5
+  - prefabNames:
+    - HelmetPadded
+    - ArmorPaddedGreaves
+    - ArmorPaddedCuirass
+    - CapeLinen
+    - MaceNeedle
+    requiredDefeatKey: defeated_goblingking
+    weight: 0.6
+  - prefabNames:
+    - HelmetBerserkerUndead
+    - ArmorBerserkerUndeadChest
+    - ArmorBerserkerUndeadLegs
+    - FistBjornUndeadClaw
+    requiredDefeatKey: defeated_goblinking
+    weight: 0.6
+Mistlands:
+  randomItems:
+  - prefabName: Coins
+    chance: 0.5
+    min: 1
+    max: 100
+  - prefabName: DeerStew
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.5
+    min: 1
+    max: 5
+  - prefabName: SoftTissue
+    requiredDefeatKey: defeated_goblinking
+    chance: 0.3
+    min: 1
+    max: 5
+  - prefabName: FineWood
+    requiredDefeatKey: defeated_bonemass
+    chance: 0.5
+    min: 25
+    max: 50
+  randomSets:
+  - prefabNames:
+    - HelmetPadded
+    - ArmorPaddedGreaves
+    - ArmorPaddedCuirass
+    - CapeLinen
+    - MaceNeedle
+    requiredDefeatKey: defeated_goblingking
+    weight: 0.6
+  - prefabNames:
+    - HelmetCarapace
+    - ArmorCarapaceChest
+    - ArmorCarapaceLegs
+    - ShieldCarapace
+    - SpearCarapace
+    - Demister
+    requiredDefeatKey: defeated_queen
+    weight: 0.7
+  - prefabNames:
+    - HelmetMageHood
+    - ArmorMageChest
+    - ArmorMageLegs
+    - StaffFireball
+    - CapeFeather
+    - Demister
+    requiredDefeatKey: defeated_queen
+    weight: 0.7
+AshLands:
+  randomItems:
+  - prefabName: Coins
+    chance: 0.5
+    min: 1
+    max: 100
+  - prefabName: DeerStew
+    requiredDefeatKey: defeated_eikthyr
+    chance: 0.5
+    min: 1
+    max: 5
+  - prefabName: SoftTissue
+    requiredDefeatKey: defeated_goblinking
+    chance: 0.3
+    min: 1
+    max: 5
+  randomSets:
+  - prefabNames:
+    - HelmetCarapace
+    - ArmorCarapaceChest
+    - ArmorCarapaceLegs
+    - ShieldCarapace
+    - SpearCarapace
+    - Demister
+    requiredDefeatKey: defeated_queen
+    weight: 0.7
+  - prefabNames:
+    - HelmetAshlandsMediumHood
+    - ArmorAshlandsMediumChest
+    - ArmorAshlandsMediumlegs
+    - CapeAsksvin
+    - BowAshlands
+    requiredDefeatKey: defeated_queen
+    weight: 0.8
+  - prefabNames:
+    - HelmetFlametal
+    - ArmorFlametalChest
+    - ArmorFlametalLegs
+    - CapeAsh
+    - SwordNiedhogg
+    - ShieldFlametalTower
+    requiredDefeatKey: defeated_queen
+    weight: 0.8
+  - prefabNames:
+    - HelmetMage_Ashlands
+    - ArmorMageChest_Ashlands
+    - ArmorMageLegs_Ashlands
+    - StaffRoot
+    - StaffGreenRoots
+    requiredDefeatKey: defeated_queen
+    weight: 0.8

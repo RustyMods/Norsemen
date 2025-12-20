@@ -6,7 +6,7 @@ namespace Norsemen;
 [Serializable]
 public class Equipment
 {
-    public List<ConditionalRandomItem> RandomItems = new();
-    public List<ConditionalRandomSet> RandomSets = new();
-    public List<ConditionalRandomWeapon> RandomWeapons = new();
+    public List<ConditionalChanceItem> RandomItems = new();
+    public List<ConditionalWeightedSet> RandomSets = new();
+    public List<ConditioanlWeightedItem> RandomWeapons = new();
 }

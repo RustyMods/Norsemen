@@ -6,7 +6,7 @@ using YamlDotNet.Serialization;
 namespace Norsemen;
 
 [Serializable]
-public class ConditionalRandomSet
+public class ConditionalWeightedSet
 {
     public List<string> PrefabNames = new();
     public string RequiredDefeatKey = "";
@@ -27,12 +27,12 @@ public class ConditionalRandomSet
             return _set;
         }
     }
-    public ConditionalRandomSet(string requiredDefeatKey, float weight, params string[] prefabNames)
+    public ConditionalWeightedSet(string requiredDefeatKey, float weight, params string[] prefabNames)
     {
         RequiredDefeatKey = requiredDefeatKey;
         PrefabNames.Add(prefabNames);
         Weight = weight;
     }
     
-    public ConditionalRandomSet(){}
+    public ConditionalWeightedSet(){}
 }

@@ -1,0 +1,71 @@
+Generic:
+- Hail, traveler! Did you bring ale or just stories?
+- The mist of the fjords cloaks us like a shroud... or maybe it is just the smell of troll sweat.
+- Another dawn in Midgard, land of mortals... and mediocre mead.
+- Beware the lurking fulings, creatures of the dark... and terrible table manners.
+- Hast thou witnessed that marvel? The ale mug that never empties!
+- A fleet-footed deer flees to the woods... probably to avoid hearing my bawdy jokes.
+- Approach, wayfarer from distant lands! Let us swap tales and insults.
+- Your hands are nimble as a troll's, friend... but can you hold your drink like one?
+PlayerBase:
+- Who dares enter these hallowed halls? Hope you brought more than just an appetite.
+- Did I forget to extinguish the hearth fire? Or was it the heat from our last feast?
+- A scent of mischief lingers in the air... or maybe it is just the smell of unwashed socks.
+- Is that where you'll rest your head, under this roof of shields? Watch out for the loose thatch, it's a hazard.
+- Behold, a stronghold fit for a warrior! Just mind the cobwebs and the occasional rat.
+- What business have you within these walls? Looking for trouble or just lost your way to the outhouse?
+- Pay me no mind, I merely observe the surroundings... and occasionally partake in questionable activities.
+- By the Norns, what curious artifact is this? Or is it just a misplaced undergarment?
+Greets:
+- Skal, fellow warrior
+- Hail and well met, comrade
+- By the beard of Odin, greetings
+- May the hammer of Thor protect you
+- Valhalla awaits, traveler
+- Fair winds to you, friend
+- In the name of the Allfather, greetings
+- Walk the path of the shieldmaiden, traveler
+Farewells:
+- May the Valkyries guide you
+- Safe travels on the road to Valhalla
+- Fair winds and following seas
+- Until we meet in the halls of Asgard
+- May your path be clear, warrior
+- Skal, until we cross paths again
+- May the gods watch over you
+- Farewell, may your axe stay sharp
+Damaged:
+- By the beard of Odin, enough!
+- Back off, you insolent whelp!
+- Do not test my patience, mortal!
+- Thor's thunder, cease your folly!
+- Out of my sight, before I unleash Fenrir!
+- You tread on thin ice, beware!
+- By Yggdrasil's roots, you try my temper!
+- Enough! The wrath of the gods is not to be trifled with!
+Thieved:
+- Oi! That was mine, you thieving rat!
+- By Loki’s lies—return what you stole!
+- Hands off, sneak! I was saving that.
+- Thief! Even a greydwarf has better manners.
+- You dare rob a Norseman? Bold… and foolish.
+- I felt that! My purse grows lighter—and my mood darker.
+- By Odin’s missing eye, you’ll pay for that!
+- Steal from me again and you’ll be eating dirt.
+Puke:
+- By Thor's hammer, this feast has turned foul!
+- May Loki's trickery be the cause of this wretched meal!
+- Odin's ravens would not touch such a putrid offering!
+- Skál to the gods for this cursed sustenance!
+- The mead may be sweet, but this meal is a sour betrayal!
+- A feast fit for the depths of Niflheim!
+- Valhalla awaits, but this dish belongs in the depths of Hel!
+- The taste of Jormungandr's venom lingers in this fare!
+- Even Fenrir would turn his nose up at this spoiled repast!
+- May Freyja guide us to better provisions, for this is a dish of misfortune!
+Eat:
+- {0} tastes better than a shieldmaiden's attention
+- {0} smells as good as a roasting greydwarf
+- {0} makes my entrails burn with joy
+- {0} melts on my tongue like a surtling in water
+- {0} is fit for a last meal

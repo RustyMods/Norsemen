@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using BepInEx;
 using ServerSync;
 using UnityEngine;
@@ -82,18 +83,7 @@ public static class CustomizationManager
     public static readonly string FileName = "Equipment.yml";
     public static readonly string FilePath = Path.Combine(ConfigManager.DirectoryPath, FileName);
 
-    public static Dictionary<Heightmap.Biome, Equipment> equipment = new()
-    {
-        [Heightmap.Biome.Meadows] = new Equipment(),
-        [Heightmap.Biome.BlackForest] = new Equipment(),
-        [Heightmap.Biome.Swamp] = new Equipment(),
-        [Heightmap.Biome.Mountain] = new Equipment(),
-        [Heightmap.Biome.Plains] = new Equipment(),
-        [Heightmap.Biome.Mistlands] = new Equipment(),
-        [Heightmap.Biome.AshLands] = new Equipment(),
-        [Heightmap.Biome.DeepNorth] = new Equipment(),
-        [Heightmap.Biome.Ocean] = new Equipment()
-    };
+    public static Dictionary<Heightmap.Biome, Equipment> equipment = new();
 
     public static readonly CustomSyncedValue<string> sync = new(ConfigManager.ConfigSync, "RustyMods.Norsemen.Equipment.Sync", "");
     
@@ -162,8 +152,9 @@ public static class CustomizationManager
     {
         if (!File.Exists(FilePath))
         {
-            string data = ConfigManager.serializer.Serialize(equipment);
-            File.WriteAllText(FilePath, data);
+            string text = EmbeddedResourceManager.GetFile(FileName);
+            equipment = ConfigManager.deserializer.Deserialize<Dictionary<Heightmap.Biome, Equipment>>(text);
+            File.WriteAllText(FilePath, text);
         }
         else
         {
@@ -186,37 +177,37 @@ public static class CustomizationManager
         }
     }
 
-    public static void Add(Heightmap.Biome biome, params ConditionalRandomSet[] set)
+    public static void Add(Heightmap.Biome biome, params ConditionalWeightedSet[] set)
     {
         if (!equipment.ContainsKey(biome)) equipment[biome] = new Equipment();
         equipment[biome].RandomSets.Add(set);
     }
 
-    public static void Add(Heightmap.Biome biome, params ConditionalRandomItem[] item)
+    public static void Add(Heightmap.Biome biome, params ConditionalChanceItem[] item)
     {
         if (!equipment.ContainsKey(biome)) equipment[biome] = new Equipment();
         equipment[biome].RandomItems.Add(item);
     }
 
-    public static void Add(Heightmap.Biome biome, params ConditionalRandomWeapon[] weapon)
+    public static void Add(Heightmap.Biome biome, params ConditioanlWeightedItem[] weapon)
     {
         if (!equipment.ContainsKey(biome)) equipment[biome] = new Equipment();
         equipment[biome].RandomWeapons.Add(weapon);
     }
 
-    public static List<ConditionalRandomSet> GetSets(Heightmap.Biome biome)
+    public static List<ConditionalWeightedSet> GetSets(Heightmap.Biome biome)
     {
         if (!equipment.TryGetValue(biome, out Equipment? data)) return new();
         return data.RandomSets;
     }
 
-    public static List<ConditionalRandomItem> GetItems(Heightmap.Biome biome)
+    public static List<ConditionalChanceItem> GetItems(Heightmap.Biome biome)
     {
         if (!equipment.TryGetValue(biome, out Equipment? data)) return new();
         return data.RandomItems;
     }
 
-    public static List<ConditionalRandomWeapon> GetWeapons(Heightmap.Biome biome)
+    public static List<ConditioanlWeightedItem> GetWeapons(Heightmap.Biome biome)
     {
         if (!equipment.TryGetValue(biome, out Equipment? data)) return new();
         return data.RandomWeapons;

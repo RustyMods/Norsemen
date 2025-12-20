@@ -20,9 +20,9 @@ public partial class Viking
     {
         Heightmap.Biome biome = configs.biome;
         
-        List<ConditionalRandomSet> sets = CustomizationManager.GetSets(biome);
-        List<Norsemen.ConditionalRandomItem> items = CustomizationManager.GetItems(biome);
-        List<Norsemen.ConditionalRandomWeapon> weapons = CustomizationManager.GetWeapons(biome);
+        List<ConditionalWeightedSet> sets = CustomizationManager.GetSets(biome);
+        List<Norsemen.ConditionalChanceItem> items = CustomizationManager.GetItems(biome);
+        List<Norsemen.ConditioanlWeightedItem> weapons = CustomizationManager.GetWeapons(biome);
 
         m_conditionalItemSets = sets.Select(x => x.set).ToArray();
         m_conditionalRandomItems = items.Select(x => x.item).ToArray();

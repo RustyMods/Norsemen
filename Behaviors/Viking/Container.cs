@@ -52,6 +52,7 @@ public partial class Viking
             m_loading = false;
         }
         m_lastDataString = base64;
+        UpdateEncumber();
     }
 
     public bool CheckAccess(long playerID)

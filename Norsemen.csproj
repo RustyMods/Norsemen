@@ -171,6 +171,7 @@
         <Compile Include="Behaviors\Viking\Equipment.cs" />
         <Compile Include="Behaviors\Viking\Follow.cs" />
         <Compile Include="Behaviors\Viking\Consume.cs" />
+        <Compile Include="Behaviors\Viking\Harpooning.cs" />
         <Compile Include="Behaviors\Viking\Puke.cs" />
         <Compile Include="Behaviors\Viking\Attach.cs" />
         <Compile Include="Behaviors\Viking\Crouch.cs" />
@@ -194,12 +195,13 @@
         <Compile Include="Managers\ConfigManager\MinMax.cs" />
         <Compile Include="Managers\ConfigManager\Level.cs" />
         <Compile Include="Managers\ConfigManager\StringList.cs" />
-        <Compile Include="Managers\CustomizationManager\ConditionalRandomItem.cs" />
-        <Compile Include="Managers\CustomizationManager\ConditionalRandomSet.cs" />
-        <Compile Include="Managers\CustomizationManager\ConditionalRandomWeapon.cs" />
+        <Compile Include="Managers\CustomizationManager\ConditionalChanceItem.cs" />
+        <Compile Include="Managers\CustomizationManager\ConditionalWeightedSet.cs" />
+        <Compile Include="Managers\CustomizationManager\ConditioanlWeightedItem.cs" />
         <Compile Include="Managers\CustomizationManager\CustomizationManager.cs" />
         <Compile Include="Managers\CustomizationManager\Equipment.cs" />
         <Compile Include="Managers\EffectListRef.cs" />
+        <Compile Include="Managers\EmbeddedResourceManager.cs" />
         <Compile Include="Managers\FactionManager\Faction.cs" />
         <Compile Include="Managers\FactionManager\FactionManager.cs" />
         <Compile Include="Managers\NameGenerator.cs" />
@@ -229,6 +231,9 @@
           <Link>assets\norsemen_bundle</Link>
         </EmbeddedResource>
         <Content Include="environment.props" />
+        <EmbeddedResource Include="Files\Equipment.yml" />
+        <EmbeddedResource Include="Files\Names.yml" />
+        <EmbeddedResource Include="Files\RandomTalks.yml" />
         <Content Include="ILRepack.targets" />
         <Content Include="Libs\ServerSync.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

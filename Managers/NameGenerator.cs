@@ -29,23 +29,7 @@ public static class NameGenerator
         }
     }
 
-    public static Names names = new()
-    {
-        MaleNames = new()
-        {
-            "Ragnar", "Bjorn", "Erik", "Olaf", "Thor", "Leif", "Gunnar", "Ulf",
-            "Sven", "Magnus", "Ivar", "Harald", "Knut", "Sigurd", "Finn", "Rolf",
-            "Eirik", "Dag", "Nils", "Arne", "Bard", "Einar", "Hakon", "Ingvar",
-            "Rollo", "Odin", "Loki", "Balder", "Tyr", "Heimdall", "Vidar", "Vali"
-        },
-        FemaleNames = new()
-        {
-            "Astrid", "Freydis", "Gudrun", "Helga", "Ingrid", "Sigrid", "Thora",
-            "Brunhild", "Solveig", "Ragnhild", "Asa", "Gunnhild", "Bergthora",
-            "Valdis", "Thyra", "Liv", "Signe", "Inga", "Kirsten", "Runa",
-            "Freyja", "Frigg", "Sif", "Idun", "Nanna", "Hel", "Skadi", "Eir"
-        }
-    };
+    public static Names names = new();
 
     public static CustomSyncedValue<string> sync = new(ConfigManager.ConfigSync, "RustyMods.Norsemen.Names.Sync", "");
 
@@ -109,7 +93,8 @@ public static class NameGenerator
         }
         else
         {
-            string text = ConfigManager.serializer.Serialize(names);
+            string text = EmbeddedResourceManager.GetFile("Names.yml");
+            names = ConfigManager.deserializer.Deserialize<Names>(text);
             File.WriteAllText(FilePath, text);
         }
     }

@@ -4,7 +4,7 @@ using YamlDotNet.Serialization;
 namespace Norsemen;
 
 [Serializable]
-public class ConditionalRandomItem
+public class ConditionalChanceItem
 {
     public string PrefabName = "";
     public string RequiredDefeatKey = "";
@@ -30,7 +30,7 @@ public class ConditionalRandomItem
         }
     }
 
-    public ConditionalRandomItem(string prefab, int min = 1, int max = 1, float chance = 0.5f, string requiredDefeatKey = "")
+    public ConditionalChanceItem(string prefab, int min = 1, int max = 1, float chance = 0.5f, string requiredDefeatKey = "")
     {
         PrefabName = prefab;
         RequiredDefeatKey = requiredDefeatKey;
@@ -39,5 +39,5 @@ public class ConditionalRandomItem
         Max = max;
     }
     
-    public ConditionalRandomItem(){}
+    public ConditionalChanceItem(){}
 }

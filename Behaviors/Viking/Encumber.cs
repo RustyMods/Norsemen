@@ -1,19 +1,20 @@
-﻿namespace Norsemen;
+﻿using System;
+
+namespace Norsemen;
 
 public partial class Viking
 {
-    public float m_maxCarryWeight = 300f;
-    
     public void UpdateEncumber()
     {
         if (!IsTamed()) return;
-
+        
         if (!IsEncumbered())
         {
             m_seman.RemoveStatusEffect(SEMan.s_statusEffectEncumbered);
         }
         else
         {
+            if (!NorsemenPlugin.CanBecomeEncumbered) return;
             m_seman.AddStatusEffect(SEMan.s_statusEffectEncumbered);
         }
     }
@@ -26,7 +27,9 @@ public partial class Viking
 
     public float GetMaxCarryWeight()
     {
-        float baseValue = m_maxCarryWeight;
+        float baseValue = NorsemenPlugin.BaseCarryWeight;
+        float levelAddedValue = Math.Max(m_level - 1, 0) * 50;
+        baseValue += levelAddedValue;
         m_seman.ModifyMaxCarryWeight(baseValue, ref baseValue);
         return baseValue;
     }

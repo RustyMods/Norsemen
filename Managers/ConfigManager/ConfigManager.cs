@@ -68,7 +68,7 @@ public static class ConfigManager
             "If on, the configuration is locked and can be changed by server admins only.");
         _ = ConfigSync.AddLockingConfigEntry(serverConfigLocked);
 
-        logLevels = config("1 - General", "Log Levels", LogLevel.None, "Set log levels", false);
+        logLevels = config("1 - General", "Log Levels", LogLevel.Error, "Set log levels", false);
         
         Harmony harmony = NorsemenPlugin.instance._harmony;
         harmony.Patch(AccessTools.Method(typeof(ZNet), nameof(ZNet.Awake)),

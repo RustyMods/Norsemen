@@ -41,9 +41,9 @@ public partial class Viking
         SetMaxHealth(health);
     }
 
-    public void OnConsumedItem(ItemDrop.ItemData item)
+    public bool OnConsumedItem(ItemDrop.ItemData item)
     {
-        if (IsHungry())
+        if (IsHungry() && item.m_shared.m_food > 0)
         {
             m_sootheEffect.Create(GetCenterPoint(), Quaternion.identity);
             ResetFeedingTimer();
@@ -51,6 +51,8 @@ public partial class Viking
             QueueSay(TalkManager.GetTalk(TalkManager.TalkType.Eat), context: item.m_shared.m_name);
             string trigger = item.m_shared.m_isDrink ? "drink" : "eat";
             m_zanim.SetTrigger(trigger);
+
+            return true;
         }
         
         if (item.m_shared.m_consumeStatusEffect != null)
@@ -67,8 +69,12 @@ public partial class Viking
                 {
                     m_vikingAI.SetAggravated(true, BaseAI.AggravatedReason.Damage);
                 }
+
+                return true;
             }
         }
+
+        return false;
     }
 
     public void SetupFood()

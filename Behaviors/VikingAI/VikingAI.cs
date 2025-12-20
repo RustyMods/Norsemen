@@ -151,6 +151,10 @@ public partial class VikingAI : MonsterAI
         {
             IdleMovement(dt);
         }
+        else
+        {
+            StopMoving();
+        }
         
         if (!hasItem || !hasTarget)
         {

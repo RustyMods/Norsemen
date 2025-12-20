@@ -118,17 +118,25 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
             {
                 sb.Append("\n[<color=yellow><b>$KEY_Use</b></color>] $norseman_follow");
             }
-            
-            if (usingGamepad)
+
+            bool hasAccess = CheckAccess(Player.m_localPlayer.GetPlayerID());
+            if (hasAccess)
             {
-                sb.Append("\n[<color=yellow><b>$KEY_AltKeys + $KEY_Use</b></color>] $hud_rename");
-                sb.Append($"\n[<color=yellow><b>{ZInput.instance.GetBoundKeyString("JoyLTrigger") + "$KEY_Use"} </b></color> $piece_container_open");
+                if (usingGamepad)
+                {
+                    sb.Append("\n[<color=yellow><b>$KEY_AltKeys + $KEY_Use</b></color>] $hud_rename");
+                    sb.Append($"\n[<color=yellow><b>{ZInput.instance.GetBoundKeyString("JoyLTrigger") + "$KEY_Use"} </b></color> $piece_container_open");
+                }
+                else
+                {
+                    sb.Append("\n[<color=yellow><b>$KEY_AltPlace + $KEY_Use</b></color>] $hud_rename");
+                    sb.Append("\n[<color=yellow><b>L.Alt + $KEY_Use</b></color>] $piece_container_open");
+                    
+                }
             }
             else
             {
-                sb.Append("\n[<color=yellow><b>$KEY_AltPlace + $KEY_Use</b></color>] $hud_rename");
-                sb.Append("\n[<color=yellow><b>L.Alt + $KEY_Use</b></color>] $piece_container_open");
-                
+                sb.Append("\n$piece_noaccess");
             }
         }
         else
@@ -174,9 +182,10 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
         }
         if (IsTamed())
         {
+            bool hasAccess = CheckAccess(player.GetPlayerID());
             if (ZInput.GetKey(KeyCode.LeftAlt) || ZInput.GetButton("JoyLTrigger"))
             {
-                if (!CheckAccess(player.GetPlayerID()))
+                if (!hasAccess)
                 {
                     player.Message(MessageHud.MessageType.Center, "$msg_cantopen");
                 }
@@ -187,6 +196,7 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
             }
             else if (alt)
             {
+                if (!hasAccess) return true;
                 TextInput.instance.RequestText(this, "$hud_rename", 10);
             }
             else
@@ -206,9 +216,11 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
 
     public bool UseItem(Humanoid user, ItemDrop.ItemData item)
     {
-        if (!CanConsumeItem(item)) return false;
-        OnConsumedItem(item);
-        user.GetInventory().RemoveItem(item, 1);
+        if (!CanConsumeItem(item)) return true;
+        if (OnConsumedItem(item))
+        {
+            user.GetInventory().RemoveItem(item, 1);
+        }
         return true;
     }
 
