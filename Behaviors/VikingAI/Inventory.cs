@@ -21,7 +21,7 @@ public partial class VikingAI
         if (m_viking.m_currentPlayer)
         {
             float roll = UnityEngine.Random.value;
-            float chance = 0.5f;
+            float chance = 0.1f;
 
             if (roll < chance)
             {

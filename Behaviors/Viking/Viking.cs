@@ -169,13 +169,21 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
         string owner = m_nview.GetZDO().GetString(ZDOVars.s_ownerName);
         if (string.IsNullOrEmpty(owner))
         {
+            m_nview.GetZDO().Set(ZDOVars.s_owner, player.GetPlayerID());
             m_nview.GetZDO().Set(ZDOVars.s_ownerName, player.GetPlayerName());
         }
         if (IsTamed())
         {
             if (ZInput.GetKey(KeyCode.LeftAlt) || ZInput.GetButton("JoyLTrigger"))
             {
-                m_nview.InvokeRPC(nameof(RPC_RequestOpen), Game.instance.GetPlayerProfile().GetPlayerID());
+                if (!CheckAccess(player.GetPlayerID()))
+                {
+                    player.Message(MessageHud.MessageType.Center, "$msg_cantopen");
+                }
+                else
+                {
+                    m_nview.InvokeRPC(nameof(RPC_RequestOpen), player.GetPlayerID());
+                }
             }
             else if (alt)
             {
@@ -190,7 +198,7 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
         {
             if (ZInput.GetKey(KeyCode.LeftAlt) || ZInput.GetButton("JoyLTrigger"))
             {
-                m_nview.InvokeRPC(nameof(RPC_RequestOpen), Game.instance.GetPlayerProfile().GetPlayerID());
+                m_nview.InvokeRPC(nameof(RPC_RequestOpen), player.GetPlayerID());
             }
         }
         return true;

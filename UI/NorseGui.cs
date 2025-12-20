@@ -4,11 +4,12 @@ using UnityEngine.UI;
 
 namespace Norsemen;
 
-public class BehaviourButtons : MonoBehaviour
+public class NorseGui : MonoBehaviour
 {
-    public static BehaviourButtons? instance;
+    public static NorseGui? instance;
     public ButtonElement behaviour = null!;
     public ButtonElement patrol = null!;
+    public ButtonElement access = null!;
 
     public void Awake()
     {
@@ -33,6 +34,11 @@ public class BehaviourButtons : MonoBehaviour
         patrol.AddListener(OnPatrolChange);
         patrol.SetLabel("$norseman_patrol");
         patrol.SetGamePadKey("JoyRTrigger");
+        
+        access = new ButtonElement(Instantiate(stackAll.gameObject, layout.transform), "Norseman_Access");
+        access.AddListener(OnAccessChange);
+        access.SetLabel("$norseman_public");
+        access.SetGamePadKey("");
     }
     
     public void OnDestroy()
@@ -65,6 +71,25 @@ public class BehaviourButtons : MonoBehaviour
                 patrol.SetLabel("$norseman_guard");
                 break;
         }
+
+        long owner = VikingGui.m_currentViking.m_nview.GetZDO().GetLong(ZDOVars.s_owner);
+        if (owner == Player.m_localPlayer.GetPlayerID())
+        {
+            access.go.SetActive(true);
+            bool isPrivate = VikingGui.m_currentViking.IsPrivate();
+            if (isPrivate)
+            {
+                access.SetLabel("$norseman_private");
+            }
+            else
+            {
+                access.SetLabel("$norseman_public");
+            }
+        }
+        else
+        {
+            access.go.SetActive(false);
+        }
     }
     
     public void Hide() => gameObject.SetActive(false);
@@ -91,6 +116,28 @@ public class BehaviourButtons : MonoBehaviour
                 text = Localization.instance.Localize("$norseman_behaviour_msg");
                 msg = string.Format(text, VikingGui.m_currentViking.GetText(), "$norseman_aggressive");
                 break;
+        }
+        Player.m_localPlayer.Message(MessageHud.MessageType.Center, msg);
+    }
+
+    public void OnAccessChange()
+    {
+        if (VikingGui.m_currentViking == null || !Player.m_localPlayer) return;
+
+        bool isPrivate = VikingGui.m_currentViking.IsPrivate();
+        string text = Localization.instance.Localize("$norseman_behaviour_msg");
+        string msg;
+        if (isPrivate)
+        {
+            VikingGui.m_currentViking.SetPrivate(false);
+            access.SetLabel("$norseman_public");
+            msg = string.Format(text, VikingGui.m_currentViking.GetText(), "$norseman_public");
+        }
+        else
+        {
+            VikingGui.m_currentViking.SetPrivate(true);
+            access.SetLabel("$norseman_private");
+            msg = string.Format(text, VikingGui.m_currentViking.GetText(), "$norseman_private");
         }
         Player.m_localPlayer.Message(MessageHud.MessageType.Center, msg);
     }

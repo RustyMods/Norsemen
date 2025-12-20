@@ -21,7 +21,7 @@ public static partial class VikingGui
         health.Show($"{viking.GetHealth():0}/{viking.GetMaxHealth():0}");
         health.tooltip.Set(name, tooltip);
 
-        BehaviourButtons.instance?.Show();
+        NorseGui.instance?.Show();
     }
     
     public static void CloseVikingInventory()
@@ -76,7 +76,7 @@ public static partial class VikingGui
         {
             if (!__instance.m_animator.GetBool(visible) || __instance.m_currentContainer != null || m_currentViking == null)
             {
-                BehaviourButtons.instance?.Hide();
+                NorseGui.instance?.Hide();
                 return true;
             }
 
@@ -142,7 +142,7 @@ public static partial class VikingGui
             CloseVikingInventory();
             armor.Hide();
             health.Hide();
-            BehaviourButtons.instance?.Hide();
+            NorseGui.instance?.Hide();
         }
     }
 

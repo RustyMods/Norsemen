@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Norsemen;
 
-public static partial class VikingGui
+public partial class VikingGui
 {
     public static Display armor = null!;
     public static Display health = null!;
@@ -21,7 +21,7 @@ public static partial class VikingGui
             rect.anchorMax = new Vector2(0f, 0f);
             rect.pivot = new Vector2(0f, 1f);
             rect.anchoredPosition = Vector2.zero;
-            ButtonContainer.AddComponent<BehaviourButtons>();
+            ButtonContainer.AddComponent<NorseGui>();
         }
         private static void Postfix(InventoryGui __instance)
         {
@@ -36,10 +36,11 @@ public static partial class VikingGui
             armor.Hide();
             health.Hide();
             
-            if (BehaviourButtons.instance == null) return;
+            if (NorseGui.instance == null) return;
             
-            BehaviourButtons.instance.behaviour.SetupGlow(__instance.m_repairButtonGlow);
-            BehaviourButtons.instance.patrol.SetupGlow(__instance.m_repairButtonGlow);
+            NorseGui.instance.behaviour.SetupGlow(__instance.m_repairButtonGlow);
+            NorseGui.instance.patrol.SetupGlow(__instance.m_repairButtonGlow);
+            NorseGui.instance.access.SetupGlow(__instance.m_repairButtonGlow);
         }
     }
 

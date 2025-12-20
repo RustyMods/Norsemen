@@ -58,7 +58,7 @@ public partial class VikingAI : MonsterAI
             }
         }
         
-        UpdateTargets(m_viking, dt, out bool canHearTarget, out bool canSeeTarget);
+        UpdateTargets(m_viking, isTamed, dt, out bool canHearTarget, out bool canSeeTarget);
         
         // if (m_avoidLand && !m_character.IsSwimming())
         // {
@@ -74,7 +74,7 @@ public partial class VikingAI : MonsterAI
             }
         }
 
-        if (UpdateFlee(dt, isTamed))
+        if (UpdateFlee(dt, isTamed, IsAlerted()))
         {
             return true;
         }
@@ -147,7 +147,7 @@ public partial class VikingAI : MonsterAI
             return true;
         }
 
-        if (!isTamed || m_moveType is Movement.Patrol)
+        if (!isFollowing && (!isTamed || m_moveType is Movement.Patrol))
         {
             IdleMovement(dt);
         }

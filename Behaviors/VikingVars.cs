@@ -13,4 +13,5 @@ public static class VikingVars
     public static readonly int behaviour =  "RustyMods.Norsemen.Behaviour".GetStableHashCode();
     public static readonly int patrol = "RustyMods.Norsemen.Patrol".GetStableHashCode();
     public static readonly int isElf = "RustyMods.Norsemen.IsElf".GetStableHashCode();
+    public static readonly int isPrivate = "RustyMods.Norsemen.IsPrivate".GetStableHashCode();
 }

@@ -26,6 +26,7 @@ public partial class Viking
                 m_vikingAI.SetTarget(m_currentPlayer);
             }
         }
+        UpdateEncumber();
     }
     
     public void Save()
@@ -51,6 +52,14 @@ public partial class Viking
             m_loading = false;
         }
         m_lastDataString = base64;
+    }
+
+    public bool CheckAccess(long playerID)
+    {
+        if (!IsPrivate()) return true;
+        long owner = m_nview.GetZDO().GetLong(ZDOVars.s_owner);
+        if (owner == 0L) return true;
+        return owner == playerID;
     }
     
      public void RPC_RequestOpen(long uid, long playerID)
@@ -82,7 +91,7 @@ public partial class Viking
             Player.m_localPlayer.Message(MessageHud.MessageType.Center, "$msg_inuse");
         }
     }
-
+    
     public void StackAll()
     {
         m_nview.InvokeRPC(nameof(RPC_RequestStack), Game.instance.GetPlayerProfile().GetPlayerID());
@@ -148,5 +157,17 @@ public partial class Viking
             m_previousFollowTarget = GetFollowTarget();
             Follow(player.gameObject, player.GetPlayerName());
         }
+    }
+
+    public bool IsPrivate()
+    {
+        if (!m_nview.IsValid()) return true;
+        return m_nview.GetZDO().GetBool(VikingVars.isPrivate);
+    }
+
+    public void SetPrivate(bool isPrivate)
+    {
+        if (!m_nview.IsValid()) return;
+        m_nview.GetZDO().Set(VikingVars.isPrivate, isPrivate);
     }
 }

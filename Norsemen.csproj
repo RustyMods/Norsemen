@@ -163,9 +163,11 @@
         <Compile Include="Behaviors\Viking\Attack.cs" />
         <Compile Include="Behaviors\Viking\Configs.cs" />
         <Compile Include="Behaviors\Viking\Customization.cs" />
+        <Compile Include="Behaviors\Viking\DamageModifiers.cs" />
         <Compile Include="Behaviors\Viking\Dodge.cs" />
         <Compile Include="Behaviors\Viking\Eitr.cs" />
         <Compile Include="Behaviors\Viking\Elf.cs" />
+        <Compile Include="Behaviors\Viking\Encumber.cs" />
         <Compile Include="Behaviors\Viking\Equipment.cs" />
         <Compile Include="Behaviors\Viking\Follow.cs" />
         <Compile Include="Behaviors\Viking\Consume.cs" />
@@ -203,7 +205,6 @@
         <Compile Include="Managers\NameGenerator.cs" />
         <Compile Include="Managers\Norseman\Configs.cs" />
         <Compile Include="Managers\Norseman\Norseman.cs" />
-        <Compile Include="Managers\Norseman\NorsemanConfigs.cs" />
         <Compile Include="Managers\Norseman\Ragdoll.cs" />
         <Compile Include="Managers\SpawnManager.cs" />
         <Compile Include="Managers\Helpers.cs" />
@@ -214,7 +215,7 @@
         <Compile Include="Managers\TalkManager.cs" />
         <Compile Include="Plugin.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="UI\BehaviourButtons.cs" />
+        <Compile Include="UI\NorseGui.cs" />
         <Compile Include="UI\Stats.cs" />
         <Compile Include="UI\VikingGui.cs" />
         <Compile Include="VersionHandshake.cs" />

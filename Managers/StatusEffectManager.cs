@@ -5,15 +5,18 @@ namespace Norsemen;
 
 public static class StatusEffectManager
 {
-    // private static readonly List<StatusEffect> statusEffects = new();
-    // public static void Register(this StatusEffect statusEffect) => statusEffects.Add(statusEffect);
-    //
-    // [HarmonyPatch(typeof(ObjectDB), nameof(ObjectDB.Awake))]
-    // private static class ObjectDB_Awake_Patch
-    // {
-    //     private static void Prefix(ObjectDB __instance)
-    //     {
-    //         __instance.m_StatusEffects.AddRange(statusEffects);
-    //     }
-    // }
+    private static readonly List<StatusEffect> statusEffects = new();
+    public static void Register(this StatusEffect statusEffect) => statusEffects.Add(statusEffect);
+
+    static StatusEffectManager()
+    {
+        Harmony harmony = NorsemenPlugin.instance._harmony;
+        harmony.Patch(AccessTools.Method(typeof(ObjectDB), nameof(ObjectDB.Awake)),
+            prefix: new HarmonyMethod(AccessTools.Method(typeof(StatusEffectManager), nameof(Patch_ObjectDB_Awake))));
+    }
+
+    public static void Patch_ObjectDB_Awake(ObjectDB __instance)
+    {
+        __instance.m_StatusEffects.AddRange(statusEffects);
+    }
 }

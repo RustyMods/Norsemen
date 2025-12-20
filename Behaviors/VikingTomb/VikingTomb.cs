@@ -18,7 +18,7 @@ public class VikingTomb : MonoBehaviour
     public float m_revertDistance = 5f;
     public float m_checkInterval = 0.5f;
     
-    public static EffectList reviveEffects = new();
+    public static readonly EffectList reviveEffects = new();
     
     public Player? m_reviver;
     public Player.MinorActionData? m_action;
@@ -231,8 +231,8 @@ public class VikingTomb : MonoBehaviour
 
     public static void RemoveAll()
     {
-        var count = 0;
-        foreach (var tomb in instances)
+        int count = 0;
+        foreach (VikingTomb? tomb in instances)
         {
             ZNetScene.instance.Destroy(tomb.gameObject);
             ++count;

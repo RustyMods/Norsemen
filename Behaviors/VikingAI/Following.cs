@@ -27,8 +27,12 @@ public partial class VikingAI
                 StopMoving();
                 return true;
             }
-            TeleportToFollow();
-            return true;
+
+            if (!m_viking.IsEncumbered())
+            {
+                TeleportToFollow();
+                return true;
+            }
         }
         
         if (IsAlerted())

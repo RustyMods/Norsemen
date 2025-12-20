@@ -94,7 +94,6 @@ public partial class Viking
         {
             closestPlayer.Message(MessageHud.MessageType.Center, m_name + " $hud_tamedone");
         }
-
         m_nview.GetZDO().Set(VikingVars.lastLevelUpTime, ZNet.instance.GetTime().Ticks);
     }
 

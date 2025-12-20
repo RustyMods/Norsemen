@@ -4,31 +4,25 @@ namespace Norsemen;
 
 public partial class VikingAI
 {
-    public void UpdateTargets(Viking viking, float dt, out bool canHearTarget, out bool canSeeTarget)
+    public void UpdateTargets(Viking viking, bool isTamed, float dt, out bool canHearTarget, out bool canSeeTarget)
     {
         m_unableToAttackTargetTimer -= dt;
         m_updateTargetTimer -= dt;
 
-        bool isTamed = viking.IsTamed();
-        // Find new targets periodically
         if (m_updateTargetTimer <= 0.0 && !m_character.InAttack())
         {
             UpdateTargetSearch(isTamed);
         }
 
-        // Tamed creatures lose target if too far from patrol/follow point
         if (m_targetCreature != null && isTamed)
         {
             CheckTamedTargetDistance();
         }
 
-        // Validate current target
         ValidateCurrentTarget();
 
-        // Update target sensing
         UpdateTargetSensing(dt, out canHearTarget, out canSeeTarget);
 
-        // Check if should give up chase
         CheckGiveUpChase(dt);
     }
 
@@ -42,7 +36,6 @@ public partial class VikingAI
         }
         else
         {
-            // Try to find an enemy creature
             Character? enemy = FindEnemy();
             if (enemy)
             {
@@ -51,7 +44,6 @@ public partial class VikingAI
             }
         }
 
-        // Check if we should look for static targets instead
         bool hasPlayerTarget = m_targetCreature != null && m_targetCreature.IsPlayer();
         bool cannotReachTarget = m_targetCreature != null &&
                                  m_unableToAttackTargetTimer > 0.0 &&
@@ -71,7 +63,6 @@ public partial class VikingAI
 
     private void FindStaticTargets(bool hasPlayerTarget)
     {
-        // Try priority target first
         StaticTarget? priorityTarget = FindClosestStaticPriorityTarget();
         if (priorityTarget != null)
         {
@@ -79,7 +70,6 @@ public partial class VikingAI
             m_targetCreature = null;
         }
 
-        // Check if we can path to the static target
         bool canPathToStatic = false;
         if (m_targetStatic != null)
         {
@@ -87,7 +77,6 @@ public partial class VikingAI
             canPathToStatic = HavePath(closestPoint);
         }
 
-        // If alerted with player target but no valid static target, find random one
         bool needsRandomTarget = (m_targetStatic == null || !canPathToStatic) && IsAlerted() && hasPlayerTarget;
 
         if (needsRandomTarget)
