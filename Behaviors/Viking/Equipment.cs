@@ -21,8 +21,8 @@ public partial class Viking
         Heightmap.Biome biome = configs.biome;
         
         List<ConditionalWeightedSet> sets = CustomizationManager.GetSets(biome);
-        List<Norsemen.ConditionalChanceItem> items = CustomizationManager.GetItems(biome);
-        List<Norsemen.ConditioanlWeightedItem> weapons = CustomizationManager.GetWeapons(biome);
+        List<ConditionalChanceItem> items = CustomizationManager.GetItems(biome);
+        List<ConditioanlWeightedItem> weapons = CustomizationManager.GetWeapons(biome);
 
         m_conditionalItemSets = sets.Select(x => x.set).ToArray();
         m_conditionalRandomItems = items.Select(x => x.item).ToArray();
@@ -191,13 +191,13 @@ public partial class Viking
         
         m_inventory.m_onChanged -= OnInventoryChanged;
 
-        AddRandomShield();
-        AddRandomWeapon();
+        // AddRandomShield();
+        // AddRandomWeapon();
         AddConditionalWeapon();
         AddConditionalItems();
         bool addedSet = AddConditionalSet();
         if (!addedSet) AddDefaults();
-        AddRandomItems();
+        // AddRandomItems();
         
         m_nview.GetZDO().Set(ZDOVars.s_addedDefaultItems, true);
         Save();

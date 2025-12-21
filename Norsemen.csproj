@@ -136,6 +136,7 @@
         <Compile Include="Behaviors\VikingAI\AvoidFire.cs" />
         <Compile Include="Behaviors\VikingAI\BaseAI.cs" />
         <Compile Include="Behaviors\VikingAI\Behaviours.cs" />
+        <Compile Include="Behaviors\VikingAI\Blocking.cs" />
         <Compile Include="Behaviors\VikingAI\Charging.cs" />
         <Compile Include="Behaviors\VikingAI\Chopping.cs" />
         <Compile Include="Behaviors\VikingAI\Circling.cs" />
@@ -161,6 +162,7 @@
         <Compile Include="Behaviors\VikingVars.cs" />
         <Compile Include="Behaviors\Viking\Armor.cs" />
         <Compile Include="Behaviors\Viking\Attack.cs" />
+        <Compile Include="Behaviors\Viking\Block.cs" />
         <Compile Include="Behaviors\Viking\Configs.cs" />
         <Compile Include="Behaviors\Viking\Customization.cs" />
         <Compile Include="Behaviors\Viking\DamageModifiers.cs" />

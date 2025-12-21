@@ -141,6 +141,7 @@ public partial class VikingAI : MonsterAI
         }
         
         UpdateCrouch(dt, m_targetCreature, canSeeTarget);
+        UpdateBlock(dt, m_targetCreature, canSeeTarget);
 
         if (UpdateAttack(dt, itemData, doAttack, canHearTarget, canSeeTarget, isTamed))
         {
