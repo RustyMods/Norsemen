@@ -6,7 +6,7 @@ namespace Norsemen;
 
 public class NorseGui : MonoBehaviour
 {
-    public static NorseGui? instance;
+    public static NorseGui instance;
     public ButtonElement behaviour = null!;
     public ButtonElement patrol = null!;
     public ButtonElement access = null!;
@@ -14,9 +14,9 @@ public class NorseGui : MonoBehaviour
     public void Awake()
     {
         instance = this;
-        InventoryGui? gui = GetComponentInParent<InventoryGui>();
-        Button? stackAll = gui.m_stackAllButton;
-        HorizontalLayoutGroup? layout = gameObject.AddComponent<HorizontalLayoutGroup>();
+        InventoryGui gui = GetComponentInParent<InventoryGui>();
+        Button stackAll = gui.m_stackAllButton;
+        HorizontalLayoutGroup layout = gameObject.AddComponent<HorizontalLayoutGroup>();
         layout.childAlignment = TextAnchor.UpperLeft;
         layout.childForceExpandHeight = false;
         layout.childForceExpandWidth = false;

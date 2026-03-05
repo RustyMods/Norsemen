@@ -14,12 +14,12 @@ namespace Norsemen
         private static void Prefix(ZNetPeer peer, ref ZNet __instance)
         {
             // Register version check call
-            NorsemenPlugin.NorsemenLogger.LogDebug("Registering version RPC handler");
+            NorsemenPlugin.LogDebug("Registering version RPC handler");
             peer.m_rpc.Register($"{NorsemenPlugin.ModName}_VersionCheck",
                 new Action<ZRpc, ZPackage>(RpcHandlers.RPC_Norsemen_Version));
 
             // Make calls to check versions
-            NorsemenPlugin.NorsemenLogger.LogDebug("Invoking version check");
+            NorsemenPlugin.LogDebug("Invoking version check");
             ZPackage zpackage = new();
             zpackage.Write(NorsemenPlugin.ModVersion);
             peer.m_rpc.Invoke($"{NorsemenPlugin.ModName}_VersionCheck", zpackage);
@@ -33,7 +33,7 @@ namespace Norsemen
         {
             if (!__instance.IsServer() || RpcHandlers.ValidatedPeers.Contains(rpc)) return true;
             // Disconnect peer if they didn't send mod version at all
-            NorsemenPlugin.NorsemenLogger.LogWarning(
+            NorsemenPlugin.LogWarning(
                 $"Peer ({rpc.m_socket.GetHostName()}) never sent version or couldn't due to previous disconnect, disconnecting");
             rpc.Invoke("Error", 3);
             return false; // Prevent calling underlying method
@@ -68,7 +68,7 @@ namespace Norsemen
         {
             if (!__instance.IsServer()) return;
             // Remove peer from validated list
-            NorsemenPlugin.NorsemenLogger.LogInfo(
+            NorsemenPlugin.LogInfo(
                 $"Peer ({peer.m_rpc.m_socket.GetHostName()}) disconnected, removing from validated list");
             _ = RpcHandlers.ValidatedPeers.Remove(peer.m_rpc);
         }
@@ -80,9 +80,9 @@ namespace Norsemen
 
         public static void RPC_Norsemen_Version(ZRpc rpc, ZPackage pkg)
         {
-            string? version = pkg.ReadString();
+            string version = pkg.ReadString();
 
-            NorsemenPlugin.NorsemenLogger.LogInfo(
+            NorsemenPlugin.LogInfo(
                 $"Version check, local: {NorsemenPlugin.ModVersion},  remote: {version}");
             if (version != NorsemenPlugin.ModVersion)
             {
@@ -90,7 +90,7 @@ namespace Norsemen
                     $"{NorsemenPlugin.ModName} Installed: {NorsemenPlugin.ModVersion}\n Needed: {version}";
                 if (!ZNet.instance.IsServer()) return;
                 // Different versions - force disconnect client from server
-                NorsemenPlugin.NorsemenLogger.LogWarning(
+                NorsemenPlugin.LogWarning(
                     $"Peer ({rpc.m_socket.GetHostName()}) has incompatible version, disconnecting...");
                 rpc.Invoke("Error", 3);
             }
@@ -99,12 +99,12 @@ namespace Norsemen
                 if (!ZNet.instance.IsServer())
                 {
                     // Enable mod on client if versions match
-                    NorsemenPlugin.NorsemenLogger.LogInfo("Received same version from server!");
+                    NorsemenPlugin.LogInfo("Received same version from server!");
                 }
                 else
                 {
                     // Add client to validated list
-                    NorsemenPlugin.NorsemenLogger.LogInfo(
+                    NorsemenPlugin.LogInfo(
                         $"Adding peer ({rpc.m_socket.GetHostName()}) to validated list");
                     ValidatedPeers.Add(rpc);
                 }

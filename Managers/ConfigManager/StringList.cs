@@ -48,7 +48,7 @@ public class StringList
         bool wasUpdated = false;
         List<string> prefabs = new();
         GUILayout.BeginVertical();
-        foreach (string? prefab in new StringList((string)cfg.BoxedValue).list)
+        foreach (string prefab in new StringList((string)cfg.BoxedValue).list)
         {
             GUILayout.BeginHorizontal();
             var prefabName = prefab;

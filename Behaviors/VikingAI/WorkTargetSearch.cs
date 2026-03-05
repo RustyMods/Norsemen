@@ -37,10 +37,10 @@ public partial class VikingAI
         if (m_workTargetSearchTimer < m_workTargetSearchInterval) return;
         m_workTargetSearchTimer = 0.0f;
 
-        bool canMine = m_viking.configs.CanMine;
-        bool canLumber = m_viking.configs.CanLumber;
-        bool canFish = m_viking.configs.CanFish;
-        bool canWork = m_viking.configs.RequireFood || !m_viking.IsHungry();
+        bool canMine = NorsemanConfigs.CanVikingMine(m_viking.prefabName);
+        bool canLumber = NorsemanConfigs.CanVikingLumber(m_viking.prefabName);
+        bool canFish = NorsemanConfigs.CanVikingFish(m_viking.prefabName);
+        bool canWork = NorsemanConfigs.DoesWorkRequireFood(m_viking.prefabName) || !m_viking.IsHungry();
         bool shouldSearch = canWork && (canMine || canLumber || canFish);
         
         // Reset targets
@@ -56,23 +56,23 @@ public partial class VikingAI
         float destructibleDistance = float.MaxValue;
         float fishDistance = float.MaxValue;
         
-        MineRock? selectedMineRock = null;
-        MineRock5? selectedMineRock5 = null;
-        TreeBase? selectedTree = null;
-        Destructible? selectedDestructible = null;
-        Fish? selectedFish = null;
+        MineRock selectedMineRock = null;
+        MineRock5 selectedMineRock5 = null;
+        TreeBase selectedTree = null;
+        Destructible selectedDestructible = null;
+        Fish selectedFish = null;
 
         List<ZNetView> prefabs = ZNetScene.instance.m_instances.Values.ToList();
         
         for (int i = 0; i < prefabs.Count; ++i)
         {
-            ZNetView? prefab = prefabs[i];
+            ZNetView prefab = prefabs[i];
             float distance = Vector3.Distance(transform.position, prefab.transform.position);
             if (distance > 50f) continue;
             
             if (m_viking.m_pickaxe != null && canMine)
             {
-                MineRock? mineRock = prefab.GetComponent<MineRock>();
+                MineRock mineRock = prefab.GetComponent<MineRock>();
                 if (mineRock != null)
                 {
                     if (m_viking.m_pickaxe.m_shared.m_toolTier < mineRock.m_minToolTier) continue;
@@ -86,7 +86,7 @@ public partial class VikingAI
                     continue;
                 }
                 
-                MineRock5? mineRock5 = prefab.GetComponent<MineRock5>();
+                MineRock5 mineRock5 = prefab.GetComponent<MineRock5>();
                 if (mineRock5 != null)
                 {
                     if (m_viking.m_pickaxe.m_shared.m_toolTier < mineRock5.m_minToolTier) continue;
@@ -100,7 +100,7 @@ public partial class VikingAI
                     continue;
                 }
 
-                Destructible? destructible = prefab.GetComponent<Destructible>();
+                Destructible destructible = prefab.GetComponent<Destructible>();
                 if (destructible != null)
                 {
                     if (m_viking.m_pickaxe.m_shared.m_toolTier < destructible.m_minToolTier) continue;
@@ -121,7 +121,7 @@ public partial class VikingAI
                         }
                     }
                     
-                    DropOnDestroyed? dropOnDestroyed = destructible.GetComponent<DropOnDestroyed>();
+                    DropOnDestroyed dropOnDestroyed = destructible.GetComponent<DropOnDestroyed>();
                     if (dropOnDestroyed != null)
                     {
                         if (!dropOnDestroyed.m_dropWhenDestroyed.m_drops.IsOreVein()) continue;
@@ -139,7 +139,7 @@ public partial class VikingAI
             // Check for Tree
             if (m_viking.m_axe != null && canLumber)
             {
-                TreeBase? tree = prefab.GetComponent<TreeBase>();
+                TreeBase tree = prefab.GetComponent<TreeBase>();
                 if (tree != null)
                 {
                     if (m_viking.m_axe.m_shared.m_toolTier < tree.m_minToolTier) continue;
@@ -156,11 +156,11 @@ public partial class VikingAI
             // Check for fish
             if (m_viking.m_fishingRod != null && canFish)
             {
-                Fish? fish = prefab.GetComponent<Fish>();
+                Fish fish = prefab.GetComponent<Fish>();
                 if (fish != null)
                 {
                     bool hasBait = false;
-                    foreach (Fish.BaitSetting? bait in fish.m_baits)
+                    foreach (Fish.BaitSetting bait in fish.m_baits)
                     {
                         if (m_viking.GetInventory().HaveItem(bait.m_bait.m_itemData.m_shared.m_name))
                         {

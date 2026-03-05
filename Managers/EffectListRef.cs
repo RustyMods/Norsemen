@@ -7,14 +7,14 @@ public class EffectListRef
 {
     public List<EffectDataRef> dataRefs = new();
     private readonly List<EffectList.EffectData> data = new();
-    private EffectList? _effects;
+    private EffectList _effects;
 
     public EffectList Effects
     {
         get
         {
             if (_effects != null) return _effects;
-            foreach (EffectDataRef? dataRef in dataRefs)
+            foreach (EffectDataRef dataRef in dataRefs)
             {
                 data.Add(dataRef.ToEffectData());
             }
@@ -24,7 +24,7 @@ public class EffectListRef
         }
     }
 
-    public GameObject[] Create(Vector3 basePos, Quaternion baseRot, Transform? baseParent = null, float scale = 1f,
+    public GameObject[] Create(Vector3 basePos, Quaternion baseRot, Transform baseParent = null, float scale = 1f,
         int variant = -1) => Effects.Create(basePos, baseRot, baseParent, scale, variant);
 
     public EffectListRef(params string[] effects) => Add(effects);
@@ -59,7 +59,7 @@ public class EffectListRef
             this.prefabName = prefabName;
         }
 
-        private EffectList.EffectData? _data;
+        private EffectList.EffectData _data;
 
         public EffectList.EffectData ToEffectData()
         {

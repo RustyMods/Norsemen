@@ -48,21 +48,8 @@ This release **completely rewrites the plugin** to address long-standing stabili
 ---
 
 ## Random Gear Sets
-
-**Location:**  
-`BepInEx/config/Norsemen/Random Sets`
-
-Each YML file defines a gear set. Use the `Name` as a key in the config.
-
-**Config example:**
-```yml
-## Conditional random sets [Synced with Server]
-Conditional Sets = Carapace,Mage,Flametal,Askvin,MageAshlands
-```
-
 **YML example:**
 ```yml
-Name: Flametal
 PrefabNames:
 - HelmetFlametal
 - ArmorFlametalChest
@@ -83,20 +70,8 @@ Weight: 0.8
 
 ## Random Items
 
-**Location:**  
-`BepInEx/config/Norsemen/Random Items`
-
-Each YML file defines a possible inventory item.
-
-**Config example:**
-```yml
-## Conditional items [Synced with Server]
-Conditional Items = Flint_20,Wood_50,DeerStew,Tin,Copper,TinOre,CopperOre,DeerHide,SurtlingCore,PickaxeAntler,Coins
-```
-
 **YML example:**
 ```yml
-Name: CopperOre
 PrefabName: CopperOre
 RequiredDefeatKey: defeated_eikthyr
 Chance: 0.5

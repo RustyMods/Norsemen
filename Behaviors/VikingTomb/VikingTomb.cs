@@ -20,15 +20,23 @@ public class VikingTomb : MonoBehaviour
     
     public static readonly EffectList reviveEffects = new();
     
-    public Player? m_reviver;
-    public Player.MinorActionData? m_action;
-    public static VikingTomb? m_currentTomb;
+    public Player m_reviver;
+    public Player.MinorActionData m_action;
+    public static VikingTomb m_currentTomb;
+
+    public string m_vikingPrefab = "";
 
     public void Awake()
     {
         instances.Add(this);
         m_nview = GetComponent<ZNetView>();
         m_tombstone = GetComponent<TombStone>();
+    }
+
+    public void Start()
+    {
+        if (!m_nview.IsValid()) return;
+        m_vikingPrefab = m_nview.GetZDO().GetString(VikingVars.vikingPrefab);
     }
 
     public void OnDestroy()
@@ -71,20 +79,35 @@ public class VikingTomb : MonoBehaviour
         sb.Append($"{m_tombstone.m_text} {m_tombstone.GetOwnerName()}");
 
         bool isReviving = m_nview.GetZDO().GetBool(VikingVars.reviving);
-        if (!isReviving) sb.Append("\n[<color=yellow><b>$KEY_Use</b></color>] $piece_container_open");
+        if (!isReviving)
+        {
+            sb.Append("\n[<color=yellow><b>$KEY_Use</b></color>] $piece_container_open");
+            
+            var requirements = ConfigManager.GetReviveRequirements();
+            if (requirements.Length > 0)
+            {
+                sb.Append("\n<color=yellow>Cost</color>: ");
+                for (int i = 0; i < requirements.Length; ++i)
+                {
+                    var requirement = requirements[i];
+                    sb.Append($" {requirement.m_resItem.m_itemData.m_shared.m_name} x{requirement.m_amount}");
+                }
+            }
+        }
 
         string actionText = isReviving ? "$norseman_cancel" : "$norseman_revive";
         sb.Append($"\n[<color=yellow><b>$KEY_AltPlace + $KEY_Use</b></color>] {actionText}");
-
+        
         return Localization.instance.Localize(sb.ToString());
     }
 
     public void Setup(Viking viking)
     {
-        ZDO? zdo = m_nview.GetZDO();
+        ZDO zdo = m_nview.GetZDO();
         if (zdo == null) return;
         
-        zdo.Set(VikingVars.vikingPrefab, viking.name.Replace("(Clone)", ""));
+        m_vikingPrefab = viking.name.Replace("(Clone)", "");
+        zdo.Set(VikingVars.vikingPrefab, m_vikingPrefab);
         zdo.Set(ZDOVars.s_tamedName, viking.GetText());
         zdo.Set(ZDOVars.s_level, viking.GetLevel());
         zdo.Set(ZDOVars.s_hairColor, viking.m_hairColor);
@@ -101,18 +124,18 @@ public class VikingTomb : MonoBehaviour
     {
         if (m_reviver == null) return false;
         
-        string? prefabName = m_nview.GetZDO().GetString(VikingVars.vikingPrefab);
-        GameObject? prefab = ZNetScene.instance.GetPrefab(prefabName);
+        string prefabName = m_nview.GetZDO().GetString(VikingVars.vikingPrefab);
+        GameObject prefab = ZNetScene.instance.GetPrefab(prefabName);
         if (prefab == null) return false;
         
-        string? tamedName = m_nview.GetZDO().GetString(ZDOVars.s_tamedName);
+        string tamedName = m_nview.GetZDO().GetString(ZDOVars.s_tamedName);
         int level = m_nview.GetZDO().GetInt(ZDOVars.s_level);
         Vector3 hairColor = m_nview.GetZDO().GetVec3(ZDOVars.s_hairColor, Vector3.zero);
         int model = m_nview.GetZDO().GetInt(ZDOVars.s_modelIndex);
-        string? hair = m_nview.GetZDO().GetString(ZDOVars.s_hairItem);
-        string? beard = m_nview.GetZDO().GetString(ZDOVars.s_beardItem);
+        string hair = m_nview.GetZDO().GetString(ZDOVars.s_hairItem);
+        string beard = m_nview.GetZDO().GetString(ZDOVars.s_beardItem);
         Vector3 skinColor = m_nview.GetZDO().GetVec3(ZDOVars.s_skinColor, Vector3.one);
-        string? items = m_nview.GetZDO().GetString(ZDOVars.s_items);
+        string items = m_nview.GetZDO().GetString(ZDOVars.s_items);
         int behaviour = m_nview.GetZDO().GetInt(VikingVars.behaviour);
         int patrol = m_nview.GetZDO().GetInt(VikingVars.patrol);
         bool isElf = m_nview.GetZDO().GetBool(VikingVars.isElf);
@@ -141,6 +164,7 @@ public class VikingTomb : MonoBehaviour
         ZNetScene.instance.CreateObject(zdo);
         
         m_tombstone.m_container.GetInventory().RemoveAll();
+        ConsumeReviveRequirements(m_reviver);
         m_revived = true;
         m_reviver = null;
         return true;
@@ -177,6 +201,47 @@ public class VikingTomb : MonoBehaviour
             }
         }
     }
+
+    public bool HasReviveRequirements(Player character)
+    {
+        var requirements = ConfigManager.GetReviveRequirements();
+                
+        if (requirements.Length > 0)
+        {
+            for (int i = 0; i < requirements.Length; i++)
+            {
+                var req =  requirements[i];
+                
+                if (!character.GetInventory().HaveItem(req.m_resItem.m_itemData.m_shared.m_name))
+                {
+                    character.Message(MessageHud.MessageType.Center, $"Missing item: {req.m_resItem.m_itemData.m_shared.m_name}");
+                    return false;
+                }
+                int count = character.GetInventory().CountItems(req.m_resItem.m_itemData.m_shared.m_name);
+                if (req.m_amount > count)
+                {
+                    var difference = req.m_amount - count;
+                    character.Message(MessageHud.MessageType.Center, $"Missing {req.m_resItem.m_itemData.m_shared.m_name} x{difference}");
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public void ConsumeReviveRequirements(Player character)
+    {
+        var requirements = ConfigManager.GetReviveRequirements();
+        if (requirements.Length > 0)
+        {
+            for (int i = 0; i < requirements.Length; i++)
+            {
+                var req =  requirements[i];
+                character.GetInventory().RemoveItem(req.m_resItem.m_itemData.m_shared.m_name, req.m_amount);
+            }
+        }
+    }
     
     public bool Interact(Humanoid character, bool hold, bool alt)
     {
@@ -194,13 +259,26 @@ public class VikingTomb : MonoBehaviour
         {
             if (m_currentTomb != null)
             {
-                character.Message(MessageHud.MessageType.Center, $"$norseman_revive_inuse {m_currentTomb.m_tombstone.GetOwnerName()}");
+                if (m_reviver != character)
+                {
+                    character.Message(MessageHud.MessageType.Center, $"$norseman_revive_inuse {m_currentTomb.m_tombstone.GetOwnerName()}");
+                }
+                else
+                {
+                    m_nview.GetZDO().Set(VikingVars.reviving, false);
+                    CancelInvoke(nameof(CheckReviveProgress));
+                    m_action = null;
+                    m_reviver = null;
+                    m_currentTomb = null;
+                }
                 return false;
             }
             
             if (m_revived) return false;
             if (!IsInvoking(nameof(CheckReviveProgress)))
             {
+                if (!HasReviveRequirements(player)) return false;
+                
                 m_nview.ClaimOwnership();
                 m_reviver = player;
                 m_currentTomb = this;
@@ -232,7 +310,7 @@ public class VikingTomb : MonoBehaviour
     public static void RemoveAll()
     {
         int count = 0;
-        foreach (VikingTomb? tomb in instances)
+        foreach (VikingTomb tomb in instances)
         {
             ZNetScene.instance.Destroy(tomb.gameObject);
             ++count;
@@ -269,7 +347,7 @@ public class VikingTomb : MonoBehaviour
         [HarmonyPatch(nameof(Player.GetActionProgress))]
         [HarmonyPatch(new [] { typeof(string), typeof(float), typeof(Player.MinorActionData) }, 
             new [] { ArgumentType.Out, ArgumentType.Out, ArgumentType.Out })]
-        private static void Postfix(Player __instance, ref string name, ref float progress, ref Player.MinorActionData? data)
+        private static void Postfix(Player __instance, ref string name, ref float progress, ref Player.MinorActionData data)
         {
             if (__instance != Player.m_localPlayer || data != null || m_currentTomb == null) return;
 

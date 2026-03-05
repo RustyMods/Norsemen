@@ -7,13 +7,13 @@ namespace Norsemen;
 
 public partial class Norseman
 {
-    private static GameObject? elfEars = AssetBundleManager.LoadAsset<GameObject>("norsemen_bundle", "ElvenEars");
-    public static GameObject? tombstone;
+    private static GameObject elfEars = AssetBundleManager.LoadAsset<GameObject>("norsemen_bundle", "ElvenEars");
+    public static GameObject tombstone;
     
     public GameObject Prefab = null!;
     public readonly string name;
     private bool Loaded;
-    public event Action<Norseman>? OnCreated;
+    public event Action<Norseman> OnCreated;
     public Viking m_viking = null!;
     public VikingAI m_ai = null!;
     public readonly Faction faction;
@@ -148,20 +148,19 @@ public partial class Norseman
 
         if (elfEars != null)
         {
+            VisEquipment visEq = Prefab.GetComponent<VisEquipment>();
+            SkinnedMeshRenderer body = visEq.m_bodyModel;
             GameObject attach_skin = elfEars.transform.Find("attach_skin").gameObject;
-            GameObject? instance = UnityEngine.Object.Instantiate(attach_skin);
+            GameObject instance = UnityEngine.Object.Instantiate(attach_skin, body.transform.parent, true);
             instance.name = "elf_ears";
             VisEquipment.CleanupInstance(instance);
-            VisEquipment? visEq = Prefab.GetComponent<VisEquipment>();
-            SkinnedMeshRenderer? body = visEq.m_bodyModel;
-            
-            instance.transform.SetParent(body.transform.parent);
+
             instance.transform.localPosition = Vector3.zero;
             instance.transform.localRotation = Quaternion.identity;
 
             List<Material> earMats = new();
             
-            foreach (SkinnedMeshRenderer? renderer in instance.GetComponentsInChildren<SkinnedMeshRenderer>())
+            foreach (SkinnedMeshRenderer renderer in instance.GetComponentsInChildren<SkinnedMeshRenderer>())
             {
                 renderer.rootBone = body.rootBone;
                 renderer.bones = body.bones;
@@ -175,7 +174,7 @@ public partial class Norseman
             m_viking.m_elfEarMats = earMats.ToArray();
         }
         
-        SetupConfigs();
+        configs.Setup(this);
         OnCreated?.Invoke(this);
         CloneManager.norsemen[Prefab.name] = Prefab;
         PrefabManager.RegisterPrefab(Prefab);

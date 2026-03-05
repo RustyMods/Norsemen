@@ -25,7 +25,7 @@ public partial class Viking
     
     public bool m_didGreet;
     public bool m_didGoodbye;
-    public Player? m_targetPlayer;
+    public Player m_targetPlayer;
     public bool m_seeTarget;
     public bool m_hearTarget;
     
@@ -70,14 +70,14 @@ public partial class Viking
                 if (!m_didGreet && distance < m_greetRange)
                 {
                     m_didGreet = true;
-                    string? emote = m_greetEmotes[UnityEngine.Random.Range(0, m_greetEmotes.Count)];
+                    string emote = m_greetEmotes[UnityEngine.Random.Range(0, m_greetEmotes.Count)];
                     QueueSay(TalkManager.GetTalk(TalkManager.TalkType.Greets), trigger: emote, effect: greetFX);
                 }
 
                 if (m_didGreet && !m_didGoodbye && distance > m_byeRange)
                 {
                     m_didGoodbye = true;
-                    string? emote = m_greetEmotes[UnityEngine.Random.Range(0, m_greetEmotes.Count)];
+                    string emote = m_greetEmotes[UnityEngine.Random.Range(0, m_greetEmotes.Count)];
                     QueueSay(TalkManager.GetTalk(TalkManager.TalkType.Farewells), trigger: emote, effect: goodbyeFX);
                 }
 
@@ -100,7 +100,7 @@ public partial class Viking
         if (Time.time - m_lastTargetUpdate <= 1.0) return;
         m_lastTargetUpdate = Time.time;
         m_targetPlayer = null;
-        Player? closestPlayer = Player.GetClosestPlayer(transform.position, m_maxRange);
+        Player closestPlayer = Player.GetClosestPlayer(transform.position, m_maxRange);
         if (closestPlayer == null || m_vikingAI.IsEnemy(closestPlayer)) return;
         m_seeTarget = m_vikingAI.CanSeeTarget(closestPlayer);
         m_hearTarget = m_vikingAI.CanHearTarget(closestPlayer);
@@ -108,7 +108,7 @@ public partial class Viking
         m_targetPlayer = closestPlayer;
     }
 
-    public bool QueueSay(List<string> texts, string context = "", string trigger = "", EffectListRef? effect = null)
+    public bool QueueSay(List<string> texts, string context = "", string trigger = "", EffectListRef effect = null)
     {
         if (texts.Count == 0 || m_queuedTexts.Count >= 3) return false;
         string msg = texts[UnityEngine.Random.Range(0, texts.Count)];
@@ -126,7 +126,7 @@ public partial class Viking
         return true;
     }
 
-    public bool Say(List<string> texts, string trigger = "", EffectListRef? effect = null)
+    public bool Say(List<string> texts, string trigger = "", EffectListRef effect = null)
     {
         if (texts.Count == 0) return false;
         Say(texts[UnityEngine.Random.Range(0, texts.Count)], trigger);
@@ -169,6 +169,6 @@ public partial class Viking
     {
         public string text = "";
         public string trigger = "";
-        public EffectListRef? m_effect;
+        public EffectListRef m_effect;
     }
 }

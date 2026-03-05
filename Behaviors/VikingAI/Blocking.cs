@@ -7,7 +7,7 @@ public partial class VikingAI
     public float m_blockTimer;
     private float m_blockCheckInterval = 2f;
     
-    public void UpdateBlock(float dt, Character? target, bool canSeeTarget)
+    public void UpdateBlock(float dt, Character target, bool canSeeTarget)
     {
         m_blockTimer += dt;
         if (m_blockTimer > m_blockCheckInterval)
@@ -17,7 +17,7 @@ public partial class VikingAI
         }
     }
 
-    public void UpdateBlockDecision(Character? target, bool canSeeTarget)
+    public void UpdateBlockDecision(Character target, bool canSeeTarget)
     {
         if (!IsAlerted())
         {
@@ -44,7 +44,7 @@ public partial class VikingAI
         }
         
         float distance = Vector3.Distance(target.transform.position, transform.position);
-        bool isAlerted = target.m_baseAI.IsAlerted() || target.IsPlayer();
+        bool isAlerted = (target.m_baseAI != null && target.m_baseAI.IsAlerted()) || target.IsPlayer();
         
         if (canSeeTarget)
         {

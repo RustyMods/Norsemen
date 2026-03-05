@@ -44,12 +44,11 @@ public static class SpawnManager
             public ConfigEntry<string> RequiredKey = null!;
             public ConfigEntry<string> RequiredEnvs = null!;
             public ConfigEntry<TimeOfDay> TOD = null!;
-            public ConfigEntry<string>? Altitude;
-            public ConfigEntry<Region>? Forest;
-            public ConfigEntry<string>? Level;
+            public ConfigEntry<string> Altitude;
+            public ConfigEntry<Region> Forest;
+            public ConfigEntry<string> Level;
         }
-
-        private void ConfigChanged(object? o, EventArgs? e)
+        private void ConfigChanged(object o, EventArgs e)
         {
             m_enabled = configs.Enabled.Value is Toggle.On;
             m_biome = configs.Biome.Value;
@@ -117,13 +116,13 @@ public static class SpawnManager
             m_name = viking.name;
             Biome = viking.biome;
             configs = new Configs();
-            SpawnList.enabled = true;
             m_groupSizeMin = 0;
             m_groupSizeMax = 1;
             m_levelUpMinCenterDistance = 1f;
             m_minTilt = 0f;
             m_maxTilt = 50f;
             m_groupRadius = 50f;
+            SpawnList.enabled = true;
             SpawnList.m_spawners.Add(this);
         }
     }

@@ -26,9 +26,9 @@ public partial class VikingGui
         private static void Postfix(InventoryGui __instance)
         {
             GameObject source = __instance.transform.Find("root/Player/Armor").gameObject;
-            RectTransform? container = __instance.m_container;
+            RectTransform container = __instance.m_container;
 
-            GameObject? tooltipPrefab = __instance.m_containerGrid.m_elementPrefab.GetComponent<UITooltip>().m_tooltipPrefab;
+            GameObject tooltipPrefab = __instance.m_containerGrid.m_elementPrefab.GetComponent<UITooltip>().m_tooltipPrefab;
             armor = new Display(source, container, tooltipPrefab, "NorsemanArmor");
             health = new Display(source, container, tooltipPrefab, "NorsemanHealth");
             health.rect.localPosition -=  new Vector3(0, health.rect.rect.height + health.icon.rectTransform.rect.height, 0);

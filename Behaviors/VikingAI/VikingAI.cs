@@ -14,6 +14,7 @@ public partial class VikingAI : MonsterAI
 
         bool isTamed = m_viking.IsTamed();
         m_aggravatable = m_aggravatable && !isTamed;
+        
     }
     
     public override bool UpdateAI(float dt)
@@ -28,12 +29,7 @@ public partial class VikingAI : MonsterAI
         if (isTamed)
         {
             UpdateBehaviour(dt);
-        }
-
-        if (isTamed)
-        {
             UpdateAttachShip(dt);
-            
             if (UpdateAttach())
             {
                 return true;
@@ -127,13 +123,13 @@ public partial class VikingAI : MonsterAI
             return true;
         }
 
-        ItemDrop.ItemData? itemData = SelectBestAttack(m_viking, dt);
-        bool hasItem = itemData != null;
-        bool canAttack = itemData != null && Time.time - itemData.m_lastAttackTime > itemData.m_shared.m_aiAttackInterval;
+        ItemDrop.ItemData bestAttack = SelectBestAttack(m_viking, dt);
+        bool hasItem = bestAttack != null;
+        bool canAttack = bestAttack != null && Time.time - bestAttack.m_lastAttackTime > bestAttack.m_shared.m_aiAttackInterval;
         bool shouldAttack = m_character.GetTimeSinceLastAttack() >= m_minAttackInterval;
-        bool doAttack = (itemData != null) & canAttack & shouldAttack;
+        bool doAttack = (bestAttack != null) & canAttack & shouldAttack;
         
-        UpdateChargeAttack(dt, hasItem, hasTarget, doAttack, itemData);
+        UpdateChargeAttack(dt, hasItem, hasTarget, doAttack, bestAttack);
         
         if (UpdateCirculate(dt, hasItem, doAttack, isTamed))
         {
@@ -143,7 +139,7 @@ public partial class VikingAI : MonsterAI
         UpdateCrouch(dt, m_targetCreature, canSeeTarget);
         UpdateBlock(dt, m_targetCreature, canSeeTarget);
 
-        if (UpdateAttack(dt, itemData, doAttack, canHearTarget, canSeeTarget, isTamed))
+        if (UpdateAttack(dt, bestAttack, doAttack, canHearTarget, canSeeTarget, isTamed))
         {
             return true;
         }

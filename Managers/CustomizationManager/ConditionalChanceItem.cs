@@ -12,7 +12,7 @@ public class ConditionalChanceItem
     public int Min = 1;
     public int Max = 1;
 
-    [YamlIgnore] private Viking.ConditionalRandomItem? _item;
+    [YamlIgnore] private Viking.ConditionalRandomItem _item;
     [YamlIgnore] public Viking.ConditionalRandomItem item
     {
         get

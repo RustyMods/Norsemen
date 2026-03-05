@@ -15,15 +15,20 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
     public EffectList m_skillLevelupEffects = new();
     public EffectList m_equipStartEffects = new();
     public EffectList m_perfectDodgeEffects = new();
+
+    public string prefabName = "";
+    public bool isDead;
     
     public override void Awake()
     {
         instances.Add(this);
-
+        prefabName = Utils.GetPrefabName(name);
         m_inventory.m_name = "NorsemanInventory";
         
         m_vikingAI = GetComponent<VikingAI>();
-        SetupConfigs();
+        m_health = NorsemanConfigs.GetBaseHealth(prefabName);
+        m_tamingTime = NorsemanConfigs.GetTameTime(prefabName);
+        
         SetupFood();
         base.Awake();
         
@@ -35,28 +40,23 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
             m_nview.Register<bool>(nameof(RPC_StackResponse), RPC_StackResponse);
             m_nview.Register<ZDOID, bool>(nameof(RPC_Command), RPC_Command);
             m_nview.Register<string>(nameof(RPC_SetText), RPC_SetText);
-        
-            SetupCustomization();
-            
-            InvokeRepeating(nameof(TamingUpdate), 3f, 3f);
-            // InvokeRepeating(nameof(Load), 1f, 1f);
         }
 
-        m_inventory.m_onChanged += OnInventoryChanged;
-        m_vikingAI.m_onConsumedItem += OnConsumedItem;
-        m_vikingAI.m_onBecameAggravated += OnAggravated;
- 
-        m_tamingTime = configs.TamingTime;
-        if ((m_startsTamed || m_tamingTime <= 0f) && configs.Tameable)
+        if (!ConfigManager.CanHaveStars())
         {
-            SetTamed(true);
+            m_onLevelSet += lvl =>
+            {
+                if (lvl > 1)
+                {
+                    SetLevel(1);
+                }
+            };
         }
-
-        m_visEquipment.m_isPlayer = true;
     }
 
     public override void OnDeath()
     {
+        isDead = true;
         if (IsTamed())
         {
             CreateTombStone();
@@ -68,20 +68,42 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
         base.OnDeath();
     }
 
+    public override bool IsDead() => isDead;
+
     public override void OnDestroy()
     {
-        RemoveConfigSubscriptions();
+        if (!IsDead())
+        {
+            if (Save())
+            {
+                NorsemenPlugin.LogDebug($"{name} OnDestroy, saving inventory");
+            }
+        }
         instances.Remove(this);
         base.OnDestroy();
     }
     
     public override void Start()
     {
-        Load();
+        m_inventory.m_onChanged += OnInventoryChanged;
+        m_vikingAI.m_onConsumedItem += OnConsumedItem;
+        m_vikingAI.m_onBecameAggravated += OnAggravated;
+ 
+        if ((m_startsTamed || m_tamingTime <= 0f) && NorsemanConfigs.IsTameable(prefabName))
+        {
+            SetTamed(true);
+        }
+
+        m_visEquipment.m_isPlayer = true;
+        
+        SetupCustomization();
+        ForceLoad();
         AddDefaultItems();
         m_visEquipment.ClearEquipment();
         EquipItems();
         CheckLastWork();
+        InvokeRepeating(nameof(CheckForChanges), 1f, 10f);
+        InvokeRepeating(nameof(TamingUpdate), 3f, 3f);
     }
 
     public void Update()
@@ -130,8 +152,9 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
                 else
                 {
                     sb.Append("\n[<color=yellow><b>$KEY_AltPlace + $KEY_Use</b></color>] $hud_rename");
-                    sb.Append("\n[<color=yellow><b>L.Alt + $KEY_Use</b></color>] $piece_container_open");
-                    
+                    string key = NorsemenPlugin.AltKey.ToString();
+                    if (ZInput.s_keyLocalizationMap.TryGetValue(key.ToCamelCase(), out string k)) key = k;
+                    sb.Append($"\n[<color=yellow><b>{key} + $KEY_Use</b></color>] $piece_container_open");
                 }
             }
             else
@@ -141,7 +164,7 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
         }
         else
         {
-            if (configs.Tameable)
+            if (NorsemanConfigs.IsTameable(prefabName))
             {
                 int tameness = GetTameness();
                 if (tameness <= 0)
@@ -162,7 +185,9 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
                 }
                 else
                 {
-                    sb.Append("\n[<color=yellow><b>L.Alt + $KEY_Use</b></color>] $norseman_steal");
+                    string key = NorsemenPlugin.AltKey.ToString();
+                    if (ZInput.s_keyLocalizationMap.TryGetValue(key.ToCamelCase(), out string k)) key = k;
+                    sb.Append($"\n[<color=yellow><b>{key} + $KEY_Use</b></color>] $norseman_steal");
                 }
             }
 
@@ -183,7 +208,7 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
         if (IsTamed())
         {
             bool hasAccess = CheckAccess(player.GetPlayerID());
-            if (ZInput.GetKey(KeyCode.LeftAlt) || ZInput.GetButton("JoyLTrigger"))
+            if (ZInput.GetKey(NorsemenPlugin.AltKey) || ZInput.GetButton("JoyLTrigger"))
             {
                 if (!hasAccess)
                 {
@@ -206,7 +231,7 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
         }
         else if (!m_vikingAI.CanSeeTarget(user) && NorsemenPlugin.CanSteal)
         {
-            if (ZInput.GetKey(KeyCode.LeftAlt) || ZInput.GetButton("JoyLTrigger"))
+            if (ZInput.GetKey(NorsemenPlugin.AltKey) || ZInput.GetButton("JoyLTrigger"))
             {
                 m_nview.InvokeRPC(nameof(RPC_RequestOpen), player.GetPlayerID());
             }
@@ -261,10 +286,10 @@ public partial class Viking : Humanoid, Interactable, TextReceiver
         return result;
     }
 
-    public static Viking? GetNearestViking(Vector3 pos, float maxRange)
+    public static Viking GetNearestViking(Vector3 pos, float maxRange)
     {
         float nearest = float.MaxValue;
-        Viking? result = null;
+        Viking result = null;
         List<Viking> allVikings = GetAllVikings();
         
         for (int i = 0; i < allVikings.Count; ++i)

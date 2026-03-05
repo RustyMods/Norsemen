@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using HarmonyLib;
 using UnityEngine;
 
 namespace Norsemen;
 
 public partial class Viking
 {
-    public ItemDrop.ItemData? m_pickaxe;
-    public ItemDrop.ItemData? m_axe;
-    public ItemDrop.ItemData? m_fishingRod;
+    public ItemDrop.ItemData m_pickaxe;
+    public ItemDrop.ItemData m_axe;
+    public ItemDrop.ItemData m_fishingRod;
     
-    public ConditionalItemSet[]? m_conditionalItemSets;
-    public ConditionalRandomItem[]? m_conditionalRandomItems;
-    public ConditionalRandomWeapon[]? m_conditionalRandomWeapons;
+    public ConditionalItemSet[] m_conditionalItemSets;
+    public ConditionalRandomItem[] m_conditionalRandomItems;
+    public ConditionalRandomWeapon[] m_conditionalRandomWeapons;
 
     public void SetupConditionals()
     {
-        Heightmap.Biome biome = configs.biome;
+        Heightmap.Biome biome = NorsemanConfigs.TryGetConfig(prefabName, out var configs)
+            ? configs.biome
+            : Heightmap.Biome.None;
         
         List<ConditionalWeightedSet> sets = CustomizationManager.GetSets(biome);
         List<ConditionalChanceItem> items = CustomizationManager.GetItems(biome);
@@ -34,7 +35,7 @@ public partial class Viking
         if (m_randomShield is { Length: > 0 })
         {
             int index = UnityEngine.Random.Range(0, m_randomShield.Length);
-            GameObject? shield = m_randomShield[index];
+            GameObject shield = m_randomShield[index];
             if (shield != null) GiveDefaultItem(shield);
         }
     }
@@ -44,7 +45,7 @@ public partial class Viking
         if (m_randomWeapon is { Length: > 0 })
         {
             int index = UnityEngine.Random.Range(0, m_randomWeapon.Length);
-            GameObject? weapon = m_randomWeapon[index];
+            GameObject weapon = m_randomWeapon[index];
             if (weapon != null) GiveDefaultItem(weapon);
         }
     }
@@ -67,7 +68,7 @@ public partial class Viking
                 float roll =  UnityEngine.Random.Range(0f, totalWeight);
 
                 List<ConditionalRandomWeapon> sorted = availableWeapons.OrderBy(x => x.m_weight).ToList();
-                ConditionalRandomWeapon? weapon = null;
+                ConditionalRandomWeapon weapon = null;
 
                 for (int i = 0; i < sorted.Count; ++i)
                 {
@@ -96,7 +97,7 @@ public partial class Viking
         if (m_randomArmor is { Length: > 0 })
         {
             int index = UnityEngine.Random.Range(0, m_randomArmor.Length);
-            GameObject? armorItem = m_randomArmor[index];
+            GameObject armorItem = m_randomArmor[index];
             if (armorItem != null) GiveDefaultItem(armorItem);
         }
     }
@@ -119,11 +120,11 @@ public partial class Viking
                 float roll = UnityEngine.Random.Range(0f, totalWeight);
 
                 List<ConditionalItemSet> sorted = availableSets.OrderBy(x => x.m_weight).ToList();
-                ConditionalItemSet? set = null;
+                ConditionalItemSet set = null;
 
                 for (int i = 0; i < sorted.Count; ++i)
                 {
-                    ConditionalItemSet? possibleSet = sorted[i];
+                    ConditionalItemSet possibleSet = sorted[i];
                     chance += possibleSet.m_weight;
                     if (roll < chance)
                     {
@@ -138,7 +139,7 @@ public partial class Viking
                     set = availableSets[index];
                 }
                 
-                foreach (GameObject? item in set.m_items)
+                foreach (GameObject item in set.m_items)
                 {
                     if (item == null) continue;
                     GiveDefaultItem(item);
@@ -154,7 +155,7 @@ public partial class Viking
     {
         if (m_defaultItems is { Length: > 0 })
         {
-            foreach (GameObject? item in m_defaultItems)
+            foreach (GameObject item in m_defaultItems)
             {
                 if (item == null) continue;
                 GiveDefaultItem(item);
@@ -169,7 +170,7 @@ public partial class Viking
             int amount = (int)Enum.GetValues(typeof(ItemDrop.ItemData.ItemType)).Cast<ItemDrop.ItemData.ItemType>().Max();
             m_randomItemSlotFilled = new bool[amount];
             
-            foreach (RandomItem? randomItem in m_randomItems)
+            foreach (RandomItem randomItem in m_randomItems)
             {
                 if (randomItem.m_prefab == null) continue;
                 float roll = UnityEngine.Random.value;
@@ -190,14 +191,10 @@ public partial class Viking
         if (addedDefaultItems) return;
         
         m_inventory.m_onChanged -= OnInventoryChanged;
-
-        // AddRandomShield();
-        // AddRandomWeapon();
         AddConditionalWeapon();
         AddConditionalItems();
         bool addedSet = AddConditionalSet();
         if (!addedSet) AddDefaults();
-        // AddRandomItems();
         
         m_nview.GetZDO().Set(ZDOVars.s_addedDefaultItems, true);
         Save();
@@ -221,9 +218,9 @@ public partial class Viking
         }
     }
     
-    public List<ItemDrop.ItemData?> GetEquipment()
+    public List<ItemDrop.ItemData> GetEquipment()
     {
-        List<ItemDrop.ItemData?> result = new()
+        List<ItemDrop.ItemData> result = new()
         {
             m_helmetItem, m_legItem, m_shoulderItem, m_chestItem, m_utilityItem, m_leftItem, m_rightItem, m_ammoItem, m_trinketItem
         };
@@ -236,7 +233,7 @@ public partial class Viking
         List<ItemDrop.ItemData> items = m_inventory.GetAllItemsInGridOrder();
         for (int i = 0; i < items.Count; ++i)
         {
-            ItemDrop.ItemData? item = items[i];
+            ItemDrop.ItemData item = items[i];
             if (!item.IsEquipable()) continue;
             EquipIfBetter(item);
             
@@ -323,6 +320,12 @@ public partial class Viking
                     EquipItem(item);
                 }
                 break;
+            case ItemDrop.ItemData.ItemType.Trinket:
+                if (m_trinketItem == null)
+                {
+                    EquipItem(item);
+                }
+                break;
             case ItemDrop.ItemData.ItemType.Shield:
             case ItemDrop.ItemData.ItemType.Torch:
                 if (m_leftItem == null || m_leftItem.IsItemBetter(item))
@@ -347,10 +350,10 @@ public partial class Viking
     
     public void UnequipIfNotInInventory()
     {
-        List<ItemDrop.ItemData?> equipment = GetEquipment();
+        List<ItemDrop.ItemData> equipment = GetEquipment();
         for (int i = 0; i < equipment.Count; ++i)
         {
-            ItemDrop.ItemData? item = equipment[i];
+            ItemDrop.ItemData item = equipment[i];
             if (item == null || m_inventory.ContainsItem(item)) continue;
             UnequipItem(item);
         }
@@ -389,7 +392,7 @@ public partial class Viking
     [Serializable]
     public class ConditionalItemSet
     {
-        public GameObject?[] m_items = Array.Empty<GameObject>();
+        public GameObject[] m_items = Array.Empty<GameObject>();
         public string m_requiredDefeatKey = "";
         public float m_weight = 1f;
         public bool HasKey() => string.IsNullOrEmpty(m_requiredDefeatKey) ||
@@ -399,7 +402,7 @@ public partial class Viking
     [Serializable]
     public class ConditionalRandomItem
     {
-        public GameObject? m_prefab;
+        public GameObject m_prefab;
         public string m_requiredDefeatKey = "";
         public float m_chance = 0.5f;
         public int m_min = 1;
@@ -411,7 +414,7 @@ public partial class Viking
     [Serializable]
     public class ConditionalRandomWeapon
     {
-        public GameObject? m_prefab;
+        public GameObject m_prefab;
         public string m_requiredDefeatKey = "";
         public float m_weight;
         

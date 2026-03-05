@@ -6,7 +6,7 @@ namespace Norsemen;
 public static partial class VikingGui
 {
     private static readonly int visible = Animator.StringToHash("visible");
-    public static Viking? m_currentViking;
+    public static Viking m_currentViking;
 
     public static void Show(this InventoryGui gui, Viking viking)
     {
@@ -42,7 +42,7 @@ public static partial class VikingGui
     [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.OnSelectedItem))]
     private static class InventoryGui_OnSelectedItem
     {
-        private static bool Prefix(InventoryGui __instance, InventoryGrid grid, ItemDrop.ItemData? item,
+        private static bool Prefix(InventoryGui __instance, InventoryGrid grid, ItemDrop.ItemData item,
             InventoryGrid.Modifier mod)
         {
             if (!Player.m_localPlayer || item == null || item.m_shared.m_questItem || mod is not InventoryGrid.Modifier.Move || __instance.m_dragGo || __instance.m_currentContainer != null || m_currentViking == null) return true;

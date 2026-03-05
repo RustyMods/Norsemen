@@ -5,8 +5,8 @@ namespace Norsemen;
 
 public partial class VikingAI
 {
-    public Fish? m_fish;
-    public ItemDrop.ItemData? m_bait;
+    public Fish m_fish;
+    public ItemDrop.ItemData m_bait;
     
     public bool UpdateFishing(float dt, ItemDrop.ItemData fishingRod, bool isFollowing)
     {

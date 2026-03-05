@@ -23,7 +23,7 @@ public class Localizer
 
     private static readonly List<WeakReference<Localization>> localizationObjects = new();
 
-    private static BaseUnityPlugin? _plugin;
+    private static BaseUnityPlugin _plugin;
 
     private static BaseUnityPlugin plugin
     {
@@ -64,7 +64,7 @@ public class Localizer
     }
 
     public static void AddPlaceholder<T>(string key, string placeholder, ConfigEntry<T> config,
-        Func<T, string>? convertConfigValue = null) where T : notnull
+        Func<T, string> convertConfigValue = null) where T : notnull
     {
         convertConfigValue ??= val => val.ToString();
         if (!PlaceholderProcessors.ContainsKey(key))
@@ -150,8 +150,8 @@ public class Localizer
         IDeserializer deserializer = new DeserializerBuilder().IgnoreFields().Build();
         try
         {
-            Dictionary<string, string>? localizationTexts =
-                deserializer.Deserialize<Dictionary<string, string>?>(
+            Dictionary<string, string> localizationTexts =
+                deserializer.Deserialize<Dictionary<string, string>>(
                     System.Text.Encoding.UTF8.GetString(englishAssemblyData));
             if (localizationTexts is null)
             {
@@ -159,7 +159,7 @@ public class Localizer
                     $"Localization for mod {plugin.Info.Metadata.Name} failed: Localization file was empty.");
             }
 
-            string? localizationData = null;
+            string localizationData = null;
             if (language != "English")
             {
                 if (localizationFiles.ContainsKey(language))
@@ -181,7 +181,7 @@ public class Localizer
             {
                 foreach (KeyValuePair<string, string> kv in new DeserializerBuilder().IgnoreFields().Build()
                                                                 .Deserialize<Dictionary<string, string>
-                                                                    ?>(localizationData) ??
+                                                                    >(localizationData) ??
                                                             new Dictionary<string, string>())
                 {
                     localizationTexts[kv.Key] = kv.Value;
@@ -207,7 +207,7 @@ public class Localizer
             postfix: new HarmonyMethod(AccessTools.DeclaredMethod(typeof(Localizer), nameof(LoadLocalization))));
     }
 
-    private static byte[]? LoadTranslationFromAssembly(string language)
+    private static byte[] LoadTranslationFromAssembly(string language)
     {
         foreach (string extension in fileExtensions)
         {
@@ -220,7 +220,7 @@ public class Localizer
         return null;
     }
 
-    public static byte[]? ReadEmbeddedFileBytes(string resourceFileName, Assembly? containingAssembly = null)
+    public static byte[] ReadEmbeddedFileBytes(string resourceFileName, Assembly containingAssembly = null)
     {
         using MemoryStream stream = new();
         containingAssembly ??= Assembly.GetCallingAssembly();

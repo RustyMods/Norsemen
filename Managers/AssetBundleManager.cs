@@ -12,7 +12,7 @@ public static class AssetBundleManager
 {
     private static readonly Dictionary<string, AssetBundle> CachedBundles = new();
 
-    public static T? LoadAsset<T>(string assetBundle, string prefab) where T : UnityEngine.Object
+    public static T LoadAsset<T>(string assetBundle, string prefab) where T : UnityEngine.Object
     {
         return GetAssetBundle(assetBundle) is not { } bundle ? null : bundle.LoadAsset<T>(prefab);
     }
@@ -27,8 +27,8 @@ public static class AssetBundleManager
         }
         Assembly execAssembly = Assembly.GetExecutingAssembly();
         string resourceName = execAssembly.GetManifestResourceNames().Single(str => str.EndsWith(fileName));
-        using Stream? stream = execAssembly.GetManifestResourceStream(resourceName);
-        AssetBundle? bundle = AssetBundle.LoadFromStream(stream);
+        using Stream stream = execAssembly.GetManifestResourceStream(resourceName);
+        AssetBundle bundle = AssetBundle.LoadFromStream(stream);
         CachedBundles[fileName] = bundle;
         return bundle;
     }

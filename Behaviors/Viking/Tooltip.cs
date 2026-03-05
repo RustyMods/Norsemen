@@ -51,7 +51,7 @@ public partial class Viking
             sb.Append("\n\n$norseman_status");
             for (int i = 0; i < statusEffects.Count; ++i)
             {
-                StatusEffect? effect = statusEffects[i];
+                StatusEffect effect = statusEffects[i];
                 sb.Append($"\n- {effect.m_name}");
             }
         }

@@ -19,7 +19,7 @@ public static class PrefabManager
         harmony.Patch(AccessTools.DeclaredMethod(typeof(ZNetScene), nameof(ZNetScene.Awake)), new HarmonyMethod(AccessTools.DeclaredMethod(typeof(PrefabManager), nameof(Patch_ZNetScene_Awake))));
     }
 
-    public static void RegisterPrefab(GameObject? prefab)
+    public static void RegisterPrefab(GameObject prefab)
     {
         if (prefab == null) return;
         PrefabsToRegister.Add(prefab);
@@ -43,8 +43,9 @@ public static class PrefabManager
         Helpers._ZNetScene = __instance.m_objectDBPrefab.GetComponent<ZNetScene>();
         Helpers._ObjectDB = __instance.m_objectDBPrefab.GetComponent<ObjectDB>();
         CustomizationManager.GetHairAndBeards(Helpers._ObjectDB);
-        foreach(Clone? clone in Clones) clone.Create();
-        foreach(Norseman? man in Norsemen) man.Create();
+        foreach(Clone clone in Clones) clone.Create();
+        foreach(Norseman man in Norsemen) man.Create();
         ConfigManager.SetupWatcher();
+        Localizer.Load();
     }
 }

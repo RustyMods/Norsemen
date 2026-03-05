@@ -36,7 +36,7 @@ public partial class VikingAI
         }
         else
         {
-            Character? enemy = FindEnemy();
+            Character enemy = FindEnemy();
             if (enemy)
             {
                 m_targetCreature = enemy;
@@ -63,7 +63,7 @@ public partial class VikingAI
 
     private void FindStaticTargets(bool hasPlayerTarget)
     {
-        StaticTarget? priorityTarget = FindClosestStaticPriorityTarget();
+        StaticTarget priorityTarget = FindClosestStaticPriorityTarget();
         if (priorityTarget != null)
         {
             m_targetStatic = priorityTarget;

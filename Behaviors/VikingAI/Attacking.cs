@@ -4,7 +4,7 @@ namespace Norsemen;
 
 public partial class VikingAI
 {
-    public bool UpdateAttack(float dt, ItemDrop.ItemData? itemData, bool doAttack, bool canHearTarget, bool canSeeTarget, bool isTamed)
+    public bool UpdateAttack(float dt, ItemDrop.ItemData itemData, bool doAttack, bool canHearTarget, bool canSeeTarget, bool isTamed)
     {
         if (itemData == null) return false;
         
@@ -217,7 +217,7 @@ public partial class VikingAI
     private bool UpdateFriendAttack(float dt, ItemDrop.ItemData itemData, bool doAttack, bool isTamed)
     {
         bool lookingForHurt = itemData.m_shared.m_aiTargetType == ItemDrop.ItemData.AiTarget.FriendHurt;
-        Character? target = lookingForHurt ? HaveHurtFriendInRange(m_viewRange) : HaveFriendInRange(m_viewRange);
+        Character target = lookingForHurt ? HaveHurtFriendInRange(m_viewRange) : HaveFriendInRange(m_viewRange);
         bool shouldMove = !isTamed || m_moveType is Movement.Patrol;
         if (target == null)
         {
@@ -258,9 +258,9 @@ public partial class VikingAI
         return false;
     }
     
-    public bool DoWeaponAttack(Character? target, bool isFriend)
+    public bool DoWeaponAttack(Character target, bool isFriend)
     {
-        ItemDrop.ItemData? currentWeapon = m_viking.GetCurrentWeapon();
+        ItemDrop.ItemData currentWeapon = m_viking.GetCurrentWeapon();
         if (currentWeapon == null || !CanUseAttack(currentWeapon)) return false;
         bool secondary = !string.IsNullOrEmpty(currentWeapon.m_shared.m_secondaryAttack.m_attackAnimation) && UnityEngine.Random.value > 0.5f;
         if (!m_viking.StartAttack(target, secondary))

@@ -2,7 +2,7 @@
 
 public partial class VikingAI
 {
-    public void UpdateChargeAttack(float dt, bool hasItem, bool hasTarget, bool doAttack, ItemDrop.ItemData? itemData)
+    public void UpdateChargeAttack(float dt, bool hasItem, bool hasTarget, bool doAttack, ItemDrop.ItemData itemData)
     {
         bool canCharge = hasItem && hasTarget && doAttack;
         bool notAttacking = !m_character.InAttack();

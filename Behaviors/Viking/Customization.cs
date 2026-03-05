@@ -80,7 +80,7 @@ public partial class Viking
         else
         {
             if (CustomizationManager.beards.Count <= 0) return;
-            string? beard = CustomizationManager.beards[UnityEngine.Random.Range(0, CustomizationManager.beards.Count)];
+            string beard = CustomizationManager.beards[UnityEngine.Random.Range(0, CustomizationManager.beards.Count)];
             SetBeard(beard);
         }
     }
@@ -88,7 +88,7 @@ public partial class Viking
     public void SetRandomHair()
     {
         if (CustomizationManager.hairs.Count <= 0) return;
-        string? hair = CustomizationManager.hairs[UnityEngine.Random.Range(0, CustomizationManager.hairs.Count)];
+        string hair = CustomizationManager.hairs[UnityEngine.Random.Range(0, CustomizationManager.hairs.Count)];
         SetHair(hair);
     }
 

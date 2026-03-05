@@ -7,14 +7,14 @@ namespace Norsemen;
 public partial class Viking
 {
     public static readonly List<ItemDrop> consumableItems = new();
-    public ItemDrop.ItemData? m_lastFoodItem;
+    public ItemDrop.ItemData m_lastFoodItem;
     
     [HarmonyPatch(typeof(ObjectDB), nameof(ObjectDB.Awake))]
     private static class ObjectDB_Awake
     {
         private static void Postfix(ObjectDB __instance)
         {
-            foreach (GameObject? item in __instance.m_items)
+            foreach (GameObject item in __instance.m_items)
             {
                 if (!item.TryGetComponent(out ItemDrop component)) continue;
                 if (component.m_itemData.m_shared.m_itemType != ItemDrop.ItemData.ItemType.Consumable) continue;
@@ -31,7 +31,7 @@ public partial class Viking
 
     public void UpdateHealth()
     {
-        float baseHealth = configs.BaseHealth;
+        float baseHealth = NorsemanConfigs.GetBaseHealth(prefabName);
         float health = baseHealth * m_level;
         if (m_lastFoodItem != null && !IsHungry())
         {

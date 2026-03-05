@@ -10,7 +10,7 @@ public class NorseCommand
     private readonly bool m_isSecret;
     private readonly bool m_adminOnly;
     private readonly Func<Terminal.ConsoleEventArgs, bool> m_command;
-    private readonly Func<List<string>>? m_optionFetcher;
+    private readonly Func<List<string>> m_optionFetcher;
     public bool Run(Terminal.ConsoleEventArgs args) => !IsAdmin() || m_command(args);
     private bool IsAdmin()
     {
@@ -23,7 +23,7 @@ public class NorseCommand
     public List<string> FetchOptions() => m_optionFetcher == null ? new() :  m_optionFetcher();
     public bool HasOptions() => m_optionFetcher != null;
         
-    public NorseCommand(string input, string description, Func<Terminal.ConsoleEventArgs, bool> command, Func<List<string>>? optionsFetcher = null, bool isSecret = false, bool adminOnly = false)
+    public NorseCommand(string input, string description, Func<Terminal.ConsoleEventArgs, bool> command, Func<List<string>> optionsFetcher = null, bool isSecret = false, bool adminOnly = false)
     {
         m_description = description;
         m_command = command;

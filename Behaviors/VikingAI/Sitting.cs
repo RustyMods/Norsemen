@@ -11,17 +11,24 @@ public partial class VikingAI
         {
             return false;
         }
+        
         if (m_viking.m_attachPoint != null)
         {
-            transform.position =m_viking. m_attachPoint.position;
+            transform.position = m_viking.m_attachPoint.position;
             transform.rotation = m_viking.m_attachPoint.rotation;
-            Rigidbody? componentInParent = m_viking.m_attachPoint.GetComponentInParent<Rigidbody>();
+            
             m_body.useGravity = false;
-            m_body.linearVelocity = (bool)(Object)componentInParent
-                ? componentInParent.GetPointVelocity(transform.position)
+            
+            Rigidbody rb = m_viking.m_attachPoint.GetComponentInParent<Rigidbody>();
+            Vector3 velocity = rb
+                ? rb.GetPointVelocity(transform.position) with { y = 0f }
                 : Vector3.zero;
+
+            m_body.linearVelocity = velocity;
             m_body.angularVelocity = Vector3.zero;
+            
             m_viking.m_maxAirAltitude = transform.position.y;
+            
             return true;
         }
         
@@ -43,7 +50,7 @@ public partial class VikingAI
                 return ;
             }
             
-            Ship? localShip = m_viking.GetStandingOnShip();
+            Ship localShip = m_viking.GetStandingOnShip();
             if (localShip == null || !localShip.IsPlayerInBoat(player))
             {
                 m_viking.AttachStop();
@@ -52,24 +59,23 @@ public partial class VikingAI
         }
         else
         {
-            if (m_follow == null) return ;
-
-            if (!m_follow.TryGetComponent(out Player player)) return;
-
-            Ship? localShip = player.GetStandingOnShip();
+            if (m_follow == null || !m_follow.TryGetComponent(out Player player)) return;
+            
+            Ship localShip = player.GetStandingOnShip();
             if (localShip == null) return;
             
             if (!localShip.IsPlayerInBoat(player)) return;
             
-            Chair[]? seats = localShip.GetComponentsInChildren<Chair>();
+            Chair[] seats = localShip.GetComponentsInChildren<Chair>();
             if (seats == null) return;
 
             foreach (Chair seat in seats)
             {
-                Player? closestPlayer = Player.GetClosestPlayer(seat.transform.position, 0.1f);
-                Viking? closestViking = Viking.GetNearestViking(seat.transform.position, 0.1f);
-
-                if (closestPlayer != null || closestViking != null) continue;
+                Player closestPlayer = Player.GetClosestPlayer(seat.transform.position, 0.1f);
+                Viking closestViking = Viking.GetNearestViking(seat.transform.position, 0.1f);
+                bool isSeatTaken = closestPlayer != null || closestViking != null;
+                
+                if (isSeatTaken) continue;
 
                 m_viking.AttachStart(seat.m_attachPoint, null, false, false, seat.m_inShip, seat.m_attachAnimation, seat.m_detachOffset, null);
                 return;

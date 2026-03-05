@@ -5,10 +5,10 @@ namespace Norsemen;
 
 public partial class Norseman
 {
-    private static GameObject? ragdoll;
-    private static GameObject? CreateRagdoll()
+    private static GameObject ragdoll;
+    private static GameObject CreateRagdoll()
     {
-        GameObject? prefab = Helpers.GetPrefab("Player_ragdoll");
+        GameObject prefab = Helpers.GetPrefab("Player_ragdoll");
         if (prefab is null) return null;
         GameObject clone = UnityEngine.Object.Instantiate(prefab, CloneManager.root.transform, false);
         clone.name = "Norseman_ragdoll";
@@ -32,18 +32,18 @@ public partial class Norseman
             if (clone.TryGetComponent(out VisEquipment visEq))
             {
                 GameObject attach_skin = elfEars.transform.Find("attach_skin").gameObject;
-                GameObject? instance = UnityEngine.Object.Instantiate(attach_skin);
+                GameObject instance = UnityEngine.Object.Instantiate(attach_skin);
                 instance.name = "elf_ears";
                 VisEquipment.CleanupInstance(instance);
 
-                SkinnedMeshRenderer? body = visEq.m_bodyModel;
+                SkinnedMeshRenderer body = visEq.m_bodyModel;
                 instance.transform.SetParent(body.transform.parent);
                 instance.transform.localPosition = Vector3.zero;
                 instance.transform.localRotation = Quaternion.identity;
 
                 List<Material> earMats = new();
             
-                foreach (SkinnedMeshRenderer? renderer in instance.GetComponentsInChildren<SkinnedMeshRenderer>())
+                foreach (SkinnedMeshRenderer renderer in instance.GetComponentsInChildren<SkinnedMeshRenderer>())
                 {
                     renderer.rootBone = body.rootBone;
                     renderer.bones = body.bones;

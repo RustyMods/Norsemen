@@ -7,7 +7,7 @@ public partial class VikingAI
     public float m_crouchTimer;
     private float m_crouchCheckInterval = 2f;
     
-    public void UpdateCrouch(float dt, Character? target, bool canSeeTarget)
+    public void UpdateCrouch(float dt, Character target, bool canSeeTarget)
     {
         m_crouchTimer += dt;
         
@@ -21,7 +21,7 @@ public partial class VikingAI
         m_animator.SetBool(Player.s_crouching, shouldCrouch);
     }
 
-    private void UpdateCrouchDecision(Character? target, bool canSeeTarget)
+    private void UpdateCrouchDecision(Character target, bool canSeeTarget)
     {
         if (m_followPlayer != null)
         {

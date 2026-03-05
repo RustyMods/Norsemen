@@ -6,10 +6,10 @@ public partial class Viking
 {
     public bool m_attached;
     public bool m_attachedToShip;
-    public Transform? m_attachPoint;
+    public Transform m_attachPoint;
     public Vector3 m_detachOffset;
-    public string? m_attachAnimation;
-    public Collider[]? m_attachColliders;
+    public string m_attachAnimation;
+    public Collider[] m_attachColliders;
     
     public override void AttachStart(
         Transform attachPoint,
@@ -19,7 +19,7 @@ public partial class Viking
         bool onShip,
         string attachAnimation,
         Vector3 detachOffset,
-        Transform? cameraPos = null)
+        Transform cameraPos = null)
     {
         if (m_attached)
         {
@@ -32,8 +32,10 @@ public partial class Viking
         m_attachAnimation = attachAnimation;
         m_zanim.SetBool(attachAnimation, true);
         m_nview.GetZDO().Set(ZDOVars.s_inBed, isBed);
+        
         if (colliderRoot != null)
         {
+            // used when attaching to saddle
             m_attachColliders = colliderRoot.GetComponentsInChildren<Collider>();
             ZLog.Log($"Ignoring {m_attachColliders.Length.ToString()} colliders");
             foreach (Collider attachCollider in m_attachColliders)
@@ -51,10 +53,7 @@ public partial class Viking
         ResetCloth();
     }
 
-    public override bool IsAttachedToShip()
-    {
-        return m_attached && m_attachedToShip;
-    }
+    public override bool IsAttachedToShip() => m_attached && m_attachedToShip;
     
     public override void AttachStop()
     {
@@ -69,7 +68,7 @@ public partial class Viking
         }
         if (m_attachColliders != null)
         {
-            foreach (Collider? attachCollider in m_attachColliders)
+            foreach (Collider attachCollider in m_attachColliders)
             {
                 if (attachCollider)
                 {
@@ -80,10 +79,13 @@ public partial class Viking
         }
 
         m_body.useGravity = true;
+        
         m_attached = false;
         m_attachPoint = null;
+        
         m_zanim.SetBool(m_attachAnimation, false);
         m_nview.GetZDO().Set(ZDOVars.s_inBed, false);
+        
         ResetCloth();
     }
 }

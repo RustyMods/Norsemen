@@ -4,7 +4,7 @@ namespace Norsemen;
 
 public partial class VikingAI
 {
-    public Player? m_followPlayer;
+    public Player m_followPlayer;
     public bool UpdateFollow(float dt)
     {
         float distanceFromFollow = Vector3.Distance(transform.position, m_follow.transform.position);

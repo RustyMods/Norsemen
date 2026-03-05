@@ -13,7 +13,7 @@
         <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <LangVersion>10</LangVersion>
-        <Nullable>enable</Nullable>
+<!--        <Nullable>enable</Nullable>-->
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -163,7 +163,6 @@
         <Compile Include="Behaviors\Viking\Armor.cs" />
         <Compile Include="Behaviors\Viking\Attack.cs" />
         <Compile Include="Behaviors\Viking\Block.cs" />
-        <Compile Include="Behaviors\Viking\Configs.cs" />
         <Compile Include="Behaviors\Viking\Customization.cs" />
         <Compile Include="Behaviors\Viking\DamageModifiers.cs" />
         <Compile Include="Behaviors\Viking\Dodge.cs" />
@@ -196,6 +195,7 @@
         <Compile Include="Managers\ConfigManager\EnvList.cs" />
         <Compile Include="Managers\ConfigManager\MinMax.cs" />
         <Compile Include="Managers\ConfigManager\Level.cs" />
+        <Compile Include="Managers\ConfigManager\RequirementList.cs" />
         <Compile Include="Managers\ConfigManager\StringList.cs" />
         <Compile Include="Managers\CustomizationManager\ConditionalChanceItem.cs" />
         <Compile Include="Managers\CustomizationManager\ConditionalWeightedSet.cs" />
@@ -210,6 +210,7 @@
         <Compile Include="Managers\Norseman\Configs.cs" />
         <Compile Include="Managers\Norseman\Norseman.cs" />
         <Compile Include="Managers\Norseman\Ragdoll.cs" />
+        <Compile Include="Managers\RaidManager\RaidManager.cs" />
         <Compile Include="Managers\SpawnManager.cs" />
         <Compile Include="Managers\Helpers.cs" />
         <Compile Include="Managers\LocalizationManager.cs" />

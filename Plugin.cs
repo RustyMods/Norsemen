@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using BepInEx;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Norsemen
 {
@@ -20,35 +19,30 @@ namespace Norsemen
     public class NorsemenPlugin : BaseUnityPlugin
     {
         internal const string ModName = "Norsemen";
-        internal const string ModVersion = "0.3.0";
+        internal const string ModVersion = "0.3.3";
         internal const string Author = "RustyMods";
         public const string ModGUID = Author + "." + ModName;
         internal static string ConnectionError = "";
         public readonly Harmony _harmony = new(ModGUID);
-        public static readonly ManualLogSource NorsemenLogger = BepInEx.Logging.Logger.CreateLogSource(ModName);
         public static NorsemenPlugin instance = null!;
 
         private static ConfigEntry<Toggle> canSteal = null!;
         private static ConfigEntry<Toggle> removeEquipment = null!;
         private static ConfigEntry<Toggle> canBeEncumbered = null!;
         private static ConfigEntry<int> baseCarryWeight = null!;
+        private static ConfigEntry<KeyCode> altKey = null!;
         
         public static bool CanSteal => canSteal.Value is Toggle.On;
         public static bool RemoveEquipment => removeEquipment.Value is Toggle.On;
         public static bool CanBecomeEncumbered => canBeEncumbered.Value is Toggle.On;
         public static int BaseCarryWeight => baseCarryWeight.Value;
-        
+        public static KeyCode AltKey => altKey.Value;
         public void Awake()
         {
             instance = this;
-
-            Localizer.Load();
-            
             SetupTombstone();
             SetupNorsemen();
             SetupCommands();
-            
-            
             NameGenerator.Setup();
             TalkManager.Setup();
             CustomizationManager.Setup();
@@ -56,7 +50,9 @@ namespace Norsemen
             canSteal = ConfigManager.config("Settings", "Steal", Toggle.On, "If on, players can steal from norsemen");
             removeEquipment = ConfigManager.config("Settings", "Naked on Tamed", Toggle.Off, "If on, tamed norsemen will lose equipment on tamed");
             canBeEncumbered = ConfigManager.config("Settings", "Encumbers", Toggle.On, "If on, tamed norsemen can become encumbered");
-            baseCarryWeight = ConfigManager.config("Settings", "Base Carry Weight", 300, "Set nrosemens base carry weight");
+            baseCarryWeight = ConfigManager.config("Settings", "Base Carry Weight", 300, "Set base carry weight");
+            altKey = ConfigManager.config("Settings", "Alt Interaction Key", KeyCode.LeftAlt,
+                "Set alt key to interact with norsemen");
             
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
@@ -69,6 +65,15 @@ namespace Norsemen
             Norseman meadows = new Norseman(Heightmap.Biome.Meadows, "Meadows_Norseman_RS", norsemen);
             meadows.baseHealth = 50f;
             meadows.baseArmor = 0f;
+            // meadows.OnCreated += norseman =>
+            // {
+            //     Raid meadowsRaid = new Raid(norseman);
+            //     meadowsRaid.m_name = "Meadows_Norseman_Raid";
+            //     meadowsRaid.m_biome = Heightmap.Biome.Meadows;
+            //     meadowsRaid.m_startMessage = "The norsemen are angered";
+            //     meadowsRaid.m_endMessage = "The norsemen end their rampage";
+            //     meadowsRaid.SetupConfigs("defeated_eikthyr");
+            // };
 
             Norseman blackforest = new Norseman(Heightmap.Biome.BlackForest, "BlackForest_Norseman_RS", norsemen);
             blackforest.baseHealth = 100f;
@@ -100,11 +105,11 @@ namespace Norsemen
             Clone vikingTombstone = new Clone("Player_tombstone", "Norseman_tombstone_RS");
             vikingTombstone.OnCreated += prefab =>
             {
-                MeshRenderer? renderer = prefab.GetComponentInChildren<MeshRenderer>();
+                MeshRenderer renderer = prefab.GetComponentInChildren<MeshRenderer>();
                 if (renderer != null)
                 {
                     List<Material> newMaterials = new();
-                    foreach (Material? material in renderer.sharedMaterials)
+                    foreach (Material material in renderer.sharedMaterials)
                     {
                         Material mat = new Material(material);
                         newMaterials.Add(mat);
@@ -118,7 +123,7 @@ namespace Norsemen
                     prefab.AddComponent<VikingTomb>();
                 }
 
-                Transform? ringParticles = prefab.transform.Find("Particle System");
+                Transform ringParticles = prefab.transform.Find("Particle System");
                 if (ringParticles != null && ringParticles.TryGetComponent(out ParticleSystem ps))
                 {
                     ParticleSystem.MainModule main = ps.main;
@@ -194,9 +199,9 @@ namespace Norsemen
             {
                 List<Viking> vikings = Viking.GetAllVikings();
                 int count = 0;
-                foreach (Viking? viking in vikings)
+                foreach (Viking viking in vikings)
                 {
-                    if (viking.IsTamed() || !viking.configs.Tameable) continue;
+                    if (viking.IsTamed() || !NorsemanConfigs.IsTameable(viking.prefabName)) continue;
                     ++count;
                     viking.SetTamed(true);
                     viking.m_nview.GetZDO().Set(VikingVars.lastLevelUpTime, ZNet.instance.GetTime().Ticks);
@@ -223,26 +228,32 @@ namespace Norsemen
 
         public static void LogDebug(string msg)
         {
-            if (!ConfigManager.ShouldLog(ConfigManager.LogLevel.Debug)) return;
-            NorsemenLogger.LogDebug(msg);
+            if (!ConfigManager.ShouldLog(LogLevel.Debug)) return;
+            instance.Logger.LogDebug(msg);
         }
 
         public static void LogError(string msg)
         {
-            if (!ConfigManager.ShouldLog(ConfigManager.LogLevel.Error)) return;
-            NorsemenLogger.LogError(msg);
+            if (!ConfigManager.ShouldLog(LogLevel.Error)) return;
+            instance.Logger.LogError(msg);
         }
 
         public static void LogWarning(string msg)
         {
-            if (!ConfigManager.ShouldLog(ConfigManager.LogLevel.Warning)) return;
-            NorsemenLogger.LogWarning(msg);
+            if (!ConfigManager.ShouldLog(LogLevel.Warning)) return;
+            instance.Logger.LogWarning(msg);
         }
 
         public static void LogInfo(string msg)
         {
-            if (!ConfigManager.ShouldLog(ConfigManager.LogLevel.Info)) return;
-            NorsemenLogger.LogInfo(msg);
+            if (!ConfigManager.ShouldLog(LogLevel.Info)) return;
+            instance.Logger.LogInfo(msg);
+        }
+
+        public static void LogFatal(string msg)
+        {
+            if (!ConfigManager.ShouldLog(LogLevel.Fatal)) return;
+            instance.Logger.LogFatal(msg);
         }
     }
 }

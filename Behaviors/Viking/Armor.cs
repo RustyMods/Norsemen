@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Norsemen;
+﻿namespace Norsemen;
 
 public partial class Viking
 {
@@ -8,7 +6,7 @@ public partial class Viking
     
     public float GetArmor()
     {
-        armor = configs.BaseArmor;
+        armor = NorsemanConfigs.GetBaseArmor(prefabName);
         if (m_chestItem != null) armor += m_chestItem.GetArmor();
         if (m_legItem != null) armor += m_legItem.GetArmor();
         if (m_helmetItem != null) armor += m_helmetItem.GetArmor();

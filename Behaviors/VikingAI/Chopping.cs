@@ -6,7 +6,7 @@ namespace Norsemen;
 
 public partial class VikingAI
 {
-    public TreeBase? m_tree;
+    public TreeBase m_tree;
     
     public bool UpdateLogging(float dt, ItemDrop.ItemData axe, bool isFollowing)
     {
@@ -43,28 +43,28 @@ public partial class VikingAI
         {
             if (tree.m_logPrefab != null)
             {
-                TreeLog? treeLog = tree.m_logPrefab.GetComponent<TreeLog>();
+                TreeLog treeLog = tree.m_logPrefab.GetComponent<TreeLog>();
                 if (treeLog != null)
                 {
                     if (treeLog.m_subLogPrefab != null)
                     {
                         treeLog = treeLog.m_subLogPrefab.GetComponent<TreeLog>();
                     }
-                    List<DropTable.DropData>? resources = treeLog.m_dropWhenDestroyed.m_drops;
+                    List<DropTable.DropData> resources = treeLog.m_dropWhenDestroyed.m_drops;
                     AddResources(resources);
                 }
             }
         }
         if (tree.m_logPrefab != null)
         {
-            TreeLog? treeLog = tree.m_logPrefab.GetComponent<TreeLog>();
+            TreeLog treeLog = tree.m_logPrefab.GetComponent<TreeLog>();
             if (treeLog != null)
             {
                 if (treeLog.m_subLogPrefab != null)
                 {
                     treeLog = treeLog.m_subLogPrefab.GetComponent<TreeLog>();
                 }
-                List<DropTable.DropData>? resources = treeLog.m_dropWhenDestroyed.m_drops;
+                List<DropTable.DropData> resources = treeLog.m_dropWhenDestroyed.m_drops;
                 AddResources(resources);
             }
         }

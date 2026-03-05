@@ -23,16 +23,16 @@ public partial class Viking
 
     public int m_maxLevel = 3;
     public float m_secondsToLevelUp = 1800f;
-    public void OnTameTimeConfigChanged(object sender, EventArgs args)
-    {
-        if (!m_nview.IsValid()) return;
-        m_tamingTime = configs.TamingTime;
-        m_nview.GetZDO().Set(ZDOVars.s_tameTimeLeft, m_tamingTime);
-    }
+    // public void OnTameTimeConfigChanged(object sender, EventArgs args)
+    // {
+    //     if (!m_nview.IsValid()) return;
+    //     m_tamingTime = configs.TamingTime;
+    //     m_nview.GetZDO().Set(ZDOVars.s_tameTimeLeft, m_tamingTime);
+    // }
     
     public void TamingUpdate()
     {
-        if (!configs.Tameable) return;
+        if (!NorsemanConfigs.IsTameable(prefabName)) return;
         if (!m_nview.IsValid() || !m_nview.IsOwner() || IsHungry() || m_baseAI.IsAlerted()) return;
         
         if (IsTamed())
@@ -56,7 +56,7 @@ public partial class Viking
             m_skillLevelupEffects.Create(transform.position, Quaternion.identity);
             m_nview.GetZDO().Set(VikingVars.lastLevelUpTime, time);
 
-            Player? nearestPlayer = Player.GetClosestPlayer(transform.position, 20f);
+            Player nearestPlayer = Player.GetClosestPlayer(transform.position, 20f);
             if (nearestPlayer != null)
             {
                 string message = $"{GetText()} $norseman_leveledup";
@@ -83,7 +83,7 @@ public partial class Viking
 
     public void Tame()
     {
-        if (!configs.Tameable) return;
+        if (!NorsemanConfigs.IsTameable(prefabName)) return;
         
         Game.instance.IncrementPlayerStat(PlayerStatType.CreatureTamed);
         if (!m_nview.IsValid() || !m_nview.IsOwner() || IsTamed()) return;
@@ -173,7 +173,7 @@ public partial class Viking
 
         if (m_levelUpOwnerSkill == Skills.SkillType.None) return;
 
-        GameObject? followTarget = GetFollowTarget();
+        GameObject followTarget = GetFollowTarget();
         if (followTarget == null) return;
         
         Character character = followTarget.GetComponent<Character>();
@@ -189,7 +189,7 @@ public partial class Viking
     {
         if (m_nview == null) return false;
 
-        if (!configs.Tameable) return false;
+        if (!NorsemanConfigs.IsTameable(prefabName)) return false;
 
         ZDO zdo = m_nview.GetZDO();
         if (zdo == null) return false;
@@ -214,7 +214,7 @@ public partial class Viking
             if (__instance.m_tamed == tamed) return;
             if (__instance.m_nview.IsOwner() && tamed)
             {
-                Inventory? inventory = viking.GetInventory();
+                Inventory inventory = viking.GetInventory();
                 viking.UnequipAllItems();
                 inventory.m_inventory.RemoveAll(x => x.IsEquipable());
             }

@@ -4,18 +4,20 @@ namespace Norsemen;
 
 public partial class Viking
 {
+    public uint m_lastRevision;
     public string m_lastDataString = string.Empty;
     public bool m_loading;
+    public bool m_saving;
     public bool m_inUse;
 
-    public Player? m_currentPlayer;
-    public GameObject? m_previousFollowTarget;
+    public Player m_currentPlayer;
+    public GameObject m_previousFollowTarget;
 
     public int m_lastInventoryCount;
     
     public void OnInventoryChanged()
     {
-        if (m_loading || !m_nview.IsOwner()) return;
+        if (IsLoading() || !m_nview.IsOwner()) return;
         Save();
         if (!IsTamed())
         {
@@ -29,21 +31,35 @@ public partial class Viking
         UpdateEncumber();
     }
     
-    public void Save()
+    public bool Save()
     {
+        if (!m_nview.IsValid() || !m_nview.IsOwner()) return false;
+        m_saving = true;
+        NorsemenPlugin.LogDebug($"{GetName()} saving inventory");
         ZPackage pkg = new ZPackage();
         m_inventory.Save(pkg);
         string base64 = pkg.GetBase64();
         m_nview.GetZDO().Set(ZDOVars.s_items, base64);
+        m_lastRevision = m_nview.GetZDO().DataRevision;
         m_lastDataString = base64;
         m_nview.GetZDO().Set(VikingVars.inventoryChanged, true);
+        m_saving = false;
+        return true;
     }
 
-    public void Load()
+    public void CheckForChanges()
+    {
+        if (!m_nview.IsValid()) return;
+        Load();
+        Save();
+    }
+    
+    public bool IsLoading() => m_loading;
+    public bool IsSaving() => m_saving;
+
+    public void ForceLoad()
     {
         string base64 = m_nview.GetZDO().GetString(ZDOVars.s_items);
-        if (base64 == m_lastDataString) return;
-
         if (!string.IsNullOrEmpty(base64))
         {
             ZPackage pkg = new ZPackage(base64);
@@ -52,6 +68,28 @@ public partial class Viking
             m_loading = false;
         }
         m_lastDataString = base64;
+        m_lastRevision = m_nview.GetZDO().DataRevision;
+        UpdateEncumber();
+    }
+
+    public void Load()
+    {
+        uint revision = m_nview.GetZDO().DataRevision;
+        if (revision == m_lastRevision) return;
+        m_lastRevision = revision;
+        string base64 = m_nview.GetZDO().GetString(ZDOVars.s_items);
+        if (base64 == m_lastDataString) return;
+        if (string.IsNullOrEmpty(base64))
+        {
+            m_lastDataString = base64;
+            return;
+        }
+        ZPackage pkg = new ZPackage(base64);
+        m_loading = true;
+        m_inventory.Load(pkg);
+        m_loading = false;
+        m_lastDataString = base64;
+        m_lastRevision = revision;
         UpdateEncumber();
     }
 
@@ -74,6 +112,7 @@ public partial class Viking
         {
             ZDOMan.instance.ForceSendZDO(uid, m_nview.GetZDO().m_uid);
             m_nview.GetZDO().SetOwner(uid);
+            Save();
             m_nview.InvokeRPC(uid, nameof(RPC_OpenResponse), true);
         }
     }
@@ -129,7 +168,7 @@ public partial class Viking
 
     public bool IsInUse() => m_inUse;
     
-    public void SetInUse(Player? player)
+    public void SetInUse(Player player)
     {
         if (!m_nview.IsOwner()) return;
         bool inUse = player != null;

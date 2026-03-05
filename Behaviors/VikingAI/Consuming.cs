@@ -30,13 +30,13 @@ public partial class VikingAI
 
     public bool EatInventoryFood(Viking viking)
     {
-        Inventory? inventory = viking.GetInventory();
-        List<ItemDrop.ItemData>? consumables = inventory.GetAllItemsOfType(ItemDrop.ItemData.ItemType.Consumable);
+        Inventory inventory = viking.GetInventory();
+        List<ItemDrop.ItemData> consumables = inventory.GetAllItemsOfType(ItemDrop.ItemData.ItemType.Consumable);
         
-        ItemDrop.ItemData? targetItem = null;
+        ItemDrop.ItemData targetItem = null;
         if (consumables.Count > 0)
         {
-            foreach (ItemDrop.ItemData? consumable in consumables)
+            foreach (ItemDrop.ItemData consumable in consumables)
             {
                 if (IsFoodItem(consumable))
                 {

@@ -11,13 +11,13 @@ namespace Norsemen;
 
 public static class Helpers
 {
-    internal static ZNetScene? _ZNetScene;
-    internal static ObjectDB? _ObjectDB;
-    internal static GameObject? GetPrefab(string prefabName)
+    internal static ZNetScene _ZNetScene;
+    internal static ObjectDB _ObjectDB;
+    internal static GameObject GetPrefab(string prefabName)
     {
         if (ZNetScene.instance != null) return ZNetScene.instance.GetPrefab(prefabName);
         if (_ZNetScene == null) return null;
-        GameObject? result = _ZNetScene.m_prefabs.Find(prefab => prefab.name == prefabName);
+        GameObject result = _ZNetScene.m_prefabs.Find(prefab => prefab.name == prefabName);
         if (result != null) return result;
         return CloneManager.clones.TryGetValue(prefabName, out GameObject clone) ? clone : result;
     }
@@ -36,9 +36,15 @@ public static class Helpers
         }
     }
 
+    public static string ToCamelCase(this string str)
+    {
+        if (string.IsNullOrEmpty(str)) return str;
+        return char.ToLowerInvariant(str[0]) + str.Substring(1);
+    }
+
     public static void ClearEquipment(this VisEquipment visEq)
     {
-        ZDO? zdo = visEq.m_nview.GetZDO();
+        ZDO zdo = visEq.m_nview.GetZDO();
         if (zdo == null) return;
 
         zdo.Set(ZDOVars.s_leftItem, 0);
@@ -84,7 +90,7 @@ public static class Helpers
     {
         foreach (FieldInfo field in typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
         {
-            object? value = field.GetValue(source);
+            object value = field.GetValue(source);
             if (value == null) continue;
             field.SetValue(target, value);
         }

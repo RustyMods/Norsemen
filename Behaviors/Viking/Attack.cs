@@ -6,11 +6,11 @@ namespace Norsemen;
 
 public partial class Viking
 {
-    public ItemDrop.ItemData? m_weaponLoaded;
+    public ItemDrop.ItemData m_weaponLoaded;
 
     public EffectList m_dodgeEffects = new();
 
-    public override bool StartAttack(Character? target, bool secondaryAttack)
+    public override bool StartAttack(Character target, bool secondaryAttack)
     {
         if (InAttack() && !HaveQueuedChain() || InDodge() || !CanMove() || IsKnockedBack() || IsStaggering() || InMinorAction()) return false;
     
@@ -26,7 +26,7 @@ public partial class Viking
             m_previousAttack = m_currentAttack;
             m_currentAttack = null;
         }
-        Attack? attack = !secondary ? currentWeapon.m_shared.m_attack.Clone() : currentWeapon.m_shared.m_secondaryAttack.Clone();
+        Attack attack = !secondary ? currentWeapon.m_shared.m_attack.Clone() : currentWeapon.m_shared.m_secondaryAttack.Clone();
         if (!attack.Start(this, m_body, m_zanim, m_animEvent, m_visEquipment, currentWeapon, m_previousAttack,
                 m_timeSinceLastAttack, UnityEngine.Random.Range(0.5f, 1f))) return false;
 
@@ -54,7 +54,7 @@ public partial class Viking
         m_currentAttack = null;
     }
     
-    private void SetWeaponLoaded(ItemDrop.ItemData? weapon)
+    private void SetWeaponLoaded(ItemDrop.ItemData weapon)
     {
         if (weapon == m_weaponLoaded) return;
         m_weaponLoaded = weapon;
@@ -74,7 +74,7 @@ public partial class Viking
     [HarmonyPatch(typeof(Attack), nameof(Attack.FindAmmo))]
     private static class Attack_FindAmmo_Patch
     {
-        private static void Postfix(Humanoid character, ItemDrop.ItemData weapon, ref ItemDrop.ItemData? __result)
+        private static void Postfix(Humanoid character, ItemDrop.ItemData weapon, ref ItemDrop.ItemData __result)
         {
             if (__result != null || character is not Viking viking) return;
 
@@ -83,7 +83,7 @@ public partial class Viking
             switch (weapon.m_shared.m_ammoType)
             {
                 case "$ammo_arrows":
-                    ItemDrop.ItemData? arrow = viking.GetInventory().AddItem("ArrowWood", 10, 1, 0, 0L, "");
+                    ItemDrop.ItemData arrow = viking.GetInventory().AddItem("ArrowWood", 10, 1, 0, 0L, "");
                     if (arrow != null)
                     {
                         __result = arrow;

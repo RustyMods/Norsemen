@@ -19,7 +19,7 @@ public partial class VikingAI
         }
         else
         {
-            EffectArea? noMonsterArea = EffectArea.IsPointCloseToNoMonsterArea(transform.position);
+            EffectArea noMonsterArea = EffectArea.IsPointCloseToNoMonsterArea(transform.position);
             if (noMonsterArea != null)
             {
                 Flee(dt, noMonsterArea.transform.position);

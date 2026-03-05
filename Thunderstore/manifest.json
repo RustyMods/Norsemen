@@ -1,6 +1,6 @@
 {
   "name": "VikingNPC",
-  "version_number": "0.3.0",
+  "version_number": "0.3.2",
   "website_url": "https://github.com/RustyMods/Norsemen",
   "description": "Tameable vikings that can mine, lumber or fish. Friendly unless provoked",
   "dependencies": [

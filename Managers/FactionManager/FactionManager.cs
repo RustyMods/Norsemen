@@ -19,6 +19,8 @@ public static class FactionManager
             postfix: new HarmonyMethod(AccessTools.Method(typeof(FactionManager), nameof(Patch_Enum_GetNames))));
         harmony.Patch(AccessTools.Method(typeof(BaseAI), nameof(BaseAI.IsEnemy), new Type[]{typeof(Character), typeof(Character)}),
             prefix: new HarmonyMethod(AccessTools.Method(typeof(FactionManager), nameof(Patch_BaseAI_IsEnemy))));
+        harmony.Patch(AccessTools.Method(typeof(Enum), nameof(Enum.ToString)),
+            postfix: new HarmonyMethod(AccessTools.Method(typeof(FactionManager), nameof(Patch_Enum_ToString))));
     }
 
     private static bool Patch_BaseAI_IsEnemy(Character a, Character b, ref bool __result)
@@ -27,6 +29,8 @@ public static class FactionManager
         __result = IsEnemy(a, b);
         return false;
     }
+
+
 
     public static bool IsEnemy(Character a, Character b)
     {
@@ -43,7 +47,7 @@ public static class FactionManager
             return IsEnemyToOtherViking(viking, vikingB);
         }
 
-        if (character.GetFaction() == Character.Faction.Players)
+        if (character.IsPlayer())
         {
             return IsEnemyToPlayers(viking);
         }
@@ -75,10 +79,9 @@ public static class FactionManager
                 return false;
             default:
                 bool isCharacterTameable = character.GetComponent<Tameable>();
-                bool isCharacterAlerted = character.m_baseAI.IsAlerted();
                 if (isCharacterTameable)
                 {
-                    return faction.targetTames || isCharacterAlerted;
+                    return faction.targetTames || character.m_baseAI.IsAlerted();
                 }
                 return true;
         }
@@ -109,7 +112,15 @@ public static class FactionManager
         factions.Values.CopyTo(f, __result.Length);
         __result = f;
     }
-
+    
+    public static void Patch_Enum_ToString(Enum __instance, ref string __result)
+    {
+        if (__instance is not Character.Faction faction) return;
+        if (factions.Count == 0) return;
+        if (!customFactions.TryGetValue(faction, out var data)) return;
+        __result = data.name;
+    }
+    
     private static void Patch_Enum_GetNames(Type enumType, ref string[] __result)
     {
         if (enumType != typeof(Character.Faction)) return;
@@ -142,6 +153,7 @@ public static class FactionManager
         }
 
         faction = (Character.Faction)name.GetStableHashCode();
+        
         factions[name] = faction;
         return faction;
 

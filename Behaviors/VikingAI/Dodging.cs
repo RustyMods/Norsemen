@@ -11,7 +11,7 @@ public partial class VikingAI
     private float m_dodgeDistance = 15f; 
     private float m_dodgeThreatDistance = 5f;
     
-    public bool UpdateDodge(float dt, Character? target)
+    public bool UpdateDodge(float dt, Character target)
     {
         if (m_dodgeTimer > 0f)
         {
@@ -22,10 +22,9 @@ public partial class VikingAI
         if (m_dodgeCheckTimer > 0f) return false;
         m_dodgeCheckTimer = m_dodgeCheckInterval;
 
-        if (target == null) return false;
-        
-        if (!IsAlerted() || !m_viking.CanDodge()) return false;
         if (m_dodgeTimer > 0f) return false; 
+        if (target == null) return false;
+        if (!IsAlerted() || !m_viking.CanDodge()) return false;
         
         float distance = Vector3.Distance(target.transform.position, transform.position);
         if (distance > m_dodgeDistance) return false;

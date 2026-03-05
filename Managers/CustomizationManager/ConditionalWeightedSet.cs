@@ -12,7 +12,7 @@ public class ConditionalWeightedSet
     public string RequiredDefeatKey = "";
     public float Weight = 1f;
 
-    [YamlIgnore] private Viking.ConditionalItemSet? _set;
+    [YamlIgnore] private Viking.ConditionalItemSet _set;
     [YamlIgnore] public Viking.ConditionalItemSet set
     {
         get

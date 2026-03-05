@@ -6,9 +6,9 @@ public partial class Viking
 {
     public void RPC_Command(long sender, ZDOID characterID, bool message)
     {
-        Player? player = GetPlayer(characterID);
+        Player player = GetPlayer(characterID);
         if (player == null) return;
-        GameObject? followTarget = m_vikingAI.GetFollowTarget();
+        GameObject followTarget = m_vikingAI.GetFollowTarget();
         if (followTarget == null)
         {
             Follow(player.gameObject, player.GetPlayerName());
@@ -27,8 +27,8 @@ public partial class Viking
             }
         }
     }
-    
-    public Player? GetPlayer(ZDOID characterID)
+
+    private static Player GetPlayer(ZDOID characterID)
     {
         GameObject instance = ZNetScene.instance.FindInstance(characterID);
         return instance ? instance.GetComponent<Player>() : null;
@@ -40,9 +40,9 @@ public partial class Viking
     }
     
     public bool IsFollowing() => GetFollowTarget() != null;
-    public GameObject? GetFollowTarget() => m_vikingAI.GetFollowTarget();
+    public GameObject GetFollowTarget() => m_vikingAI.GetFollowTarget();
     
-    public void Follow(GameObject target, string? playerName)
+    public void Follow(GameObject target, string playerName)
     {
         m_vikingAI.ResetPatrolPoint();
         m_vikingAI.SetFollowTarget(target);
@@ -67,8 +67,8 @@ public partial class Viking
     
     public void UpdateSavedFollowTarget()
     {
-        if (!m_nview.IsOwner() || m_vikingAI.GetFollowTarget() != null) return;
-        string? followName = m_nview.GetZDO().GetString(ZDOVars.s_follow);
+        if (!m_nview.IsOwner() || IsFollowing()) return;
+        string followName = m_nview.GetZDO().GetString(ZDOVars.s_follow);
         if (string.IsNullOrEmpty(followName)) return;
         foreach (Player player in Player.GetAllPlayers())
         {

@@ -61,7 +61,7 @@ public static class CustomizationManager
 
     public static void GetHairAndBeards(ObjectDB db)
     {
-        foreach (GameObject? prefab in db.m_items)
+        foreach (GameObject prefab in db.m_items)
         {
             ItemDrop component = prefab.GetComponent<ItemDrop>();
             if (component.m_itemData.m_shared.m_itemType is not ItemDrop.ItemData.ItemType.Customization) continue;
@@ -197,19 +197,19 @@ public static class CustomizationManager
 
     public static List<ConditionalWeightedSet> GetSets(Heightmap.Biome biome)
     {
-        if (!equipment.TryGetValue(biome, out Equipment? data)) return new();
+        if (!equipment.TryGetValue(biome, out Equipment data)) return new();
         return data.RandomSets;
     }
 
     public static List<ConditionalChanceItem> GetItems(Heightmap.Biome biome)
     {
-        if (!equipment.TryGetValue(biome, out Equipment? data)) return new();
+        if (!equipment.TryGetValue(biome, out Equipment data)) return new();
         return data.RandomItems;
     }
 
     public static List<ConditioanlWeightedItem> GetWeapons(Heightmap.Biome biome)
     {
-        if (!equipment.TryGetValue(biome, out Equipment? data)) return new();
+        if (!equipment.TryGetValue(biome, out Equipment data)) return new();
         return data.RandomWeapons;
     }
 }

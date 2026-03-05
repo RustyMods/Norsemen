@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using BepInEx;
 using BepInEx.Configuration;
+using BepInEx.Logging;
 using HarmonyLib;
 using ServerSync;
 using YamlDotNet.Core;
@@ -28,23 +30,20 @@ public static class ConfigManager
     private static readonly string ConfigFileFullPath;
 
     public static readonly string DirectoryPath;
-    
-    [Flags]
-    public enum LogLevel
-    {
-        None = 0,
-        Debug = 1, 
-        Warning = 2, 
-        Error = 4,
-        Info = 8,
-    }
 
     private static readonly ConfigEntry<LogLevel> logLevels;
+    private static readonly ConfigEntry<Toggle> canHaveStars;
+    private static readonly ConfigEntry<string> reviveRequirements;
 
     public static bool ShouldLog(LogLevel type)
     {
         return logLevels.Value.HasFlag(type);
     }
+
+    public static bool CanHaveStars() => canHaveStars.Value is Toggle.On;
+
+    public static Piece.Requirement[] GetReviveRequirements() =>
+        new RequirementList(reviveRequirements.Value).ToPieceRequirements();
     
     static ConfigManager()
     {
@@ -69,6 +68,9 @@ public static class ConfigManager
         _ = ConfigSync.AddLockingConfigEntry(serverConfigLocked);
 
         logLevels = config("1 - General", "Log Levels", LogLevel.Error, "Set log levels", false);
+        canHaveStars = config("Settings", "Can Have Stars", Toggle.On, "If on, norsemen can have stars");
+        reviveRequirements = config("Settings", "Revive Cost", "",
+            new ConfigDescription("Cost to revive viking", null, RequirementList.attributes));
         
         Harmony harmony = NorsemenPlugin.instance._harmony;
         harmony.Patch(AccessTools.Method(typeof(ZNet), nameof(ZNet.Awake)),

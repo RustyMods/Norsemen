@@ -1,3 +1,15 @@
+# 0.3.3
+- loading inventory on interval to try to make sure their inventory stays synced
+- saving inventory on destroy to try to make sure their inventory stays after player leaves area
+- added debug logs whenever norseman inventory saves
+- 
+# 0.3.2
+- allowed trinkets to be equipped
+- added config to change alt key
+
+# 0.3.1
+- fixed block decision checking if target has baseAI and target is player
+
 # 0.3.0
 - Overhaul
 - Started from scratch to try to fix problems that plagued original version

@@ -16,7 +16,7 @@ public partial class Viking
         
         if (distantTeleport)
         {
-            ZDO? zdo = m_nview.GetZDO();
+            ZDO zdo = m_nview.GetZDO();
             Vector2i sector = ZoneSystem.GetZone(pos);
             zdo.SetPosition(pos);
             zdo.SetRotation(rot);
@@ -64,13 +64,13 @@ public partial class Viking
             List<Viking> allVikings = GetVikings(__instance.transform.position, 20f);
             for (int i = 0; i < allVikings.Count; ++i)
             {
-                Viking? viking = allVikings[i];
-                GameObject? follow = viking.GetFollowTarget();
+                Viking viking = allVikings[i];
+                GameObject follow = viking.GetFollowTarget();
                 if (follow == null || follow != __instance.gameObject) continue;
                 
                 if (!viking.IsTeleportable())
                 {
-                    string? localized = Localization.instance.Localize("$norsemen_cannot_tp");
+                    string localized = Localization.instance.Localize("$norsemen_cannot_tp");
                     string msg = string.Format(localized, viking.GetText());
                     __instance.Message(MessageHud.MessageType.Center, msg);
                     continue;

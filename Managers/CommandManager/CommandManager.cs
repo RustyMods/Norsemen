@@ -87,7 +87,7 @@ public static class CommandManager
         return false;
     }
 
-    private static bool Patch_Terminal_TabCycle(Terminal __instance, string word, List<string>? options, bool usePrefix)
+    private static bool Patch_Terminal_TabCycle(Terminal __instance, string word, List<string> options, bool usePrefix)
     {
         if (options == null || options.Count == 0) return true;
         usePrefix = usePrefix && __instance.m_tabPrefix > char.MinValue;

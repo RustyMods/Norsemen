@@ -10,7 +10,7 @@ public class ConditioanlWeightedItem
     public string RequiredDefeatKey = "";
     public float Weight = 1f;
 
-    [YamlIgnore] private Viking.ConditionalRandomWeapon? _weapon;
+    [YamlIgnore] private Viking.ConditionalRandomWeapon _weapon;
 
     [YamlIgnore] public Viking.ConditionalRandomWeapon weapon
     {

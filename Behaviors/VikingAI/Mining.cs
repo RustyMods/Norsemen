@@ -7,9 +7,9 @@ namespace Norsemen;
 
 public partial class VikingAI
 {
-    public MineRock? m_mineRock;
-    public MineRock5? m_mineRock5;
-    public Destructible? m_destructible;
+    public MineRock m_mineRock;
+    public MineRock5 m_mineRock5;
+    public Destructible m_destructible;
     public Vector3 m_lastMineRock5Point;
     
     public bool UpdateMineRockMining(float dt, ItemDrop.ItemData pickaxe, bool isFollowing)
@@ -103,7 +103,7 @@ public partial class VikingAI
             float closestDistance = float.MaxValue;
             for (int i = 0; i < colliders.Count; ++i)
             {
-                Collider? collider = colliders[i];
+                Collider collider = colliders[i];
                 if (collider == null) continue;
                 Vector3 point;
                 if (collider is MeshCollider { convex: false })
@@ -137,7 +137,7 @@ public partial class VikingAI
         Vector3 point;
         if (m_destructible.m_spawnWhenDestroyed != null)
         {
-            Collider? collider = m_destructible.GetComponentInChildren<Collider>();
+            Collider collider = m_destructible.GetComponentInChildren<Collider>();
             if (collider == null)
             {
                 point = m_destructible.transform.position;
@@ -201,10 +201,10 @@ public partial class VikingAI
     {
         if (m_viking.StartWork(pickaxe))
         {
-            List<DropTable.DropData>? resources = null;
+            List<DropTable.DropData> resources = null;
             if (destructible.m_spawnWhenDestroyed != null)
             {
-                MineRock5? mineRock5 = destructible.m_spawnWhenDestroyed.GetComponent<MineRock5>();
+                MineRock5 mineRock5 = destructible.m_spawnWhenDestroyed.GetComponent<MineRock5>();
                 if (mineRock5 != null)
                 {
                     resources =  mineRock5.m_dropItems.m_drops;
@@ -212,7 +212,7 @@ public partial class VikingAI
             }
             else
             {
-                DropOnDestroyed? dropOnDestroyed = destructible.GetComponent<DropOnDestroyed>();
+                DropOnDestroyed dropOnDestroyed = destructible.GetComponent<DropOnDestroyed>();
                 if (dropOnDestroyed != null)
                 {
                     resources = dropOnDestroyed.m_dropWhenDestroyed.m_drops;

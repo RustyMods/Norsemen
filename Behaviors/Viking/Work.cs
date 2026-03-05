@@ -41,7 +41,7 @@ public partial class Viking
         
         DateTime dateTime = new DateTime(lastWorkTime);
         double difference = (ZNet.instance.GetTime() - dateTime).TotalSeconds;
-        int increment = (int)(difference % 10);
+        int increment = (int)(difference / NorsemanConfigs.GetWorkResourceInterval(prefabName));
         if (increment <= 0)
         {
             increment = 1;
