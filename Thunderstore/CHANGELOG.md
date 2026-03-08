@@ -1,3 +1,6 @@
+# 0.3.4
+- saving inventory after equipping to avoid being naked
+
 # 0.3.3
 - loading inventory on interval to try to make sure their inventory stays synced
 - saving inventory on destroy to try to make sure their inventory stays after player leaves area

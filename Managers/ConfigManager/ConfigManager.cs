@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using ServerSync;
-using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
 namespace Norsemen;
 
+public enum Toggle
+{
+    On = 1,
+    Off = 0
+}
 public static class ConfigManager
 {
     public static readonly ISerializer serializer = new SerializerBuilder()

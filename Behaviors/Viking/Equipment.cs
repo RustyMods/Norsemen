@@ -220,10 +220,18 @@ public partial class Viking
     
     public List<ItemDrop.ItemData> GetEquipment()
     {
-        List<ItemDrop.ItemData> result = new()
-        {
-            m_helmetItem, m_legItem, m_shoulderItem, m_chestItem, m_utilityItem, m_leftItem, m_rightItem, m_ammoItem, m_trinketItem
-        };
+        List<ItemDrop.ItemData> result =
+        [
+            m_helmetItem, 
+            m_legItem, 
+            m_shoulderItem, 
+            m_chestItem, 
+            m_utilityItem, 
+            m_leftItem, 
+            m_rightItem, 
+            m_ammoItem,
+            m_trinketItem
+        ];
         return result;
     }
     
@@ -261,6 +269,7 @@ public partial class Viking
         }
         SetupVisEquipment(m_visEquipment, false);
         GetArmor();
+        Save();
     }
 
     public override void SetupVisEquipment(VisEquipment visEq, bool isRagdoll)

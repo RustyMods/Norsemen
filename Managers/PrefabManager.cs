@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using HarmonyLib;
 using JetBrains.Annotations;
+using LocalizationManager;
 using UnityEngine;
 
 namespace Norsemen;
@@ -46,6 +47,5 @@ public static class PrefabManager
         foreach(Clone clone in Clones) clone.Create();
         foreach(Norseman man in Norsemen) man.Create();
         ConfigManager.SetupWatcher();
-        Localizer.Load();
     }
 }
